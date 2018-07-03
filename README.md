@@ -1,3 +1,12 @@
+Shuffle action!
+
+![2048-not](assets/2048-not.gif)
+
+Such shuffle!
+
+![2048-not](assets/2048-not-16.gif)
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
