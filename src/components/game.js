@@ -36,9 +36,6 @@ class Game extends React.Component {
             board_size: this.state.board_size,
             history: this.state.history
         })
-
-        // setTimeout(() => this.handleClick('blah'), 1500)
-        // console.log(this.state.history.length)
     }
 
     shuffle(tiles) {
@@ -69,7 +66,7 @@ class Game extends React.Component {
     render() {
         const history = this.state.history
         const current = history[history.length - 1]
-        setTimeout(() => this.handleClick('blah'), 1500)
+        setTimeout(() => this.handleClick('blah'), 800)
 
         return (
             <div>
