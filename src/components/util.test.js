@@ -78,11 +78,13 @@ it('transitions tiles to next higher value', () => {
 })
 
 
-it('transitions an array of [0, 0, 0, 0] to [0, 0, 0, 0]', () =>  {
-    let tiles = util.createBoard(2)
-    let {transitioned, points} = util.transitionArray(tokens, transitions, tiles)
+it('transitions a row array of [0, 0, 0, 0] to [0, 0, 0, 0]', () =>  {
+    let board = util.createBoard(4)
+    let tiles = util.getRow(board, 0)  // [0, 0, 0, 0]
+    let {transitioned, points} = util.transitionArray(tokens, transitions, tiles, 'x')
     expect(transitioned.length).toBe(4)
     expect(points).toBe(0)
+    expect(transitioned.every(tile => tile.value === 0)).toBe(true)
     // prove the transitioned array is a new array
     tiles.pop()
     expect(tiles.length).toBe(3)
@@ -90,18 +92,68 @@ it('transitions an array of [0, 0, 0, 0] to [0, 0, 0, 0]', () =>  {
 })
 
 
-it('transitions an array of [2, 0, 0, 0] to [2, 0, 0, 0]', () =>  {
-    let tiles = util.createBoard(2)
-    let {transitioned, points} = util.transitionArray(tokens, transitions, tiles)
+it('transitions a column array of [0, 0, 0, 0] to [0, 0, 0, 0]', () =>  {
+    let board = util.createBoard(4)
+    let tiles = util.getColumn(board, 0)  // [0, 0, 0, 0]
+    let {transitioned, points} = util.transitionArray(tokens, transitions, tiles, 'x')
     expect(transitioned.length).toBe(4)
     expect(points).toBe(0)
-    expect(transitioned[0].value).toBe(2)
-
+    expect(transitioned.every(tile => tile.value === 0)).toBe(true)
     // prove the transitioned array is a new array
     tiles.pop()
     expect(tiles.length).toBe(3)
     expect(transitioned.length).toBe(4)
 })
+
+
+it('transitions a row array of [2, 0, 0, 0] to [2, 0, 0, 0]', () =>  {
+    let board = util.createBoard(4, [2])
+    let tiles = util.getRow(board, 0)  // [2, 0, 0, 0]
+    let {transitioned, points} = util.transitionArray(tokens, transitions, tiles, 'x')
+    expect(transitioned.length).toBe(4)
+    expect(points).toBe(0)
+    let first = transitioned[0]
+    expect(first.value === 2).toBe(true)
+    expect(first.x).toBe(0)
+    expect(first.y).toBe(0)
+    expect(transitioned.slice(1).every(tile => tile.value === 0)).toBe(true)
+    // prove the transitioned array is a new array
+    tiles.pop()
+    expect(tiles.length).toBe(3)
+    expect(transitioned.length).toBe(4)
+})
+
+
+it('transitions a row array of [0, 0, 0, 2] to [2, 0, 0, 0]', () =>  {
+    let board = util.createBoard(4, [0, 0, 0, 2])
+    let tiles = util.getRow(board, 0)  // [0, 0, 0, 2]
+    let {transitioned, points} = util.transitionArray(tokens, transitions, tiles, 'x')
+    expect(transitioned.length).toBe(4)
+    expect(points).toBe(0)
+    let last = transitioned.find(tile => tile.id === 3)
+    expect(last.value === 2).toBe(true)
+    expect(last.x).toBe(0)  // was 3 before transition
+    expect(last.y).toBe(0)  // was 3 before transition
+    expect(last.value === 2).toBe(true)
+    expect(transitioned.filter(tile => tile.id !== 3).every(tile => tile.value === 0)).toBe(true)
+    // prove the transitioned array is a new array
+    tiles.pop()
+    expect(tiles.length).toBe(3)
+    expect(transitioned.length).toBe(4)
+})
+
+// it('transitions an array of [2, 0, 0, 0] to [2, 0, 0, 0]', () =>  {
+//     let tiles = util.createBoard(4)
+//     let {transitioned, points} = util.transitionArray(tokens, transitions, tiles)
+//     expect(transitioned.length).toBe(16)
+//     expect(points).toBe(0)
+//     expect(transitioned[0].value).toBe(2)
+//
+//     // prove the transitioned array is a new array
+//     tiles.pop()
+//     expect(tiles.length).toBe(15)
+//     expect(transitioned.length).toBe(16)
+// })
 
 
 // it('transitions an array of [2, 2, 0, 0] to [4, 0, 0, 0]', () =>  {

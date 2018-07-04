@@ -9,7 +9,7 @@ class Game extends React.Component {
         this.state = {
             board_size: board_size,
             history: [{
-                tiles: util.createBoard(board_size)
+                tiles: util.createBoard(board_size, Array.from(Array(16).keys()))
             }],
         }
     }

@@ -65,30 +65,53 @@ function transition(tokens, transitions, tile) {
 }
 
 
-function transitionArray(tokens, transitions, tiles) {
+function transitionArray(tokens, transitions, tiles, axis, animation_duration) {
     let points = 0
     let transitioned = []
 
-    let helper = (arr) => {
-        if (arr.length === 1) {
-            return arr
+    let valued_tiles = []
+    let zeroed_tiles = []
+    tiles.map(tile => {
+        if (tile.value !== 0) {
+            valued_tiles.push(Object.assign({}, tile))
         }
-        if (arr.length === 0) {
-            return []
+        else {
+            zeroed_tiles.push(Object.assign({}, tile))
         }
-        if (arr.every(el => el === 0)) {
-            return arr
+    })
+
+    // merge valued_tiles if matching
+    for(let i = 0; i < valued_tiles.length; i++) {
+        if(i + 1 < valued_tiles.length) {
+            let current = valued_tiles[i]
+            let next = valued_tiles[i+1]
+            if(current.value === next.value) {
+                next.x = current.x
+                next.y = current.y
+                points += current.value
+                next = transition(tokens, transitions, next)
+
+                transitioned.push(current, next)
+                i++;  // skip next because we just handled it
+            }
+            else {
+                transitioned.push(current)
+            }
         }
+        else {
+            transitioned.push(valued_tiles[i])
+        }
+
     }
 
-    helper(tiles)
+    transitioned = transitioned.concat(zeroed_tiles)
 
-    // perform zero padding if necessary
-    if(transitioned.length < tiles.length) {
-        while(transitioned.length < tiles.length) {
-            transitioned.push(0)
-        }
-    }
+    // now set the coordinates
+    transitioned = transitioned.map((tile, index) => {
+        tile[axis] = index
+        return tile
+    })
+
 
     return {transitioned, points}
 }
