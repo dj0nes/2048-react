@@ -12,10 +12,14 @@ function Board(props) {
         style += `.col-${i} {left: ${i * (box_size + gutter)}em}`
     }
 
+    let board_cells = []
+    for(let i = 0; i < Math.pow(props.board_size, 2); i++) {
+        board_cells.push(<div className={'cell'} key={i}/>)
+    }
 
     let tiles = props.tiles
     let board_size = props.board_size
-    let tilesList = tiles.map((tile, i) => <Tile value={tile.value}
+    let tilesList = tiles.map((tile) => <Tile value={tile.value}
                                                  key={tile.id}
                                                  id={tile.id}
                                                  x={tile.x}
@@ -24,9 +28,10 @@ function Board(props) {
                                                  handleClick={(i) => props.handleClick(i)}
                                             />)
     return (
-        <div>
+        <div id="board">
             <style>{style}</style>
-            <dl>{tilesList}</dl>
+            <div className={'grid-container'}>{board_cells}</div>
+            <div className={'tiles'}>{tilesList}</div>
         </div>
     )
 }
