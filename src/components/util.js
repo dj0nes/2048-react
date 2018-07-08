@@ -1,17 +1,6 @@
-function createTile(id, value, x, y) {
-    return {id, value, x, y}
-}
+let global_id = 0;
 
 
-function createBoard(board_size, values) {
-    let arraySize = Math.pow(board_size, 2)
-    let arr = []
-    let vals = values || []
-    for(let i = 0; i < arraySize; i++) {
-        arr.push(createTile(i, vals[i] || 0, i % board_size, Math.floor(i / board_size)))
-    }
-    return arr
-}
 
 
 function shuffle(tiles) {
