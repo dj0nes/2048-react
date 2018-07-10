@@ -1,0 +1,323 @@
+import React from 'react'
+import Tile from './components/tile'
+import BoardMap from './BoardMap'
+
+let global_id = 0
+
+export function createTile({id, value, ...rest}) {
+    if (id === undefined) id = global_id++
+    return Object.assign({id, value}, rest)
+}
+
+export function* getSequence(board, board_dimensions, direction, location) {
+    let [iteration_dimension, iteration_direction] = Object.entries(direction)
+        .filter(([dim, dir]) => dir !== 0)
+        .pop()
+
+    let index = 0
+    if (iteration_direction < 0) {
+        index = board_dimensions[iteration_dimension] - 1
+    }
+
+    while (index < board_dimensions[iteration_dimension] &&
+    index >= 0) {
+        let location_copy = Object.assign({}, location)
+        let coordinate = Object.assign(location_copy, {[iteration_dimension]: index})
+        yield([coordinate, board.get(coordinate)])
+        index += iteration_direction
+    }
+}
+
+export function getAllCoordinates(board_dimensions) {
+    let all_locations = []
+    for (const [dimension, length] of Object.entries(board_dimensions)) {
+        let dimension_locations = []
+        for (let i of [...Array(length).keys()]) {
+            let dim_obj = {}
+            dim_obj[dimension] = i
+            dimension_locations.push(dim_obj)
+        }
+        all_locations.push(dimension_locations)
+    }
+
+    let all_locations_copy = JSON.parse(JSON.stringify(all_locations))
+
+    function helper(remaining_dimensions, pairs) {
+        if (remaining_dimensions.length === 0) {
+            return pairs
+        }
+
+        let dimension = remaining_dimensions.pop()
+
+        if (pairs.length === 0) {
+            return helper(remaining_dimensions, dimension)
+        }
+
+        let extended_pairs = []
+        for (let location of dimension) {
+            for (let pair of pairs) {
+                let location_copy = Object.assign({}, location)
+                let extended_pair = Object.assign(location_copy, pair)
+                extended_pairs.push(extended_pair)
+            }
+        }
+
+        return helper(remaining_dimensions, extended_pairs)
+    }
+
+    let all_coordinates = helper(all_locations_copy, [])
+    return {all_locations, all_coordinates}
+}
+
+export function mergeSequence(sequence, tokens, transitions) {
+    let merged = []
+    for (let kv_pair of sequence) {
+        let [coordinates, tiles] = kv_pair
+        if (tiles === undefined || tiles.length === 0) {
+            merged.push([coordinates, []])
+            continue
+        }
+
+        let previous_tile = {value: -1}
+        let new_tiles = []
+        while (tiles.length > 0) {
+            let tile = tiles.pop()
+            let prev_matching_tiles = []
+
+            // if there is a tile at coordinates before current that match this value,
+            // move this tile to those coordinates
+            if (merged.length > 0) {
+                let index = merged.length - 1
+                let merge_target = false
+                let merge_contents = []
+                while (index >= 0) {
+                    let previous_kv_pair = merged[index]
+                    let [previous_merged_coord, prev_merged_tiles] = previous_kv_pair
+                    prev_matching_tiles = prev_merged_tiles.filter(merged_tile => merged_tile.value === tile.value)
+
+                    if (prev_merged_tiles.length > 0 && prev_merged_tiles.every(tile => tile.value === 0)) {
+                        // skip zeros
+                        index--
+                        continue
+                    }
+                    if (prev_merged_tiles.length === 0 && tile.value !== 0) {
+                        merge_target = prev_merged_tiles
+                        merge_contents = [tile]
+                    }
+                    else if (prev_matching_tiles.length > 1) {
+                        // more than one match in previous cell - not sure this is desired, but skipping
+                        break
+                    }
+                    else if (prev_matching_tiles.length === 1) {
+                        let matching_tile = prev_matching_tiles.pop()
+                        matching_tile.merged_from = tile.value
+                        matching_tile.merged_to = this.transitionToken(tokens, transitions, matching_tile.value)
+                        tile.remove = true
+                        merge_target = prev_merged_tiles
+                        merge_contents = [matching_tile, tile]
+                    }
+                    else {
+                        break
+                    }
+
+                    if (merge_contents.length === 0) {
+                        merge_contents = tile
+                    }
+
+                    index--
+                }
+
+                if (merge_target) {
+                    merge_contents.forEach(tile => {
+                        if (!merge_target.includes(tile)) merge_target.push(tile)
+                    })
+                    break
+                }
+                else {
+                    new_tiles.concat(merge_contents)
+                }
+            }
+
+            if (tile.value === previous_tile.value) {
+                // one of them has to go, so we'll skip this one
+                // not updating previous var since this one is now gone
+                continue
+            }
+            else if (tile.value === 0) {
+                // ignore zero-valued tiles, they shouldn't exist
+                continue
+            }
+            else if (tile.value === 0) {
+                // ignore zero-valued tiles, they shouldn't exist
+                continue
+            }
+            else {
+                new_tiles.push(tile)
+                previous_tile = tile
+            }
+        }
+
+        merged.push([coordinates, new_tiles])
+    }
+
+    return merged
+}
+
+export function transitionToken(tokens, transitions, token) {
+    let index = tokens.indexOf(token)
+    if (index >= 0) {
+        return transitions[index]
+    }
+    else {
+        console.error('invalid token: ' + token)
+        return -1
+    }
+}
+
+export function transitionTile(tokens, transitions, tile) {
+    let index = tokens.indexOf(tile.value)
+    let new_tile = Object.assign({}, tile)
+    if (index >= 0) {
+        new_tile.value = transitions[index]
+        return new_tile
+    }
+    else {
+        console.error('invalid token: ' + new_tile.value)
+        return new_tile
+    }
+}
+
+export function tileCleanup(board, board_dimensions) {
+    let {all_locations, all_coordinates} = this.getAllCoordinates(board_dimensions)
+    for (let coordinates of all_coordinates) {
+        let tiles = board.get(coordinates)
+
+        if (tiles === undefined || tiles.length === 0) {
+            continue
+        }
+
+        tiles = tiles.filter(tile => !tile.remove)
+        let cleaned_tiles = []
+        tiles.map(tile => {
+            if (tile.remove) {
+                return
+            }
+
+            if (tile.merged_to) {
+                tile.value = tile.merged_to
+                delete tile.merged_to
+                delete tile.merged_from
+            }
+
+            cleaned_tiles.push(tile)
+        })
+
+        board.set(coordinates, cleaned_tiles)
+    }
+
+    return board
+}
+
+export function sequenceCleanup(sequence) {
+    let cleaned_sequence = []
+    for (let [coordinates, tiles] of sequence) {
+        if (tiles === undefined) {
+            tiles = []
+        }
+
+        tiles = tiles.filter(tile => !tile.remove)
+        let cleaned_tiles = []
+        tiles.map(tile => {
+
+            // tile = Object.assign({}, tile)  // make a copy
+            if (tile.remove) {
+                return
+            }
+
+            if (tile.merged_to) {
+                tile.value = tile.merged_to
+                delete tile.merged_to
+                delete tile.merged_from
+            }
+
+            cleaned_tiles.push(tile)
+        })
+
+        cleaned_sequence.push([coordinates, cleaned_tiles])
+    }
+
+    return cleaned_sequence
+}
+
+export function mergeLocation(board, board_dimensions, direction, location, tokens, transitions) {
+    let getSequence = this.getSequence(board, board_dimensions, direction, location)
+    let sequence = []
+    let done = false
+    while (!done) {
+        let iteration = getSequence.next()
+        if (iteration.value) {
+            sequence.push(iteration.value)
+        }
+        done = iteration.done
+    }
+
+    sequence = this.sequenceCleanup(sequence)
+    return this.mergeSequence(sequence, tokens, transitions)
+}
+
+export function getMoveDimensionDirection(direction) {
+    let [move_dimension, move_direction] = Object.entries(direction)
+        .filter(([dim, dir]) => dir !== 0)
+        .pop()
+    return {move_dimension, move_direction}
+}
+
+export function getMoveSequences(board_dimensions, direction) {
+    // in an n-dimensional space, returns all n-1 dimensional sequence coordinates for merge
+    // ie for 3D board {x:3, y:3, z:3} with direction {x:0, y:1, z:0}, this returns
+    // [{x:0, z:0}, {x:0, z:1}, {x:0, z:2}, {x:0, z:3}, {x:1, z:0},  ... {x:3, z:3}]
+    let coordinate_dimensions = {}
+    for (let dimension in direction) {
+        let direction_value = direction[dimension]
+        if (direction_value === 0) {
+            coordinate_dimensions[dimension] = board_dimensions[dimension]
+        }
+    }
+
+    let {all_locations, all_coordinates} = this.getAllCoordinates(coordinate_dimensions)
+    return all_coordinates
+}
+
+export function mergeBoard(board, board_dimensions, direction, tokens, transitions) {
+    let move_sequences = this.getMoveSequences(board_dimensions, direction)
+    let merged_kv_pairs = []
+    for (let location of move_sequences) {
+        let result = this.mergeLocation(board, board_dimensions, direction, location, tokens, transitions)
+        merged_kv_pairs = merged_kv_pairs.concat(result)
+    }
+
+    let next_board_map = new BoardMap(merged_kv_pairs)
+    return next_board_map
+}
+
+// export function shuffle(tiles) {
+//     let tiles_to_shuffle = tiles.map(obj => Object.assign({}, obj))
+//     let used_indices = new Set()
+//     let all_indices = new Set()
+//     let board_size = Math.sqrt(tiles.length)
+//     for(let i = 0; i < board_size; i++) {
+//         for(let j = 0; j < board_size; j++) {
+//             all_indices.add({x: i, y: j})
+//         }
+//     }
+//
+//     return tiles_to_shuffle.map(tile => {
+//         let unused_indices = [...all_indices].filter(x => !used_indices.has(x)) // all - used = unused
+//         let random_index = Math.floor(Math.random() * unused_indices.length)
+//         let index = unused_indices[random_index]
+//         used_indices.add(index)
+//         tile.x = index.x
+//         tile.y = index.y
+//         return tile
+//     })
+// }

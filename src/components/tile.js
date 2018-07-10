@@ -5,8 +5,8 @@ function Tile(props) {
 
     return (
         <div className={`tile
-        row-${props.y}
-        col-${props.x}
+        row-${props.coordinates.y}
+        col-${props.coordinates.x}
         ${zero}`}
         onClick={() => props.handleClick(props)}
         >
