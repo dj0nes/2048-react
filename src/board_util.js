@@ -99,11 +99,11 @@ export function getAllCoordinates(board_dimensions) {
 }
 
 export function mergeSequence(sequence, tokens) {
-    let merged = []
+    let merged_sequence = []
     for (let kv_pair of sequence) {
         let [coordinates, tiles] = kv_pair
         if (tiles === undefined || tiles.length === 0) {
-            merged.push([coordinates, []])
+            merged_sequence.push([coordinates, []])
             continue
         }
 
@@ -115,12 +115,12 @@ export function mergeSequence(sequence, tokens) {
 
             // if there is a tile at coordinates before current that match this value,
             // move this tile to those coordinates
-            if (merged.length > 0) {
-                let index = merged.length - 1
+            if (merged_sequence.length > 0) {
+                let index = merged_sequence.length - 1
                 let merge_target = false
                 let merge_contents = []
                 while (index >= 0) {
-                    let previous_kv_pair = merged[index]
+                    let previous_kv_pair = merged_sequence[index]
                     let [/* previous_merged_coord */, prev_merged_tiles] = previous_kv_pair
                     prev_matching_tiles = prev_merged_tiles.filter(merged_tile => merged_tile.value === tile.value)
 
@@ -186,10 +186,10 @@ export function mergeSequence(sequence, tokens) {
             }
         }
 
-        merged.push([coordinates, new_tiles])
+        merged_sequence.push([coordinates, new_tiles])
     }
 
-    return merged
+    return {merged_sequence}
 }
 
 export function transitionToken(tokens, token) {
@@ -285,8 +285,8 @@ export function mergeBoard(board, board_dimensions, direction, tokens) {
     let move_sequences = this.getMoveSequences(board_dimensions, direction)
     let merged_kv_pairs = []
     for (let location of move_sequences) {
-        let result = this.mergeLocation(board, board_dimensions, direction, location, tokens)
-        merged_kv_pairs = merged_kv_pairs.concat(result)
+        let {merged_sequence} = this.mergeLocation(board, board_dimensions, direction, location, tokens)
+        merged_kv_pairs = merged_kv_pairs.concat(merged_sequence)
     }
 
     return new Board_map(merged_kv_pairs)
