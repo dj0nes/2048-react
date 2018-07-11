@@ -3,17 +3,17 @@ import * as BoardUtil from '../board_util'
 import Board_map from '../board_map'
 import Board from './board'
 
-const KEY = {
-    LEFT:  37,
-    RIGHT: 39,
-    UP: 38,
-    DOWN: 40,
-    W: 87,
-    S: 83,
-    A: 65,
-    D: 68,
-    SPACE: 32
-};
+// const KEY = {
+//     LEFT:  37,
+//     RIGHT: 39,
+//     UP: 38,
+//     DOWN: 40,
+//     W: 87,
+//     S: 83,
+//     A: 65,
+//     D: 68,
+//     SPACE: 32
+// };
 
 class Game extends React.Component {
     constructor(props) {

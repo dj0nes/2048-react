@@ -1,4 +1,3 @@
-import React from 'react'
 import Board_map from './board_map'
 
 let global_id = 0
@@ -90,7 +89,7 @@ export function mergeSequence(sequence, tokens, transitions) {
                 let merge_contents = []
                 while (index >= 0) {
                     let previous_kv_pair = merged[index]
-                    let [previous_merged_coord, prev_merged_tiles] = previous_kv_pair
+                    let [/* previous_merged_coord */, prev_merged_tiles] = previous_kv_pair
                     prev_matching_tiles = prev_merged_tiles.filter(merged_tile => merged_tile.value === tile.value)
 
                     if (prev_merged_tiles.length > 0 && prev_merged_tiles.every(tile => tile.value === 0)) {
@@ -185,37 +184,6 @@ export function transitionTile(tokens, transitions, tile) {
     }
 }
 
-export function tileCleanup(board, board_dimensions) {
-    let {all_locations, all_coordinates} = this.getAllCoordinates(board_dimensions)
-    for (let coordinates of all_coordinates) {
-        let tiles = board.get(coordinates)
-
-        if (tiles === undefined || tiles.length === 0) {
-            continue
-        }
-
-        tiles = tiles.filter(tile => !tile.remove)
-        let cleaned_tiles = []
-        tiles.map(tile => {
-            if (tile.remove) {
-                return
-            }
-
-            if (tile.merged_to) {
-                tile.value = tile.merged_to
-                delete tile.merged_to
-                delete tile.merged_from
-            }
-
-            cleaned_tiles.push(tile)
-        })
-
-        board.set(coordinates, cleaned_tiles)
-    }
-
-    return board
-}
-
 export function sequenceCleanup(sequence) {
     let cleaned_sequence = []
     for (let [coordinates, tiles] of sequence) {
@@ -225,7 +193,7 @@ export function sequenceCleanup(sequence) {
 
         tiles = tiles.filter(tile => !tile.remove)
         let cleaned_tiles = []
-        tiles.map(tile => {
+        tiles.forEach(tile => {
 
             // tile = Object.assign({}, tile)  // make a copy
             if (tile.remove) {
@@ -282,7 +250,7 @@ export function getMoveSequences(board_dimensions, direction) {
         }
     }
 
-    let {all_locations, all_coordinates} = this.getAllCoordinates(coordinate_dimensions)
+    let {all_coordinates} = this.getAllCoordinates(coordinate_dimensions)
     return all_coordinates
 }
 
@@ -294,8 +262,7 @@ export function mergeBoard(board, board_dimensions, direction, tokens, transitio
         merged_kv_pairs = merged_kv_pairs.concat(result)
     }
 
-    let next_board_map = new Board_map(merged_kv_pairs)
-    return next_board_map
+    return new Board_map(merged_kv_pairs)
 }
 
 // export function shuffle(tiles) {
