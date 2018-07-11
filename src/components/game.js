@@ -1,6 +1,6 @@
 import React from 'react'
-import * as BoardUtil from '../BoardUtil'
-import BoardMap from '../BoardMap'
+import * as BoardUtil from '../board_util'
+import Board_map from '../board_map'
 import Board from './board'
 
 const KEY = {
@@ -44,7 +44,7 @@ class Game extends React.Component {
         this.state = {
             board_size: this.board_size,
             score: 0,
-            history: [new BoardMap(kv_pairs)]
+            history: [new Board_map(kv_pairs)]
         }
     }
 

@@ -1,32 +1,36 @@
 import React from 'react'
 
-export default class BoardMap extends React.Component {
+export default class Board_map extends React.Component {
     // ES6 map stores objects by symbol, but I want them by equality
     // I know all passed 'values will be primitives, and so get stringified properly
     // if that isn't the case, then some manual stringification will be necessary
     constructor(kv_pairs = []) {
         super()
-
-        this.coordinates = {}
-
-        // let transformed_pairs = kv_pairs.map(pair => {
-        //     let [key, value] = pair
-        //     return [this.stringify(key), value]
-        // })
+        this.coordinates = {}  // coordinates storage
 
         for(let pair of kv_pairs) {
             let [key, value] = pair
-            console.log(key)
-            console.log(value)
-            console.dir(this)
-            this.set(key, value)
-            if(value !== undefined &&
-                ((Array.isArray(value) && value.length > 0) || value.constructor.name === 'Object'))
-            {
-                console.log(`this2: ${this}`)
-                console.dir(this)
-                this.set(key, value)
+            let value_is_array = Array.isArray(value)
+            let value_is_object = value.constructor.name === 'Object'
+
+            if(value === undefined) {
+                continue
             }
+
+            if(value_is_array) {
+                let value_array_is_empty = value.length === 0
+                let value_array_has_only_zero_values = value.every(tile => tile.value === 0)
+
+                if(value_array_is_empty || value_array_has_only_zero_values) {
+                    continue
+                }
+            }
+
+            if(value_is_object && value.value === 0) {
+                continue
+            }
+
+            this.set(key, value)
         }
 
     }

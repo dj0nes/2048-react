@@ -1,5 +1,5 @@
-import BoardMap from './BoardMap';
-import BoardUtil from './BoardUtil';
+import BoardMap from './board_map';
+import * as BoardUtil from './board_util';
 
 
 it('creates a new empty board_map', () => {
@@ -8,25 +8,62 @@ it('creates a new empty board_map', () => {
     expect(board_map instanceof BoardMap).toBe(true);
 });
 
-it('alphabetizes keys properly', () => {
+it('stringifies keys properly', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
     let board_map = new BoardMap()
-    expect(board_map.stringify(tile0_coordinates)).toBe('[{x:0},{y:0}]')
-    expect(board_map.stringify(tile1_coordinates)).toBe('[{x:0},{y:1}]')
+
+    expect(board_map.stringify(tile0_coordinates)).toBe('[{"x":0},{"y":0}]')
+    expect(board_map.stringify(tile1_coordinates)).toBe('[{"x":0},{"y":1}]')
 
     // order shouldn't matter, object keys are unordered anyway, so this is just a smoke test
     let tile0_alias = {y:0, x:0}
     let tile1_alias = {y:1, x:0}
-    expect(board_map.stringify(tile0_alias)).toBe('[{x:0},{y:0}]')
-    expect(board_map.stringify(tile1_alias)).toBe('[{x:0},{y:1}]')
+    expect(board_map.stringify(tile0_alias)).toBe('[{"x":0},{"y":0}]')
+    expect(board_map.stringify(tile1_alias)).toBe('[{"x":0},{"y":1}]')
+});
+
+it('unStringifies keys properly', () => {
+    let tile0_coordinates = {x:0, y:0}
+    let tile1_coordinates = {x:0, y:1}
+    let board_map = new BoardMap()
+
+    let stringified0 = board_map.stringify(tile0_coordinates)
+    let stringified1 = board_map.stringify(tile1_coordinates)
+
+    expect(stringified0).toBe('[{"x":0},{"y":0}]')
+    expect(stringified1).toBe('[{"x":0},{"y":1}]')
+
+    let unStringified0 = board_map.unStringify((stringified0))
+    let unStringified1 = board_map.unStringify((stringified1))
+
+    expect(unStringified0).toEqual([{"x": 0}, {"y": 0}])
+    expect(unStringified1).toEqual([{"x": 0}, {"y": 1}])
+});
+
+it('getCoordinatesFromKey keys properly', () => {
+    let tile0_coordinates = {x:0, y:0}
+    let tile1_coordinates = {x:0, y:1}
+    let board_map = new BoardMap()
+
+    let stringified0 = board_map.stringify(tile0_coordinates)
+    let stringified1 = board_map.stringify(tile1_coordinates)
+
+    expect(stringified0).toBe('[{"x":0},{"y":0}]')
+    expect(stringified1).toBe('[{"x":0},{"y":1}]')
+
+    let getCoordinatesFromKey0 = board_map.getCoordinatesFromKey((stringified0))
+    let getCoordinatesFromKey1 = board_map.getCoordinatesFromKey((stringified1))
+
+    expect(getCoordinatesFromKey0).toEqual(tile0_coordinates)
+    expect(getCoordinatesFromKey1).toEqual(tile1_coordinates)
 });
 
 describe('BoardMap has these accessors:', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
-    let tile0 = BoardUtil.createTile({value: 0, location: {x:0, y:0}, id: 0})
-    let tile1 = BoardUtil.createTile({value: 0, location: {x:0, y:1}, id: 1})
+    let tile0 = BoardUtil.createTile({value: 2, location: {x:0, y:0}, id: 0})
+    let tile1 = BoardUtil.createTile({value: 2, location: {x:0, y:1}, id: 1})
     let kv_pairs = [
         [tile0_coordinates, tile0],
         [tile1_coordinates, tile1]

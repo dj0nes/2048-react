@@ -1,6 +1,5 @@
 import React from 'react'
-import Tile from './components/tile'
-import BoardMap from './BoardMap'
+import Board_map from './board_map'
 
 let global_id = 0
 
@@ -19,8 +18,7 @@ export function* getSequence(board, board_dimensions, direction, location) {
         index = board_dimensions[iteration_dimension] - 1
     }
 
-    while (index < board_dimensions[iteration_dimension] &&
-    index >= 0) {
+    while (index < board_dimensions[iteration_dimension] && index >= 0) {
         let location_copy = Object.assign({}, location)
         let coordinate = Object.assign(location_copy, {[iteration_dimension]: index})
         yield([coordinate, board.get(coordinate)])
@@ -296,7 +294,7 @@ export function mergeBoard(board, board_dimensions, direction, tokens, transitio
         merged_kv_pairs = merged_kv_pairs.concat(result)
     }
 
-    let next_board_map = new BoardMap(merged_kv_pairs)
+    let next_board_map = new Board_map(merged_kv_pairs)
     return next_board_map
 }
 
