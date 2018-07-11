@@ -10,6 +10,48 @@ function idSort(tiles) {
     })
 }
 
+
+it('generates 2048 tokens', () => {
+    let result = BoardUtil.generate2048Tokens()
+    expect(result[1]).toEqual(undefined)
+    expect(result[2]).toEqual({
+        transition_to: 4,
+        points: 4
+    })
+    expect(result[3]).toEqual(undefined)
+    expect(result[4]).toEqual({
+        transition_to: 8,
+        points: 8
+    })
+    expect(result[1024]).toEqual({
+        transition_to: 2048,
+        points: 2048
+    })
+})
+
+describe('range function', () => {
+    it('generates values given a stop value only', () => {
+        let result = BoardUtil.range(3)
+        expect(result).toEqual([0, 1, 2])
+    })
+
+    it('generates values given a start and stop value', () => {
+        let result = BoardUtil.range(0, 3)
+        expect(result).toEqual([0, 1, 2])
+        result = BoardUtil.range(2, 3)
+        expect(result).toEqual([2])
+    })
+
+    it('generates values given start, stop, and step values', () => {
+        let result = BoardUtil.range(0, 3, 1)
+        expect(result).toEqual([0, 1, 2])
+        result = BoardUtil.range(0, 4, 2)
+        expect(result).toEqual([0, 2])
+        result = BoardUtil.range(0, 5, 2)
+        expect(result).toEqual([0, 2, 4])
+    })
+})
+
 it('creates tiles with generated ids and optional values', () => {
     let tile0 = BoardUtil.createTile({value: 0, location: {x:0, y:0}})
     let tile1 = BoardUtil.createTile({value: 0, location: {x:0, y:1}})

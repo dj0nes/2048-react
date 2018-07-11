@@ -2,6 +2,38 @@ import Board_map from './board_map'
 
 let global_id = 0
 
+export function range(start = 0, stop, step = 1) {
+    if(stop === undefined) {
+        // then this was passed only one parameter, which should be interpreted as the stop value
+        stop = start
+        start = 0
+    }
+
+    let result = []
+    let i = start
+    while(i < stop) {
+        result.push(i)
+        i += step
+    }
+
+    return result
+}
+
+export function generate2048Tokens() {
+    let tokens = {}
+    let range = this.range(1, 12)
+    for(let exponent of range) {
+        let value = Math.pow(2, exponent)
+        let next_value = Math.pow(2, exponent + 1)
+        tokens[value] = {
+            transition_to: next_value,
+            points:next_value
+        }
+    }
+
+    return tokens
+}
+
 export function createTile({id, value, ...rest}) {
     if (id === undefined) id = global_id++
     return Object.assign({id, value}, rest)
