@@ -148,6 +148,13 @@ it('returns all move sequences in 3D', () => {
     expect(move_sequences).toEqual(move_sequences_answer)
 });
 
+it('transitions tokens as expected', () => {
+    let tile0 = BoardUtil.createTile({value: 2, id: 0})
+    let {transitioned_token, transitioned_points} = BoardUtil.transitionToken(tokens, tile0.value)
+    expect(transitioned_token).toEqual(4)
+    expect(transitioned_points).toEqual(4)
+})
+
 describe('get all coordinates ', () => {
     it('for 1 dimension', () => {
         let {all_locations, all_coordinates} = BoardUtil.getAllCoordinates({x:3})
@@ -709,7 +716,8 @@ describe('board merging in 2D', () => {
         let board_dimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let merged_board = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points).toEqual(0)
         expect(tile0.value).toEqual(2)
         expect(tile0.merged_to).toEqual(undefined)
         expect(merged_board.get(tile0_coordinates)).toEqual([tile0])
@@ -738,7 +746,8 @@ describe('board merging in 2D', () => {
         let board_dimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let merged_board = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points).toEqual(4)
         expect(tile0.value).toEqual(2)
         expect(tile0.merged_to).toEqual(undefined)
         expect(tile1.value).toEqual(4)
@@ -774,7 +783,8 @@ describe('board merging in 2D', () => {
         let board_dimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let merged_board = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points).toEqual(8)
         expect(tile0.value).toEqual(2)
         expect(tile0.merged_to).toEqual(4)
         expect(tile1.value).toEqual(2)
@@ -804,7 +814,8 @@ describe('board merging in 2D', () => {
         let board_dimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let merged_board = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points).toEqual(8)
         expect(tile3.value).toEqual(2)
         expect(tile3.merged_to).toEqual(4)
         expect(tile1.value).toEqual(2)
@@ -868,7 +879,8 @@ describe('board merging in 3D', () => {
         let direction = {x: 0, y: 0, z:1}
         let board_map = new BoardMap(kv_pairs)
 
-        let merged_board = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points).toEqual(4)
         // this one should have been transitioned
         expect(tile0.value).toEqual(2)
         expect(tile0.merged_to).toEqual(4)
@@ -897,10 +909,11 @@ describe('board merging in 3D', () => {
         kv_pairs[7] = [tile7_coordinates, tile7]
         let board_map = new BoardMap(kv_pairs)
 
-        let merged_board = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
         // this one should have been transitioned
         expect(tile7.value).toEqual(2)
         expect(tile7.merged_to).toEqual(4)
+        expect(new_points).toEqual(4)
         expect(merged_board.get({x:0, y:0, z:3})).toEqual([tile7, tile0])
         expect(merged_board.get({x:0, y:1, z:3})).toEqual([tile1])
         expect(merged_board.get({x:1, y:0, z:3})).toEqual([tile4])
