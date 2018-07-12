@@ -34,6 +34,14 @@ export function generate2048Tokens() {
     return tokens
 }
 
+export function idSort(tiles) {
+    return tiles.sort((t1, t2) => {
+        if(t1.id < t2.id) return -1
+        if(t1.id > t2.id) return 1
+        return 0
+    })
+}
+
 export function createTile({id, value, ...rest}) {
     if (id === undefined) id = global_id++
     return Object.assign({id, value}, rest)
@@ -218,18 +226,18 @@ export function transitionToken(tokens, token) {
 
 export function sequenceCleanup(sequence) {
     let cleaned_sequence = []
-    for (let [coordinates, tiles] of sequence) {
+    for(let i = 0; i < sequence.length; i++) {
+        let [coordinates, tiles] = sequence[i]
         if (tiles === undefined) {
             tiles = []
         }
 
         tiles = tiles.filter(tile => !tile.remove)
         let cleaned_tiles = []
-        tiles.forEach(tile => {
-
-            // tile = Object.assign({}, tile)  // make a copy
+        for(let i = 0; i < tiles.length; i++) {
+            let tile = tiles[i]
             if (tile.remove) {
-                return
+                continue
             }
 
             if (tile.merged_to) {
@@ -239,7 +247,7 @@ export function sequenceCleanup(sequence) {
             }
 
             cleaned_tiles.push(tile)
-        })
+        }
 
         cleaned_sequence.push([coordinates, cleaned_tiles])
     }
@@ -299,6 +307,32 @@ export function mergeBoard(board, board_dimensions, direction, tokens) {
     let merged_board = new Board_map(merged_kv_pairs)
 
     return {merged_board, new_points}
+}
+
+export function randomTileInsert(board, board_dimensions, tokens) {
+    // inserts max(board_dimensions) - 1 tiles
+    let {all_coordinates} = getAllCoordinates(board_dimensions)
+    all_coordinates = all_coordinates.map(obj => board.stringify(obj))
+
+    let tiles_to_insert = Math.max(2, Object.keys(board_dimensions).length) - 1
+    let i = 0
+    while(i < tiles_to_insert) {
+        let occupied_coordinates = board.getSortedKeys()
+        let available_coordinates = all_coordinates.filter(coord => !occupied_coordinates.includes(coord))
+        if(available_coordinates.length === 0) {
+            // game over bub!
+            return false
+        }
+        let rand1 = Math.random()
+        let random_index = Math.floor(rand1 * available_coordinates.length)
+        let random_coordinate = available_coordinates[random_index]
+        let random_value = Math.random() < .9 ? 2 : 4
+        board.set(random_coordinate, createTile({value: random_value}))
+        i++
+    }
+
+    return true
+
 }
 
 // export function shuffle(tiles) {

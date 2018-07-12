@@ -2,13 +2,6 @@ import * as BoardUtil from './board_util';
 import BoardMap from './board_map';
 
 
-function idSort(tiles) {
-    return tiles.sort((t1, t2) => {
-        if(t1.id < t2.id) return -1
-        if(t1.id > t2.id) return 1
-        return 0
-    })
-}
 
 const tokens = BoardUtil.generate2048Tokens()
 
@@ -82,43 +75,93 @@ it('creates a board_map with preset values', () => {
     expect(board_map.get(tile1_coordinates)).toEqual([tile1])
 });
 
+describe.only('sequence cleaning', () => {
+    it('cleans sequence of removable tokens and updates values', () => {
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 0, y: 1}
+        let tile2_coordinates = {x: 0, y: 2}
+        let tile3_coordinates = {x: 0, y: 3}
+        let tile0 = BoardUtil.createTile({value: 4, id: 0, merged_to: 4})
+        let tile1 = BoardUtil.createTile({value: 2, id: 1, remove: true})
+        let tile2 = BoardUtil.createTile({value: 16, id: 2, merged_to: 16})
+        let tile3 = BoardUtil.createTile({value: 8, id: 3, remove: true})
+        let kv_pairs = [
+            [tile0_coordinates, [tile0]],
+            [tile1_coordinates, [tile1]],
+            [tile2_coordinates, [tile2, tile3]]
+        ]
+        let board_map = new BoardMap(kv_pairs)
+        let board_dimensions = {x: 4, y: 4}
+        let direction = {x: 0, y: 1}
+        let location = {x: 0}
 
-it('cleans sequence of removable tokens and updates values', () => {
-    let tile0_coordinates = {x: 0, y: 0}
-    let tile1_coordinates = {x: 0, y: 1}
-    let tile2_coordinates = {x: 0, y: 2}
-    let tile3_coordinates = {x: 0, y: 3}
-    let tile0 = BoardUtil.createTile({value: 2, id: 0, merged_to: 4})
-    let tile1 = BoardUtil.createTile({value: 0, id: 1, remove: true})
-    let kv_pairs = [
-        [tile0_coordinates, [tile0]],
-        [tile1_coordinates, [tile1]]
-    ]
-    let board_map = new BoardMap(kv_pairs)
-    let board_dimensions = {x: 4, y: 4}
-    let direction = {x: 0, y: 1}
-    let location = {x: 0}
 
-
-    let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
-    let sequence = []
-    let done = false
-    while (!done) {
-        let iteration = getSequence.next()
-        if (iteration.value) {
-            sequence.push(iteration.value)
+        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let sequence = []
+        let done = false
+        while (!done) {
+            let iteration = getSequence.next()
+            if (iteration.value) {
+                sequence.push(iteration.value)
+            }
+            done = iteration.done
         }
-        done = iteration.done
-    }
 
-    let cleaned_sequence = BoardUtil.sequenceCleanup(sequence)
-    expect(cleaned_sequence).toEqual([
-        [tile0_coordinates, [{value: 4, id: 0}]],
-        [tile1_coordinates, []],
-        [tile2_coordinates, []],
-        [tile3_coordinates, []]
-    ])
-});
+        let cleaned_sequence = BoardUtil.sequenceCleanup(sequence)
+        expect(cleaned_sequence).toEqual([
+            [tile0_coordinates, [{value: 4, id: 0}]],
+            [tile1_coordinates, []],
+            [tile2_coordinates, [{value: 16, id: 2}]],
+            [tile3_coordinates, []]
+        ])
+    });
+
+    it.only('cleans sequence of removable tokens and updates values', () => {
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 0, y: 1}
+        let tile2_coordinates = {x: 0, y: 2}
+        let tile3_coordinates = {x: 0, y: 3}
+        let tile0_obj = {value: 16, id: 0, merged_to: 16}
+        let tile1_obj = {value: 8, id: 1, remove: true}
+        let tile0 = BoardUtil.createTile(tile0_obj)
+        let tile1 = BoardUtil.createTile(tile1_obj)
+        let kv_pairs = [
+            [tile0_coordinates, [tile0, tile1]]
+        ]
+        let board_map = new BoardMap(kv_pairs)
+        let board_dimensions = {x: 4, y: 4}
+        let direction = {x: 0, y: 1}
+        let location = {x: 0}
+
+
+        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let sequence = []
+        let done = false
+        while (!done) {
+            let iteration = getSequence.next()
+            if (iteration.value) {
+                sequence.push(iteration.value)
+            }
+            done = iteration.done
+        }
+
+        expect(sequence).toEqual([
+            [tile0_coordinates, [tile0_obj, tile1_obj]],
+            [tile1_coordinates, undefined],
+            [tile2_coordinates, undefined],
+            [tile3_coordinates, undefined]
+        ])
+        let cleaned_sequence = BoardUtil.sequenceCleanup(sequence)
+        expect(tile0).toEqual({id:0, value: 16})
+        expect(cleaned_sequence).toEqual([
+            [tile0_coordinates, [{value: 16, id: 0}]],
+            [tile1_coordinates, []],
+            [tile2_coordinates, []],
+            [tile3_coordinates, []]
+        ])
+    });
+})
+
 
 it('returns all move sequences in 2D', () => {
     let direction = {x: 0, y: 1}
@@ -452,9 +495,6 @@ describe('sequence merging in 2D', () => {
 
 
     it('merges [0, 0, 0, 0] on a 2D board_map into [x, x, x, x]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         // this corresponds to a "down" merge
         let direction = {x: 0, y: 1}
         let location = {x: 0}
@@ -469,9 +509,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 2, 0, 0] on a 2D board_map into [4, x, x, x]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -497,9 +534,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 0, 0, 2] left on a 2D board_map into [4, x, x, x]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -523,9 +557,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 0, 0, 2] right on a 2D board_map into [x, x, x, 4]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: -1}
         let location = {x: 0}
 
@@ -544,9 +575,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 0, 2, 0] right on a 2D board_map into [4, x, x, 0]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -565,9 +593,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 0, 2, 0] left on a 2D board_map into [x, x, x, 4]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: -1}
         let location = {x: 0}
 
@@ -586,9 +611,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 4, 2, 2] on a 2D board_map into [2, 4, 4, x]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -616,9 +638,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 2, 2, 2] on a 2D board_map into [4, 4, x, x], and again into [8, 0, 0, 0]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -653,9 +672,6 @@ describe('sequence merging in 2D', () => {
     });
 
     it('merges [2, 2, 2, 2] in x-axis on a 2D board_map into [4, 4, x, x], and again into [8, 0, 0, 0]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 1, y: 0}
         let location = {y: 0}
 
@@ -697,9 +713,6 @@ describe('board merging in 2D', () => {
     let tile3_coordinates = {x: 0, y: 3}
 
     it('merges [2, 0, 0, 0] on a 2D board_map into [2, x, x, x]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -727,9 +740,6 @@ describe('board merging in 2D', () => {
     })
 
     it('merges [2, 4, 2, 2] on a 2D board_map into [2, 4, 4, x]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -764,9 +774,6 @@ describe('board merging in 2D', () => {
     })
 
     it('merges [2, 2, 2, 2] on a 2D board_map into [4, 4, x, x]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
@@ -795,10 +802,43 @@ describe('board merging in 2D', () => {
         expect(merged_board.get(tile3_coordinates)).toEqual(undefined)
     })
 
-    it('merges [2, 2, 2, 2] on a 2D board_map into [x, x, 4, 4]', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
+    it('merges [2, 2, 2, x] on a 2D board_map into [4, 2, x, x], and remain at [4, 2, x, x]', () => {
+        let tile0 = BoardUtil.createTile({value: 2, id: 0})
+        let tile1 = BoardUtil.createTile({value: 2, id: 1})
+        let tile2 = BoardUtil.createTile({value: 2, id: 2})
+        let kv_pairs = [
+            [tile0_coordinates, tile0],
+            [tile1_coordinates, tile1],
+            [tile2_coordinates, tile2]
+        ]
+        let board_dimensions = {x: 4, y: 4}
+        let direction = {x: 0, y: 1}
+        let board_map = new BoardMap(kv_pairs)
 
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points).toEqual(4)
+        expect(tile0.value).toEqual(2)
+        expect(tile0.merged_to).toEqual(4)
+        expect(tile0.merged_from).toEqual(2)
+        expect(tile1.value).toEqual(2)
+        expect(tile1.remove).toEqual(true)
+        expect(merged_board.get(tile0_coordinates)).toEqual([tile0, tile1])
+        expect(merged_board.get(tile1_coordinates)).toEqual([tile2])
+        expect(merged_board.get(tile2_coordinates)).toEqual(undefined)
+        expect(merged_board.get(tile3_coordinates)).toEqual(undefined)
+
+        let {merged_board: merged_board2, new_points: new_points2} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points2).toEqual(0)
+        expect(merged_board2.get(tile0_coordinates)).toEqual([tile0])
+        expect(tile0.value).toEqual(4)
+        expect(tile0.merged_to).toEqual(undefined)
+        expect(tile0.merged_from).toEqual(undefined)
+        expect(merged_board2.get(tile1_coordinates)).toEqual([tile2])
+        expect(tile2.value).toEqual(2)
+        expect(tile2.merged_to).toEqual(undefined)
+    })
+
+    it('merges [2, 2, 2, 2] on a 2D board_map into [x, x, 4, 4]', () => {
         let direction = {x: 0, y: -1}
 
         let tile0 = BoardUtil.createTile({value: 2, id: 0})
@@ -816,14 +856,54 @@ describe('board merging in 2D', () => {
 
         let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
         expect(new_points).toEqual(8)
+        expect(tile1.value).toEqual(2)
+        expect(tile1.merged_to).toEqual(4)
+        expect(tile1.merged_from).toEqual(2)
         expect(tile3.value).toEqual(2)
         expect(tile3.merged_to).toEqual(4)
-        expect(tile1.value).toEqual(2)
+        expect(tile3.merged_from).toEqual(2)
         expect(tile2.remove).toEqual(true)
-        expect(idSort(merged_board.get(tile2_coordinates))).toEqual(idSort([tile0, tile1]))
-        expect(idSort(merged_board.get(tile3_coordinates))).toEqual(idSort([tile2, tile3]))
+        expect(tile0.remove).toEqual(true)
+        expect(BoardUtil.idSort(merged_board.get(tile2_coordinates))).toEqual(BoardUtil.idSort([tile0, tile1]))
+        expect(BoardUtil.idSort(merged_board.get(tile3_coordinates))).toEqual(BoardUtil.idSort([tile2, tile3]))
         expect(merged_board.get(tile0_coordinates)).toEqual(undefined)
         expect(merged_board.get(tile1_coordinates)).toEqual(undefined)
+    })
+
+    it('merges [2, 2, 4, 8] on a 2D board_map into [x, 4, 4, 8]', () => {
+        let tile0 = BoardUtil.createTile({value: 2, id: 0})
+        let tile1 = BoardUtil.createTile({value: 2, id: 1})
+        let tile2 = BoardUtil.createTile({value: 4, id: 2})
+        let tile3 = BoardUtil.createTile({value: 8, id: 3})
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 1, y: 0}
+        let tile2_coordinates = {x: 2, y: 0}
+        let tile3_coordinates = {x: 3, y: 0}
+        let kv_pairs = [
+            [tile0_coordinates, tile0],
+            [tile1_coordinates, tile1],
+            [tile2_coordinates, tile2],
+            [tile3_coordinates, tile3]
+        ]
+        let board_dimensions = {x: 4, y: 4}
+        let direction = {x: -1, y: 0}
+        let board_map = new BoardMap(kv_pairs)
+
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        expect(new_points).toEqual(4)
+        expect(tile0.value).toEqual(2)
+        expect(tile0.remove).toEqual(true)
+        expect(tile1.value).toEqual(2)
+        expect(tile1.merged_to).toEqual(4)
+        expect(tile1.remove).toEqual(undefined)
+        expect(tile2.value).toEqual(4)
+        expect(tile2.remove).toEqual(undefined)
+        expect(tile3.value).toEqual(8)
+        expect(tile3.remove).toEqual(undefined)
+        expect(merged_board.get(tile0_coordinates)).toEqual(undefined)
+        expect(merged_board.get(tile1_coordinates)).toEqual([tile1, tile0])
+        expect(merged_board.get(tile2_coordinates)).toEqual([tile2])
+        expect(merged_board.get(tile3_coordinates)).toEqual([tile3])
     })
 })
 
@@ -873,9 +953,6 @@ describe('board merging in 3D', () => {
 
 
     it('merges a 3D board down correctly', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         let direction = {x: 0, y: 0, z:1}
         let board_map = new BoardMap(kv_pairs)
 
@@ -898,9 +975,6 @@ describe('board merging in 3D', () => {
 
 
     it('merges a 3D board up correctly', () => {
-        // merging up will actually be direction -1, down will be 1, to get desired merge behavior
-        // (first in merge direction merges first) means we want things to merge from move dir back
-
         // reset these tiles from the last test
         let tile0 = BoardUtil.createTile({value: 2, id: 0})
         let tile7 = BoardUtil.createTile({value: 2, id: 7})

@@ -2,47 +2,50 @@ import React from 'react'
 import * as BoardUtil from '../board_util'
 import Board_map from '../board_map'
 import Board from './board'
+import {randomTileInsert} from "../board_util";
 
-// const KEY = {
-//     LEFT:  37,
-//     RIGHT: 39,
-//     UP: 38,
-//     DOWN: 40,
-//     W: 87,
-//     S: 83,
-//     A: 65,
-//     D: 68,
-//     SPACE: 32
-// };
+const KEY = {
+    LEFT:  37,
+    RIGHT: 39,
+    UP: 38,
+    DOWN: 40,
+    W: 87,
+    S: 83,
+    A: 65,
+    D: 68,
+    SPACE: 32
+};
 
 class Game extends React.Component {
     constructor(props) {
         super(props)
 
         this.board_size = props.board_size || 4
-        this.tokens = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
-        this.transitions = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+        this.board_dimensions = props.board_dimensions || {x: this.board_size, y: this.board_size}
+        this.tokens = BoardUtil.generate2048Tokens.bind(BoardUtil)()
         this.board_transitions = {
-            up: {type: 'columns', reverse: false},
-            down: {type: 'columns', reverse: true},
-            left: {type: 'rows', reverse: false},
-            right: {type: 'rows', reverse: true}
+            up: {x: 0, y: 1},
+            down: {x: 0, y: -1},
+            left: {x: 1, y: 0},
+            right: {x: -1, y: 0},
         }
 
-        let tile0_coordinates = {x: 0, y: 0, z: 0}
-        let tile1_coordinates = {x: 1, y: 0, z: 0}
-        let tile2_coordinates = {x: 2, y: 0, z: 0}
-        let tile0 = BoardUtil.createTile({value: 2, id: 0})
-        let tile1 = BoardUtil.createTile({value: 2, id: 1})
-        let tile2 = BoardUtil.createTile({value: 2, id: 2})
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 1, y: 0}
+        let tile2_coordinates = {x: 2, y: 0}
+        let tile3_coordinates = {x: 3, y: 0}
+        let tile0 = BoardUtil.createTile({value: 8})
+        let tile1 = BoardUtil.createTile({value: 4})
+        let tile2 = BoardUtil.createTile({value: 2})
+        let tile3 = BoardUtil.createTile({value: 2})
         let kv_pairs = [
             [tile0_coordinates, tile0],
             [tile1_coordinates, tile1],
-            [tile2_coordinates, tile2]
+            [tile2_coordinates, tile2],
+            [tile3_coordinates, tile3]
         ]
 
         this.state = {
-            board_size: this.board_size,
             score: 0,
             history: [new Board_map(kv_pairs)]
         }
@@ -73,30 +76,43 @@ class Game extends React.Component {
         // })
     }
 
-    handleKeys(value, e){
-        // let current = this.state.history[this.state.history.length - 1]
-        // let transition = ''
-        // if(e.keyCode === KEY.LEFT   || e.keyCode === KEY.A) transition = this.board_transitions.left;
-        // if(e.keyCode === KEY.RIGHT  || e.keyCode === KEY.D) transition = this.board_transitions.right;
-        // if(e.keyCode === KEY.UP     || e.keyCode === KEY.W) transition = this.board_transitions.up;
-        // if(e.keyCode === KEY.DOWN   || e.keyCode === KEY.S) transition = this.board_transitions.down;
-        // if(transition === '') return
-        // let {new_tiles, new_points} = util.transitionBoard(this.tokens, this.transitions, current.tiles, transition, 700)
-        //
-        //
-        // let next_board_map = current.board_map.mergeBoard(current, board_dimensions, direction, tokens, transitions)
-        //
-        //
-        // this.state.history.push({board_map: next_board_map})
-        // this.setState({
-        //     board_size: this.state.board_size,
-        //     history: this.state.history,
-        //     score: this.state.score + new_points
-        // })
+    debounce(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    };
+
+    async handleKeys(value, event) {
+        console.log(`moving at time ${new Date()}`)
+        let current = this.state.history[this.state.history.length - 1]
+        let direction = ''
+        if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left;
+        if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right;
+        if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = this.board_transitions.up;
+        if(event.keyCode === KEY.DOWN   || event.keyCode === KEY.S) direction = this.board_transitions.down;
+        if(direction === '') return
+
+        let {merged_board, new_points} = BoardUtil.mergeBoard(current, this.board_dimensions, direction, this.tokens)
+        let game_over = randomTileInsert(merged_board, this.board_dimensions, this.tokens)  // will insert max(board_dimensions) - 1 tiles
+
+        this.setState({
+            board_size: this.state.board_size,
+            history: this.state.history.concat(merged_board),
+            score: this.state.score + new_points
+        })
     }
 
     componentDidMount() {
-        window.addEventListener('keyup',   this.handleKeys.bind(this, false));
+        window.addEventListener('keyup',   () => {});
         window.addEventListener('keydown', this.handleKeys.bind(this, true));
     }
 
@@ -108,9 +124,10 @@ class Game extends React.Component {
 
         return (
             <div>
+                <h2>{this.state.score}</h2>
                 <Board
                     board_map={current_board_map}
-                    board_size={this.state.board_size}
+                    board_size={this.board_size}
                     handleClick={(i)=>this.handleClick(i)}
                 />
             </div>

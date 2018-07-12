@@ -1,5 +1,7 @@
 import React from 'react'
 import Tile from './tile'
+import * as BoardUtil from '../board_util'
+import posed, { PoseGroup } from 'react-pose'
 
 function Board(props) {
     // dynamic css classes based on number of tiles
@@ -19,14 +21,18 @@ function Board(props) {
 
     let board_map = props.board_map
     let tilesList = []
-    for(let coordinate_string in board_map.getContents()) {
+    for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
-        tiles.map((tile) => tilesList.push(
+        let sorted_tiles = BoardUtil.idSort(tiles)
+        sorted_tiles.map((tile) => tilesList.push(
             <Tile value={tile.value}
                 key={tile.id}
                 id={tile.id}
                 coordinates={coordinates}
+                remove={tile.remove}
+                merged_from={tile.merged_from}
+                merged_to={tile.merged_to}
                 handleClick={(i) => props.handleClick(i)}
             />)
         )
@@ -36,7 +42,9 @@ function Board(props) {
         <div id="board">
             <style>{style}</style>
             <div className={'grid-container'}>{board_cells}</div>
-            <div className={'tiles'}>{tilesList}</div>
+            {/*<PoseGroup animateOnMount={true} className={'tiles'}>*/}
+                {tilesList}
+            {/*</PoseGroup>*/}
         </div>
     )
 }

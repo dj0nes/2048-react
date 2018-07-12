@@ -1,17 +1,25 @@
 import React from 'react'
+import posed from 'react-pose'
+
 function Tile(props) {
 
-    let zero = props.value === 0 ? 'zero' : ''
+    let remove = props.remove !== undefined ? 'remove' : ''
+    let display_value = props.merged_to ? props.merged_to : props.value
+
+    let PosedTile = posed.div({
+        enter: { opacity: 1 },
+        exit: { opacity: 0 }
+    })
 
     return (
-        <div className={`tile
+        <PosedTile className={`tile
         row-${props.coordinates.y}
         col-${props.coordinates.x}
-        ${zero}`}
+        ${remove}`}
         onClick={() => props.handleClick(props)}
         >
-            <span>{props.value}</span>
-        </div>
+            <span>{display_value}</span>
+        </PosedTile>
     )
 }
 

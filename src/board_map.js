@@ -39,6 +39,10 @@ export default class Board_map extends React.Component {
         return this.coordinates
     }
 
+    getSortedKeys() {
+        return Object.keys(this.coordinates).sort()
+    }
+
     get(key) {
         // returns the array of all tiles at this coordinate
         return this.coordinates[this.stringify(key)]
