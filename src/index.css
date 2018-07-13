@@ -12,9 +12,10 @@ body {
 }
 
 .cell {
-    background-color: aqua;
+    background-color: rgba(238, 228, 218, 0.35);
     margin: calc(var(--gutter) / 2);
-    opacity: .2
+    border-radius: 3px;
+
 }
 
 .grid-container {
@@ -64,7 +65,9 @@ body {
 
 #board {
     position: relative;
-    background-color: darkgrey;
+    background-color: #bbada0;
+    border-radius: 3px;
+
     height: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
     width: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
 }

@@ -75,7 +75,7 @@ it('creates a board_map with preset values', () => {
     expect(board_map.get(tile1_coordinates)).toEqual([tile1])
 });
 
-describe.only('sequence cleaning', () => {
+describe('sequence cleaning', () => {
     it('cleans sequence of removable tokens and updates values', () => {
         let tile0_coordinates = {x: 0, y: 0}
         let tile1_coordinates = {x: 0, y: 1}
@@ -116,7 +116,7 @@ describe.only('sequence cleaning', () => {
         ])
     });
 
-    it.only('cleans sequence of removable tokens and updates values', () => {
+    it('cleans sequence of removable tokens and updates values', () => {
         let tile0_coordinates = {x: 0, y: 0}
         let tile1_coordinates = {x: 0, y: 1}
         let tile2_coordinates = {x: 0, y: 2}
