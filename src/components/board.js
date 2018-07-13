@@ -2,11 +2,13 @@ import React from 'react'
 import Tile from './tile'
 import * as BoardUtil from '../board_util'
 import posed, { PoseGroup } from 'react-pose'
+import FlipMove from 'react-flip-move';
 
 function Board(props) {
     // dynamic css classes based on number of tiles
     let style = ''
-    let box_size = 3.25
+    let box_size = 4
+    let padding = .35
     let gutter = box_size / 8
 
     for(let i = 0; i < props.board_size; i++) {
@@ -43,7 +45,9 @@ function Board(props) {
             <style>{style}</style>
             <div className={'grid-container'}>{board_cells}</div>
             {/*<PoseGroup animateOnMount={true} className={'tiles'}>*/}
+            {/*<FlipMove style={{position: "initial"}}>*/}
                 {tilesList}
+            {/*</FlipMove>*/}
             {/*</PoseGroup>*/}
         </div>
     )

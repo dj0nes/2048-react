@@ -6,7 +6,7 @@ body {
 }
 
 :root {
-    --box-size: 3.25em;
+    --box-size: 4em;
     --gutter: calc(var(--box-size) / 8);
     --boxes: 4
 }
@@ -36,7 +36,7 @@ body {
     opacity: .75;
     z-index: 2;
     margin: calc(var(--gutter) / 2);
-    transition: all 1000ms cubic-bezier(0.77, 0, 0.175, 1);
+    transition: all 500ms cubic-bezier(0.77, 0, 0.175, 1);
     /*animation: fadein 1000ms;*/
 }
 
@@ -67,7 +67,7 @@ body {
     position: relative;
     background-color: #bbada0;
     border-radius: 3px;
-
+    border: 0.35em solid #bbada0;
     height: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
     width: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
 }
