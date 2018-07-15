@@ -32,7 +32,7 @@ body {
     position: absolute;
     width: var(--box-size);
     height: var(--box-size);
-    opacity: .75;
+    /*opacity: .75;*/
     z-index: 2;
     margin: calc(var(--gutter) / 2);
     transition: all 100ms cubic-bezier(0.77, 0, 0.175, 1);

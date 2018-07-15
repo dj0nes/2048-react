@@ -49,11 +49,12 @@ describe('range function', () => {
 
 it('creates tiles with generated ids and optional values', () => {
     let tile0 = BoardUtil.createTile({value: 0, location: {x:0, y:0}})
-    let tile1 = BoardUtil.createTile({value: 0, location: {x:0, y:1}})
+    let tile1 = BoardUtil.createTile({value: 0, location: {x:0, y:1}, new_tile: true})
     let tile2 = BoardUtil.createTile({value: 0, location: {x:1, y:1}, id: 99})
     expect(tile0.id).toBe(0);
     expect(tile1.id).toBe(1);
     expect(tile2.id).toBe(99);
+    expect(tile1.new_tile).toBe(true);
     expect(tile0.location).toEqual({x:0, y:0});
     expect(tile1.location).toEqual({x:0, y:1});
     expect(tile2.location).toEqual({x:1, y:1});
@@ -83,7 +84,7 @@ describe('sequence cleaning', () => {
         let tile3_coordinates = {x: 0, y: 3}
         let tile0 = BoardUtil.createTile({value: 4, id: 0, merged_to: 4})
         let tile1 = BoardUtil.createTile({value: 2, id: 1, remove: true})
-        let tile2 = BoardUtil.createTile({value: 16, id: 2, merged_to: 16})
+        let tile2 = BoardUtil.createTile({value: 16, id: 2, merged_to: 16, new_tile: true})
         let tile3 = BoardUtil.createTile({value: 8, id: 3, remove: true})
         let kv_pairs = [
             [tile0_coordinates, [tile0]],

@@ -6,10 +6,25 @@ function Tile(props) {
     let remove = props.remove !== undefined ? 'remove' : ''
     let display_value = props.merged_to ? props.merged_to : props.value
 
-    let PosedTile = posed.div({
-        // enter: { opacity: 1 },
-        // exit: { opacity: 0 }
-    })
+
+    let new_tile = ''
+    if(props.new_tile) {
+        new_tile = 'new_tile'
+    }
+    let content = [
+        <div className={`tile-inner ${new_tile}`} key={0}>
+            <span>{props.value}</span>
+        </div>
+    ]
+
+    if(props.merged_to) {
+        content.push(
+            <div className="tile-inner tile-merged" key={1}>
+                <span>{props.merged_to}</span>
+            </div>
+        )
+
+    }
 
     return (
         <div className={`
@@ -20,9 +35,7 @@ function Tile(props) {
             `}
             onClick={() => props.handleClick(props)}
         >
-            <div className="tile-inner">
-                <span>{display_value}</span>
-            </div>
+            {content}
         </div>
     )
 }

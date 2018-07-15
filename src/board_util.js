@@ -240,10 +240,14 @@ export function sequenceCleanup(sequence) {
                 continue
             }
 
-            if (tile.merged_to) {
+            if(tile.merged_to) {
                 tile.value = tile.merged_to
                 delete tile.merged_to
                 delete tile.merged_from
+            }
+
+            if(tile.new_tile) {
+                delete tile.new_tile
             }
 
             cleaned_tiles.push(tile)
@@ -327,7 +331,7 @@ export function randomTileInsert(board, board_dimensions, tokens) {
         let random_index = Math.floor(rand1 * available_coordinates.length)
         let random_coordinate = available_coordinates[random_index]
         let random_value = Math.random() < .9 ? 2 : 4
-        board.set(random_coordinate, createTile({value: random_value}))
+        board.set(random_coordinate, createTile({value: random_value, new_tile: true}))
         i++
     }
 

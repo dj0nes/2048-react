@@ -1,8 +1,6 @@
 import React from 'react'
 import Tile from './tile'
 import * as BoardUtil from '../board_util'
-import posed, { PoseGroup } from 'react-pose'
-import FlipMove from 'react-flip-move';
 
 function Board(props) {
     // dynamic css classes based on number of tiles
@@ -14,8 +12,6 @@ function Board(props) {
     for(let x = 0; x < props.board_size; x++) {
         for (let y = 0; y < props.board_size; y++) {
             style += `.row-${y}-col-${x} {transform: translate(${x * (box_size + gutter)}em, ${y * (box_size + gutter)}em)}\n`
-            // style += `. {transform: }`
-
         }
     }
 
@@ -38,6 +34,7 @@ function Board(props) {
                 remove={tile.remove}
                 merged_from={tile.merged_from}
                 merged_to={tile.merged_to}
+                new_tile={tile.new_tile}
                 handleClick={(i) => props.handleClick(i)}
             />)
         )
@@ -60,9 +57,6 @@ function Board(props) {
                     {tilesList}
                 </div>
             </div>
-            {/*<PoseGroup animateOnMount={true} className={'tiles'}>*/}
-
-            {/*</PoseGroup>*/}
         </div>
     )
 }
