@@ -40,9 +40,9 @@ class Game extends React.Component {
         let tile3 = BoardUtil.createTile({value: 2})
         let kv_pairs = [
             [tile0_coordinates, tile0],
-            [tile1_coordinates, tile1],
-            [tile2_coordinates, tile2],
-            [tile3_coordinates, tile3]
+            // [tile1_coordinates, tile1],
+            // [tile2_coordinates, tile2],
+            // [tile3_coordinates, tile3]
         ]
 
         this.state = {
@@ -92,7 +92,6 @@ class Game extends React.Component {
     };
 
     async handleKeys(value, event) {
-        console.log(`moving at time ${new Date()}`)
         let current = this.state.history[this.state.history.length - 1]
         let direction = ''
         if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left;

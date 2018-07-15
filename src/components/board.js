@@ -11,9 +11,12 @@ function Board(props) {
     let padding = .35
     let gutter = box_size / 8
 
-    for(let i = 0; i < props.board_size; i++) {
-        style += `.row-${i} {top: ${i * (box_size + gutter)}em}`
-        style += `.col-${i} {left: ${i * (box_size + gutter)}em}`
+    for(let x = 0; x < props.board_size; x++) {
+        for (let y = 0; y < props.board_size; y++) {
+            style += `.row-${y}-col-${x} {transform: translate(${x * (box_size + gutter)}em, ${y * (box_size + gutter)}em)}\n`
+            // style += `. {transform: }`
+
+        }
     }
 
     let board_cells = []
@@ -26,8 +29,8 @@ function Board(props) {
     for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
-        let sorted_tiles = BoardUtil.idSort(tiles)
-        sorted_tiles.map((tile) => tilesList.push(
+        // let sorted_tiles = BoardUtil.idSort(tiles)
+        tiles.map((tile) => tilesList.push(
             <Tile value={tile.value}
                 key={tile.id}
                 id={tile.id}
@@ -40,14 +43,25 @@ function Board(props) {
         )
     }
 
+    tilesList = tilesList.sort((t1, t2) => {
+        if(t1.key < t2.key) return -1
+        if(t1.key > t2.key) return 1
+        return 0
+    })
+
+    let keys = tilesList.map(tile => tile.key)
+
     return (
         <div id="board">
             <style>{style}</style>
-            <div className={'grid-container'}>{board_cells}</div>
+            <div className={'grid-container'}>
+                {board_cells}
+                <div style={{position: 'absolute'}}>
+                    {tilesList}
+                </div>
+            </div>
             {/*<PoseGroup animateOnMount={true} className={'tiles'}>*/}
-            {/*<FlipMove style={{position: "initial"}}>*/}
-                {tilesList}
-            {/*</FlipMove>*/}
+
             {/*</PoseGroup>*/}
         </div>
     )

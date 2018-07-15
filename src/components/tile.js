@@ -15,13 +15,12 @@ function Tile(props) {
         <div className={`
             tile
             tile-${display_value}
-            row-${props.coordinates.y}
-            col-${props.coordinates.x}
+            row-${props.coordinates.y}-col-${props.coordinates.x}
             ${remove}
             `}
             onClick={() => props.handleClick(props)}
         >
-            <div class="tile-inner">
+            <div className="tile-inner">
                 <span>{display_value}</span>
             </div>
         </div>
