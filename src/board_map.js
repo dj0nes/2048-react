@@ -1,12 +1,9 @@
 import React from 'react'
 
 export default class Board_map extends React.Component {
-    // ES6 map stores objects by symbol, but I want them by equality
-    // I know all passed 'values will be primitives, and so get stringified properly
-    // if that isn't the case, then some manual stringification will be necessary
     constructor(kv_pairs = []) {
         super()
-        this.coordinates = {}  // coordinates storage
+        this.coordinates = {}  // stores coordinates
 
         for(let pair of kv_pairs) {
             let [key, value] = pair
@@ -79,6 +76,26 @@ export default class Board_map extends React.Component {
         return delete this.coordinates[this.stringify(key)]
     }
 
+    tiles_to_string(tiles) {
+        let output = ''
+        let coordinate_list = []
+        for(let tile of tiles) {
+            let tile_list = []
+            for(let key in tile) {
+                let value = tile[key]
+                tile_list.push(`${key}: ${value}`)
+            }
+
+            coordinate_list.push(tile_list.join(', '))
+            // output += '}]'
+        }
+
+        // remove trailing comma and close array
+        // output = output.slice(0, output.length - 2) + ''
+        output = '[{' + coordinate_list.join('}, {') + '}]'
+        return output
+    }
+
     stringify(kv_pairs) {
         if(typeof kv_pairs === 'string') {
             // good luck chuck
@@ -108,5 +125,14 @@ export default class Board_map extends React.Component {
             Object.assign(coordinates, obj)
         })
         return coordinates
+    }
+
+    toString() {
+        let pairs = []
+        let keys = this.getSortedKeys()
+        for(let coordinate of keys) {
+            pairs.push(`[${coordinate}: ${this.tiles_to_string(this.get(coordinate))}`)
+        }
+        return pairs.join('], ') + ']'
     }
 }

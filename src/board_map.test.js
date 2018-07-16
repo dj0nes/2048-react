@@ -8,7 +8,7 @@ it('creates a new empty board_map', () => {
     expect(board_map instanceof BoardMap).toBe(true);
 });
 
-it('stringifies keys properly', () => {
+it('stringifies keys', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
     let board_map = new BoardMap()
@@ -23,7 +23,7 @@ it('stringifies keys properly', () => {
     expect(board_map.stringify(tile1_alias)).toBe('[{"x":0},{"y":1}]')
 });
 
-it('unStringifies keys properly', () => {
+it('unStringifies keys', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
     let board_map = new BoardMap()
@@ -41,7 +41,7 @@ it('unStringifies keys properly', () => {
     expect(unStringified1).toEqual([{"x": 0}, {"y": 1}])
 });
 
-it('getCoordinatesFromKey keys properly', () => {
+it('getCoordinatesFromKey keys', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
     let board_map = new BoardMap()
@@ -59,7 +59,7 @@ it('getCoordinatesFromKey keys properly', () => {
     expect(getCoordinatesFromKey1).toEqual(tile1_coordinates)
 });
 
-describe('BoardMap has these accessors:', () => {
+describe('BoardMap has these properties:', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
     let tile0 = BoardUtil.createTile({value: 2, location: {x:0, y:0}, id: 0})
@@ -69,6 +69,27 @@ describe('BoardMap has these accessors:', () => {
         [tile1_coordinates, tile1]
     ]
     let board_map = new BoardMap(kv_pairs)
+
+
+    it('stringifies tiles array with one member', () => {
+        let result = board_map.tiles_to_string([tile0])
+        // this is totally arbitrary
+        let expected_result = `[{id: 0, value: 2, location: [object Object]}]`
+        expect(result).toEqual(expected_result)
+    });
+
+    it('stringifies tiles array with more than one member', () => {
+        let result = board_map.tiles_to_string([tile0, tile1])
+        let expected_result = `[{id: 0, value: 2, location: [object Object]}, {id: 1, value: 2, location: [object Object]}]`
+        expect(result).toEqual(expected_result)
+    });
+
+    it('stringifies itself', () => {
+        let result = board_map.toString()
+        // this is totally arbitrary
+        let expected_result = `[[{\"x\":0},{\"y\":0}]: [{id: 0, value: 2, location: [object Object]}]], [[{\"x\":0},{\"y\":1}]: [{id: 1, value: 2, location: [object Object]}]]`
+        expect(result).toEqual(expected_result)
+    });
 
     it('BoardMap construction with values passes basic sanity checks', () => {
         expect(typeof board_map).toBe('object');
