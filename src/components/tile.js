@@ -1,11 +1,8 @@
 import React from 'react'
-import posed from 'react-pose'
 
 function Tile(props) {
-
     let remove = props.remove !== undefined ? 'remove' : ''
     let display_value = props.merged_to ? props.merged_to : props.value
-
 
     let new_tile = ''
     if(props.new_tile) {

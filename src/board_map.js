@@ -76,23 +76,28 @@ export default class Board_map extends React.Component {
         return delete this.coordinates[this.stringify(key)]
     }
 
-    tiles_to_string(tiles) {
-        let output = ''
+    tiles_to_string(tiles, properties_to_compare = [], ignore_tiles_with_props = []) {
         let coordinate_list = []
         for(let tile of tiles) {
             let tile_list = []
+            let sorted_properties = properties_to_compare.sort()
+            let add_tile = true
             for(let key in tile) {
-                let value = tile[key]
-                tile_list.push(`${key}: ${value}`)
+                if(ignore_tiles_with_props.length > 0 && ignore_tiles_with_props.includes(key)) {
+                    add_tile = false
+                }
+                if(sorted_properties.length > 0 && !sorted_properties.includes(key)) {
+                    continue
+                }
+                tile_list.push(`${key}: ${tile[key]}`)
             }
 
-            coordinate_list.push(tile_list.join(', '))
-            // output += '}]'
+            if(add_tile) {
+                coordinate_list.push(tile_list.join(', '))
+            }
         }
 
-        // remove trailing comma and close array
-        // output = output.slice(0, output.length - 2) + ''
-        output = '[{' + coordinate_list.join('}, {') + '}]'
+        let output = '[{' + coordinate_list.join('}, {') + '}]'
         return output
     }
 
@@ -127,12 +132,23 @@ export default class Board_map extends React.Component {
         return coordinates
     }
 
-    toString() {
+    toString(properties_to_compare = [], ignore_tiles_with_props = []) {
         let pairs = []
         let keys = this.getSortedKeys()
         for(let coordinate of keys) {
-            pairs.push(`[${coordinate}: ${this.tiles_to_string(this.get(coordinate))}`)
+            let tiles = this.get(coordinate)
+            let stringified_tiles = this.tiles_to_string(tiles, properties_to_compare, ignore_tiles_with_props)
+            pairs.push(`[${coordinate}: ${stringified_tiles}`)
         }
         return pairs.join('], ') + ']'
+    }
+
+    equals(other, properties_to_compare = [], ignore_tiles_with_props = []) {
+        if(other.toString(properties_to_compare, ignore_tiles_with_props) ===
+            this.toString(properties_to_compare, ignore_tiles_with_props)) {
+            return true
+        }
+
+        return false
     }
 }

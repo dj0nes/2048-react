@@ -30,70 +30,31 @@ class Game extends React.Component {
             right: {x: -1, y: 0},
         }
 
-        let tile0_coordinates = {x: 0, y: 0}
-        let tile1_coordinates = {x: 1, y: 0}
-        let tile2_coordinates = {x: 2, y: 0}
-        let tile3_coordinates = {x: 3, y: 0}
-        let tile0 = BoardUtil.createTile({value: 8})
-        let tile1 = BoardUtil.createTile({value: 4})
-        let tile2 = BoardUtil.createTile({value: 2})
-        let tile3 = BoardUtil.createTile({value: 2})
-        let kv_pairs = [
-            [tile0_coordinates, tile0],
-            // [tile1_coordinates, tile1],
-            // [tile2_coordinates, tile2],
-            // [tile3_coordinates, tile3]
-        ]
+        let board = new Board_map()
+        // start with two random tiles
+        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
+        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
 
         this.state = {
             score: 0,
-            history: [new Board_map(kv_pairs)]
+            history: [board]
         }
     }
 
-
-    handleClickShuffle(i) {
-        console.dir(i)
-        // let current = this.state.history[this.state.history.length - 1]
-        // let new_tiles = util.shuffle(current.tiles)
-        // this.state.history.push({tiles: new_tiles})
-        // this.setState({
-        //     board_size: this.state.board_size,
-        //     history: this.state.history
-        // })
-    }
-
     handleClick(i) {
-        // console.dir(i)
-        // let current = this.state.history[this.state.history.length - 1]
-        // let transition = this.board_transitions.left
-        // let {new_tiles, new_points} = util.transitionBoard(this.tokens, this.transitions, current.tiles, transition, 700)
-        // this.state.history.push({tiles: new_tiles})
-        // this.setState({
-        //     board_size: this.state.board_size,
-        //     history: this.state.history,
-        //     score: this.state.score + new_points
-        // })
+        let current = this.state.history[this.state.history.length - 1]
+        let new_board = BoardUtil.shuffle(current, this.board_dimensions)
+        this.setState({
+            board_size: this.state.board_size,
+            history: this.state.history.concat(new_board),
+            score: this.state.score
+        })
     }
 
-    debounce(func, wait, immediate) {
-        var timeout;
-        return function() {
-            var context = this, args = arguments;
-            var later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
-            };
-            var callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
-        };
-    };
-
-    async handleKeys(value, event) {
+    handleKeys(value, event) {
         let current = this.state.history[this.state.history.length - 1]
         let direction = ''
+        if(event.keyCode === KEY.SPACE) return this.handleClick()
         if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left;
         if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right;
         if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = this.board_transitions.up;
@@ -101,13 +62,15 @@ class Game extends React.Component {
         if(direction === '') return
 
         let {merged_board, new_points} = BoardUtil.mergeBoard(current, this.board_dimensions, direction, this.tokens)
-        let game_over = randomTileInsert(merged_board, this.board_dimensions, this.tokens)  // will insert max(board_dimensions) - 1 tiles
+        if(!current.equals(merged_board, ['id', 'value'], ['remove'])) {
+            randomTileInsert(merged_board, this.board_dimensions, this.tokens)  // will insert max(board_dimensions) - 1 tiles
 
-        this.setState({
-            board_size: this.state.board_size,
-            history: this.state.history.concat(merged_board),
-            score: this.state.score + new_points
-        })
+            this.setState({
+                board_size: this.state.board_size,
+                history: this.state.history.concat(merged_board),
+                score: this.state.score + new_points
+            })
+        }
     }
 
     componentDidMount() {
@@ -123,7 +86,7 @@ class Game extends React.Component {
 
         return (
             <div>
-                <h2>{this.state.score}</h2>
+                <h2>Score: {this.state.score}</h2>
                 <Board
                     board_map={current_board_map}
                     board_size={this.board_size}

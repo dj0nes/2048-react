@@ -1,4 +1,4 @@
-import Board_map from './board_map'
+import BoardMap from './board_map'
 
 let global_id = 0
 
@@ -308,7 +308,7 @@ export function mergeBoard(board, board_dimensions, direction, tokens) {
         new_points += points
     }
 
-    let merged_board = new Board_map(merged_kv_pairs)
+    let merged_board = new BoardMap(merged_kv_pairs)
 
     return {merged_board, new_points}
 }
@@ -337,6 +337,28 @@ export function randomTileInsert(board, board_dimensions, tokens) {
 
     return true
 
+}
+
+export function shuffle(board, board_dimensions) {
+    let {all_coordinates} = getAllCoordinates(board_dimensions)
+    let remaining_coordinates = all_coordinates.map(obj => board.stringify(obj))
+    let occupied_coordinates = board.getSortedKeys()
+
+    let kv_pairs = []
+
+    for(let coordinates of occupied_coordinates) {
+        let tiles = board.get(coordinates)
+
+        let rand1 = Math.random()
+        let random_index = Math.floor(rand1 * remaining_coordinates.length)
+        let random_coordinate = remaining_coordinates[random_index]
+        kv_pairs.push([random_coordinate, tiles])
+
+        // remove the coordinate we just used
+        remaining_coordinates = remaining_coordinates.filter((coord, index) => index !== random_index)
+    }
+
+    return new BoardMap(kv_pairs)
 }
 
 // export function shuffle(tiles) {
