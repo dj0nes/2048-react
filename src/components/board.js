@@ -6,6 +6,7 @@ function Board(props) {
     let style = ''
     let box_size = 4
     let gutter = box_size / 8
+    let z_layer = props.z_layer
 
     for(let x = 0; x < props.board_size; x++) {
         for (let y = 0; y < props.board_size; y++) {
@@ -23,6 +24,11 @@ function Board(props) {
     for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
+
+        if(coordinates.z !== z_layer) {
+            continue
+        }
+
         // Declaring the per-tile creation function here is clearer than the alternative
         /*eslint no-loop-func: "off"*/
         tiles.map((tile) => tilesList.push(
@@ -46,7 +52,7 @@ function Board(props) {
     })
 
     return (
-        <div id="board">
+        <div className="board2D">
             <style>{style}</style>
             <div className={'grid-container'}>
                 {board_cells}

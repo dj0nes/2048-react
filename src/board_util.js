@@ -313,12 +313,12 @@ export function mergeBoard(board, board_dimensions, direction, tokens) {
     return {merged_board, new_points}
 }
 
-export function randomTileInsert(board, board_dimensions, tokens) {
+export function randomTileInsert(board, board_dimensions, tokens, max_tiles_to_insert) {
     // inserts max(board_dimensions) - 1 tiles
     let {all_coordinates} = getAllCoordinates(board_dimensions)
     all_coordinates = all_coordinates.map(obj => board.stringify(obj))
 
-    let tiles_to_insert = Math.max(2, Object.keys(board_dimensions).length) - 1
+    let tiles_to_insert = max_tiles_to_insert || Math.max(2, Object.keys(board_dimensions).length) - 1
     let i = 0
     while(i < tiles_to_insert) {
         let occupied_coordinates = board.getSortedKeys()

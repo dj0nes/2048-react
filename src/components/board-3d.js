@@ -5,7 +5,7 @@ function Board3D(props) {
     // dynamic css classes based on number of tiles
     let style = {
         height: '20em',
-        'font-size': '10px'
+        fontSize: '10px'
     }
     let box_size = 8
     let gutter = box_size * 1
@@ -40,7 +40,7 @@ function Board3D(props) {
             for (let z = 0; z < props.board_size; z++) {
                 tilesList.push(
                     (
-                        <div className={`tile3D-wrapper row-${y}-col-${x}-depth-${z}`}>
+                        <div x-type="placeholder" key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper row-${y}-col-${x}-depth-${z}`}>
                             <div className={`tile tile3D`}>
                                 {/*Front*/}
                                 <div className={'tile-inner tile-placeholder'}></div>

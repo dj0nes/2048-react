@@ -6,5 +6,5 @@ import './3D.css';
 import Game from './components/game';
 import registerServiceWorker from './registerServiceWorker';
 
-ReactDOM.render(<Game board_size={4} />, document.getElementById('root'));
+ReactDOM.render(<Game />, document.getElementById('root'));
 registerServiceWorker();

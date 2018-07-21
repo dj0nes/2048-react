@@ -23,7 +23,7 @@ class Game extends React.Component {
     constructor(props) {
         super(props)
 
-        this.board_size = props.board_size || 4
+        this.board_size = props.board_size || 3
         this.board_dimensions = props.board_dimensions || {x: this.board_size, y: this.board_size, z: this.board_size}
         this.tokens = BoardUtil.generate2048Tokens.bind(BoardUtil)()
         this.board_transitions = {
@@ -39,35 +39,6 @@ class Game extends React.Component {
         // start with two random tiles
         BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
         BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
-
-
-
-        // let tile0_coordinates = {x: 0, y: 0, z: 0}
-        // let tile1_coordinates = {x: 0, y: 0, z: 1}
-        // let tile2_coordinates = {x: 0, y: 0, z: 2}
-        // let tile3_coordinates = {x: 1, y: 0, z: 0}
-        // let tile4_coordinates = {x: 2, y: 0, z: 1}
-        // let tile5_coordinates = {x: 3, y: 0, z: 2}
-        // let tile6_coordinates = {x: 0, y: 0, z: 0}
-        // let tile7_coordinates = {x: 0, y: 1, z: 1}
-        // let tile8_coordinates = {x: 0, y: 2, z: 2}
-        // let tile0 = BoardUtil.createTile({value: 2, id: 0})
-        // let tile1 = BoardUtil.createTile({value: 2, id: 1})
-        // let tile2 = BoardUtil.createTile({value: 8, id: 2})
-        // let kv_pairs = [
-        //     [tile0_coordinates, tile0],
-        //     [tile1_coordinates, tile1],
-        //     [tile2_coordinates, tile2],
-        //     [tile3_coordinates, tile1],
-        //     [tile4_coordinates, tile2],
-        //     [tile5_coordinates, tile1],
-        //     [tile6_coordinates, tile2],
-        //     [tile7_coordinates, tile1],
-        //     [tile8_coordinates, tile2]
-        // ]
-        // let board_dimensions = {x: this.board_size, y: this.board_size, z: this.board_size}
-        // let board = new BoardMap(kv_pairs)
-
 
         this.state = {
             score: 0,
@@ -88,6 +59,17 @@ class Game extends React.Component {
     handleKeys(value, event) {
         let current = this.state.history[this.state.history.length - 1]
         let direction = ''
+        if (event.keyCode === 90 && (event.ctrlKey || event.metaKey) && this.state.history.length > 1) {
+            // undo! set state back by one
+            let history = this.state.history.slice(0, this.state.history.length - 1)
+            this.setState({
+                history: history,
+                score: this.state.score
+            })
+
+            return
+        }
+
         if(event.keyCode === KEY.SPACE) return this.handleClick()
         if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left;
         if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right;
@@ -99,10 +81,9 @@ class Game extends React.Component {
 
         let {merged_board, new_points} = BoardUtil.mergeBoard(current, this.board_dimensions, direction, this.tokens)
         if(!current.equals(merged_board, ['id', 'value'], ['remove'])) {
-            randomTileInsert(merged_board, this.board_dimensions, this.tokens)  // will insert max(board_dimensions) - 1 tiles
+            randomTileInsert(merged_board, this.board_dimensions, this.tokens, 1)  // will insert max(board_dimensions) - 1 tiles
 
             this.setState({
-                board_size: this.state.board_size,
                 history: this.state.history.concat(merged_board),
                 score: this.state.score + new_points
             })
@@ -120,9 +101,27 @@ class Game extends React.Component {
         const current_board_map = history[history.length - 1]
         // setTimeout(() => this.handleClick('blah'), 800)
 
+        let boards = []
+        for(let i = 0; i < this.board_dimensions.x; i++) {
+            boards.push(<Board
+                board_map={current_board_map}
+                board_size={this.board_size}
+                z_layer={i}
+                key={i}
+                handleClick={(i)=>this.handleClick(i)}
+            />)
+        }
+
+        let board_style = `
+        :root {
+            --box-size: 4em;
+            --gutter: calc(var(--box-size) / 8);
+            --boxes: ${this.board_size};
+        }`
+
         return (
             <div>
-                <h2>Score: {this.state.score}</h2>
+                <h2 style={{textAlign: 'right', margin: '1em'}}>Score: {this.state.score}</h2>
                 <Board3D
                     board_map={current_board_map}
                     board_size={this.board_size}
@@ -131,11 +130,10 @@ class Game extends React.Component {
                 <br/>
                 <br/>
                 <br/>
-                <Board
-                    board_map={current_board_map}
-                    board_size={this.board_size}
-                    handleClick={(i)=>this.handleClick(i)}
-                />
+                <style>{board_style}</style>
+                <div id="board2D-container">
+                    {boards}
+                </div>
             </div>
         );
     }

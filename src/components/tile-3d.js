@@ -4,9 +4,10 @@ function Tile3D(props) {
     let remove = props.remove !== undefined ? 'remove' : ''
     let display_value = props.merged_to ? props.merged_to : props.value
 
-    function base3Dtile(value) {
+    function base3Dtile(value, new_tile, tile_merged) {
         return (
-            <div className={`tile tile-${value} tile3D`}>
+            <div key={`${props.coordinates.x}${props.coordinates.y}${props.coordinates.z}`}
+                 className={`tile tile3D tile-${value} ${remove} ${new_tile} ${tile_merged}`}>
                 {/*Front*/}
                 <div className={'tile-inner'}>{value}</div>
                 {/*Back*/}
@@ -27,19 +28,16 @@ function Tile3D(props) {
     if(props.new_tile) {
         new_tile = 'new_tile'
     }
+    let tile_merged = ''
+    if(props.merged_to) {
+        tile_merged = 'tile_merged'
+    }
 
     let depth_class = `row-${props.coordinates.y}-col-${props.coordinates.x}-depth-${props.coordinates.z}`
     let content = [
-        base3Dtile(display_value)
+        base3Dtile(display_value, new_tile, tile_merged)
     ]
 
-    if(props.merged_to) {
-        content.push(
-            <div className="tile-inner tile-merged" key={1}>
-                <span>{props.merged_to}</span>
-            </div>
-        )
-    }
 
     let tile3D_wrapper_style = {
         // position: 'absolute',

@@ -6,9 +6,10 @@ body {
 }
 
 :root {
+    /* these are default values that can be overridden with another style tag in game.js*/
     --box-size: 4em;
     --gutter: calc(var(--box-size) / 8);
-    --boxes: 4
+    --boxes: 3;
 }
 
 .cell {
@@ -62,11 +63,23 @@ body {
     z-index: 1;
 }
 
-#board {
+.board2D {
     position: relative;
     background-color: #bbada0;
     border-radius: 3px;
     border: 0.35em solid #bbada0;
     height: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
     width: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
+}
+
+#board2D-container {
+    display: flex;
+    justify-content: flex-start;
+    transform: scale(.3);
+    position: fixed;
+    top:0;
+    right:0;
+ }
+
+#board2D-container > .board2D{
 }

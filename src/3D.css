@@ -28,7 +28,7 @@
     height:var(--cube-size);
     background:rgba(0,0,0,0.1);
     display: flex;
-    border: 1px solid gray;
+    border: 1px solid #8e8e8e2e;
     font-size: 7rem;
     justify-content: center;
     align-items: center;
@@ -43,6 +43,10 @@
     transform-style:preserve-3d;
     /*transform: translate3d(0em, 0em, 0em) rotateY(30deg);*/
     /*transition:200ms ease-in;*/
+}
+
+.tile3D.remove {
+    transform: scale3d(0.5, 0.5, 0.5);
 }
 
 .tile3D div:nth-child(1){
@@ -70,15 +74,34 @@
 }
 
 .tile-inner.tile-placeholder {
-    border: 1px solid gray;
     background: none;
-    scale: .9
+
 }
 
+@keyframes appear3D {
+    0% {
+        /*opacity: .25;*/
+        transform: translate3d(0, 0, 0) scale3d(.05, .05, .05);
+    }
 
+    100% {
+        /*opacity: 1;*/
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+    }
+}
 
 @keyframes pop {
     0%   { transform: scale(0); }
     50%  { transform: scale(1.2); }
     100% { transform: scale(1); }
+}
+
+.tile3D.new_tile {
+    animation: appear3D 200ms ease 100ms;
+    animation-fill-mode: backwards;
+}
+
+.tile3D.tile_merged {
+    animation: pop 200ms ease 100ms;
+    animation-fill-mode: backwards;
 }
