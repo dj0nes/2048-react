@@ -77,6 +77,7 @@ function Board3D(props) {
                 merged_from={tile.merged_from}
                 merged_to={tile.merged_to}
                 new_tile={tile.new_tile}
+                tokens={props.tokens}
                 handleClick={(i) => props.handleClick(i)}
             />)
         )

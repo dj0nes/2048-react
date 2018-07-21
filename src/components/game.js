@@ -125,6 +125,7 @@ class Game extends React.Component {
                 <Board3D
                     board_map={current_board_map}
                     board_size={this.board_size}
+                    tokens={this.tokens}
                     handleClick={(i)=>this.handleClick(i)}
                 />
                 <br/>

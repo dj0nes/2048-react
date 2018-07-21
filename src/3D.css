@@ -96,6 +96,13 @@
     100% { transform: scale(1); }
 }
 
+
+@keyframes popAgain {
+    0%   { transform: scale(0); }
+    50%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
 .tile3D.new_tile {
     animation: appear3D 200ms ease 100ms;
     animation-fill-mode: backwards;
@@ -103,5 +110,10 @@
 
 .tile3D.tile_merged {
     animation: pop 200ms ease 100ms;
+    animation-fill-mode: backwards;
+}
+
+.tile3D.tile_merged_again {
+    animation: popAgain 200ms ease 100ms;
     animation-fill-mode: backwards;
 }
