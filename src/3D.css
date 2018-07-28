@@ -3,8 +3,8 @@
 /*}*/
 
 :root {
-    --cube-size: 80px;
-    --cube-size-half: 40px
+    --cube-size: 8em;
+    --cube-size-half: 4em;
 }
 
 #board-3D {
@@ -29,7 +29,6 @@
     background:rgba(0,0,0,0.1);
     display: flex;
     border: 1px solid #8e8e8e2e;
-    font-size: 7rem;
     justify-content: center;
     align-items: center;
     backface-visibility: hidden;
@@ -116,4 +115,8 @@
 .tile3D.tile_merged_again {
     animation: popAgain 200ms ease 100ms;
     animation-fill-mode: backwards;
+}
+
+.tile3D .tile-inner span {
+    font-size: 6em;
 }

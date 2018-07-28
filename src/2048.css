@@ -4,11 +4,14 @@
     text-align: center;
     font-weight: bold;
     z-index: 10;
-    font-size: 55px;
     height: 100%;
     width: 100%;
     display: flex;
     align-items: center;
+}
+
+.tile .tile-inner span {
+    font-size: 3em;
 }
 
 @keyframes pop {

@@ -6,7 +6,7 @@ function Tile3D(props) {
 
     function base3Dtile(value, new_tile, tile_merged, tokens) {
         // resolves issue when the pop animation remains on an element, instead of replaying
-        let sorted_tokens = Object.keys(tokens).map(item => parseInt(item))
+        let sorted_tokens = Object.keys(tokens).map(item => parseInt(item, 10))
         let found_index = sorted_tokens.findIndex(item => item === value)
         let tile_merged_again = ''
         // apply an additional css class with the same animation, but only on merged with an odd value index
@@ -18,17 +18,17 @@ function Tile3D(props) {
             <div key={`${props.coordinates.x}${props.coordinates.y}${props.coordinates.z}`}
                  className={`tile tile3D tile-${value} ${remove} ${new_tile} ${tile_merged} ${tile_merged_again}`}>
                 {/*Front*/}
-                <div className={'tile-inner'}>{value}</div>
+                <div className={'tile-inner'}><span>{value}</span></div>
                 {/*Back*/}
-                <div className={'tile-inner'}>{value}</div>
+                <div className={'tile-inner'}><span>{value}</span></div>
                 {/*Left*/}
-                <div className={'tile-inner'}>{value}</div>
+                <div className={'tile-inner'}><span>{value}</span></div>
                 {/*Right*/}
-                <div className={'tile-inner'}>{value}</div>
+                <div className={'tile-inner'}><span>{value}</span></div>
                 {/*Top*/}
-                <div className={'tile-inner'}>{value}</div>
+                <div className={'tile-inner'}><span>{value}</span></div>
                 {/*Bottom*/}
-                <div className={'tile-inner'}>{value}</div>
+                <div className={'tile-inner'}><span>{value}</span></div>
             </div>
         )
     }
