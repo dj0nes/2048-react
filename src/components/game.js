@@ -101,9 +101,9 @@ class Game extends React.Component {
         const current_board_map = history[history.length - 1]
         // setTimeout(() => this.handleClick('blah'), 800)
 
-        let boards = []
+        let boards2D = []
         for(let i = 0; i < this.board_dimensions.x; i++) {
-            boards.push(<Board
+            boards2D.push(<Board
                 board_map={current_board_map}
                 board_size={this.board_size}
                 z_layer={i}
@@ -122,18 +122,17 @@ class Game extends React.Component {
         return (
             <div>
                 <h2 style={{textAlign: 'right', margin: '1em'}}>Score: {this.state.score}</h2>
-                <Board3D
-                    board_map={current_board_map}
-                    board_size={this.board_size}
-                    tokens={this.tokens}
-                    handleClick={(i)=>this.handleClick(i)}
-                />
-                <br/>
-                <br/>
-                <br/>
-                <style>{board_style}</style>
+                <div id="board-3D-container">
+                    <Board3D
+                        board_map={current_board_map}
+                        board_size={this.board_size}
+                        tokens={this.tokens}
+                        handleClick={(i)=>this.handleClick(i)}
+                    />
+                </div>
                 <div id="board2D-container">
-                    {boards}
+                    <style>{board_style}</style>
+                        {boards2D}
                 </div>
             </div>
         );
