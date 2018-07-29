@@ -12,12 +12,12 @@
     perspective-origin: 50% 0%;
     transform-style:preserve-3d;
     transform: rotate3d(1, 2, 0, -20deg);
-    transition:200ms ease-in;
+    transition: 200ms ease-in;
 }
 
 .tile3D-wrapper{
     /*perspective: 3000px;*/
-    transition:150ms ease-in;
+    transition: 150ms ease-in;
     position: absolute;
     transform-style: preserve-3d;
 }

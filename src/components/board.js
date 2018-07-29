@@ -14,13 +14,24 @@ function Board(props) {
         }
     }
 
-    let board_cells = []
-    for(let i = 0; i < Math.pow(props.board_size, 2); i++) {
-        board_cells.push(<div className={'cell'} key={i}/>)
-    }
-
     let board_map = props.board_map
     let tilesList = []
+
+    // populate board with placeholder tiles
+    for(let x = 0; x < props.board_size; x++) {
+        for (let y = 0; y < props.board_size; y++) {
+            tilesList.push(
+                (
+                    <div x-type="placeholder" key={`${x}${y}-placeholder`} className={`
+                        tile
+                        tile-placeholder
+                        row-${y}-col-${x}`}
+                    ><div className="tile-inner"> </div></div>
+                ))
+        }
+    }
+
+
     for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
@@ -54,11 +65,8 @@ function Board(props) {
     return (
         <div className="board2D">
             <style>{style}</style>
-            <div className={'grid-container'}>
-                {board_cells}
-                <div style={{position: 'absolute'}}>
-                    {tilesList}
-                </div>
+            <div>
+                {tilesList}
             </div>
         </div>
     )

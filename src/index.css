@@ -19,13 +19,6 @@ body {
 
 }
 
-.grid-container {
-    display: grid;
-    height: 100%;
-    grid-template-columns: repeat(var(--boxes), 1fr);
-    grid-template-rows: repeat(var(--boxes), 1fr);
-}
-
 .tile {
     display: flex;
     align-items: center;
@@ -68,18 +61,34 @@ body {
     background-color: #bbada0;
     border-radius: 3px;
     border: 0.35em solid #bbada0;
+    margin-right: 1px;
+    font-size: 1em;
     height: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
     width: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
+}
+
+.board2D .tile-placeholder {
+    z-index: 0;
+}
+
+
+.board2D .tile-inner {
+    font-size: 2em;
+}
+
+.board2D .tile-1024 .tile-inner, .board2D .tile-2048 .tile-inner, .board2D .tile-super .tile-inner {
+    font-size: 1.5em;
+}
+
+.board2D .tile-placeholder .tile-inner {
+    background: rgba(238, 228, 218, 0.35);
 }
 
 #board2D-container {
     display: flex;
     justify-content: flex-start;
-    transform: scale(.5);
+    /*transform: scale(.5);*/
     position: fixed;
     top:0;
     right:0;
  }
-
-#board2D-container > .board2D{
-}
