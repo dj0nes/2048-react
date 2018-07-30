@@ -3,7 +3,8 @@ import * as BoardUtil from '../board_util'
 import BoardMap from '../board_map'
 import Board from './board'
 import Board3D from './board-3d'
-import {randomTileInsert} from "../board_util";
+import {randomTileInsert} from "../board_util"
+import Hammer from 'react-hammerjs'
 
 const KEY = {
     LEFT:  37,
@@ -47,13 +48,13 @@ class Game extends React.Component {
     }
 
     handleClick(i) {
-        let current = this.state.history[this.state.history.length - 1]
-        let new_board = BoardUtil.shuffle(current, this.board_dimensions)
-        this.setState({
-            board_size: this.state.board_size,
-            history: this.state.history.concat(new_board),
-            score: this.state.score
-        })
+        // let current = this.state.history[this.state.history.length - 1]
+        // let new_board = BoardUtil.shuffle(current, this.board_dimensions)
+        // this.setState({
+        //     board_size: this.state.board_size,
+        //     history: this.state.history.concat(new_board),
+        //     score: this.state.score
+        // })
     }
 
     handleKeys(value, event) {
@@ -95,6 +96,35 @@ class Game extends React.Component {
         window.addEventListener('keydown', this.handleKeys.bind(this, true));
     }
 
+    handleSwipeUp(event) {
+        event.keyCode = KEY.W
+        return this.handleKeys({}, event)
+    }
+
+    handleSwipeDown(event) {
+        event.keyCode = KEY.S
+        return this.handleKeys({}, event)
+    }
+
+    handleSwipeRight(event) {
+        event.keyCode = KEY.D
+        return this.handleKeys({}, event)
+    }
+
+    handleSwipeLeft(event) {
+        event.keyCode = KEY.A
+        return this.handleKeys({}, event)
+    }
+
+    handlePinchIn(event) {
+        event.keyCode = KEY.E
+        return this.handleKeys({}, event)
+    }
+
+    handlePinchOut(event) {
+        event.keyCode = KEY.Q
+        return this.handleKeys({}, event)
+    }
 
     render() {
         const history = this.state.history
@@ -119,27 +149,46 @@ class Game extends React.Component {
             --boxes: ${this.board_size};
         }`
 
-        return (
-            <div className={'grid'}>
-                <div className={'header'}>
-                    <h1>2048-react</h1>
-                    <h2>Score: {this.state.score}</h2>
-                </div>
+        let options = {
+            recognizers: {
+                pinch: {
+                    enable: true
+                }
+            }
+        };
 
-                <div id="board3D-container">
-                    <Board3D
-                        board_map={current_board_map}
-                        board_size={this.board_size}
-                        tokens={this.tokens}
-                        handleClick={(i)=>this.handleClick(i)}
-                    />
-                </div>
-                <div id="board2D-container">
-                    <style>{board_style}</style>
-                        {boards2D}
-                </div>
-                <div className="footer">Footer</div>
-            </div>
+        return (
+                <Hammer className={'grid'}
+                        options={options}
+                        direction='DIRECTION_ALL'
+                        onSwipeUp={this.handleSwipeUp.bind(this)}
+                        onSwipeDown={this.handleSwipeDown.bind(this)}
+                        onSwipeRight={this.handleSwipeRight.bind(this)}
+                        onSwipeLeft={this.handleSwipeLeft.bind(this)}
+                        onPinchIn={this.handlePinchIn.bind(this)}
+                        onPinchOut={this.handlePinchOut.bind(this)}
+                >
+                    <div>
+                    <div className={'header'}>
+                        <h1>2048-react</h1>
+                        <h2>Score: {this.state.score}</h2>
+                    </div>
+
+                    <div id="board3D-container">
+                        <Board3D
+                            board_map={current_board_map}
+                            board_size={this.board_size}
+                            tokens={this.tokens}
+                            handleClick={(i)=>this.handleClick(i)}
+                        />
+                    </div>
+                    <div id="board2D-container">
+                        <style>{board_style}</style>
+                            {boards2D}
+                    </div>
+                    <div className="footer">Footer</div>
+                    </div>
+                </Hammer>
         );
     }
 }
