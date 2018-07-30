@@ -120,9 +120,13 @@ class Game extends React.Component {
         }`
 
         return (
-            <div>
-                <h2 style={{textAlign: 'right', margin: '1em'}}>Score: {this.state.score}</h2>
-                <div id="board-3D-container">
+            <div className={'grid'}>
+                <div className={'header'}>
+                    <h1>2048-react</h1>
+                    <h2>Score: {this.state.score}</h2>
+                </div>
+
+                <div id="board3D-container">
                     <Board3D
                         board_map={current_board_map}
                         board_size={this.board_size}
@@ -134,6 +138,7 @@ class Game extends React.Component {
                     <style>{board_style}</style>
                         {boards2D}
                 </div>
+                <div className="footer">Footer</div>
             </div>
         );
     }

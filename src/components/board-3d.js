@@ -4,8 +4,8 @@ import Tile3D from './tile-3d'
 function Board3D(props) {
     // dynamic css classes based on number of tiles
     let style = {
-        height: '20em',
-        fontSize: '10px'
+        // height: '20em',
+        // fontSize: '10px'
     }
     let box_size = 8
     let gutter = box_size * 1
@@ -90,9 +90,9 @@ function Board3D(props) {
     })
 
     return (
-        <div>
+        <div id={"board-3D-wrapper"}>
             <style>{tile3D_style}</style>
-            <div id="board-3D" style={style}>
+            <div className="board-3D" style={style}>
                 {tilesList}
             </div>
         </div>

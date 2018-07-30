@@ -7,12 +7,20 @@
     --cube-size-half: 4em;
 }
 
-#board-3D {
+#board3D-container {
+    width: 100%;
+}
+
+.board-3D {
     perspective:1700px;
     perspective-origin: 50% 0%;
     transform-style:preserve-3d;
     transform: rotate3d(1, 2, 0, -20deg);
     transition: 200ms ease-in;
+    font-size: 6px;
+    height: 45em;
+    position: relative;
+    padding: 5em 0 0 8em;
 }
 
 .tile3D-wrapper{
@@ -44,15 +52,15 @@
     /*transition:200ms ease-in;*/
 }
 
-#board-3D .tile.tile-128 .tile-inner span,
-#board-3D .tile.tile-256 .tile-inner span,
-#board-3D .tile.tile-512 .tile-inner span {
+.board-3D .tile.tile-128 .tile-inner span,
+.board-3D .tile.tile-256 .tile-inner span,
+.board-3D .tile.tile-512 .tile-inner span {
     font-size: 4.75em;
 }
 
-#board-3D .tile.tile-1024 .tile-inner span,
-#board-3D .tile.tile-2048 .tile-inner span,
-#board-3D .tile.tile-super .tile-inner span {
+.board-3D .tile.tile-1024 .tile-inner span,
+.board-3D .tile.tile-2048 .tile-inner span,
+.board-3D .tile.tile-super .tile-inner span {
     font-size: 3.5em;
 }
 
