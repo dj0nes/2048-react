@@ -152,7 +152,8 @@ class Game extends React.Component {
         let options = {
             recognizers: {
                 pinch: {
-                    enable: true
+                    enable: true,
+                    threshold: .25
                 }
             }
         };
