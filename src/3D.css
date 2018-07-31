@@ -8,7 +8,8 @@
 }
 
 #board3D-container {
-    width: 100%;
+    /*width: 100%;*/
+    width: 375px;
 }
 
 .board-3D {

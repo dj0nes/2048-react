@@ -48,13 +48,17 @@ class Game extends React.Component {
     }
 
     handleClick(i) {
-        // let current = this.state.history[this.state.history.length - 1]
-        // let new_board = BoardUtil.shuffle(current, this.board_dimensions)
-        // this.setState({
-        //     board_size: this.state.board_size,
-        //     history: this.state.history.concat(new_board),
-        //     score: this.state.score
-        // })
+        // noop, maybe I'll need this in the future?
+    }
+
+    shuffle() {
+        let current = this.state.history[this.state.history.length - 1]
+        let new_board = BoardUtil.shuffle(current, this.board_dimensions)
+        this.setState({
+            board_size: this.state.board_size,
+            history: this.state.history.concat(new_board),
+            score: this.state.score
+        })
     }
 
     handleKeys(value, event) {
@@ -71,7 +75,7 @@ class Game extends React.Component {
             return
         }
 
-        if(event.keyCode === KEY.SPACE) return this.handleClick()
+        if(event.keyCode === KEY.SPACE) return this.shuffle()
         if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left;
         if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right;
         if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = this.board_transitions.up;
