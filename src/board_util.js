@@ -119,7 +119,7 @@ export function mergeSequence(sequence, tokens) {
         let previous_tile = {value: -1}
         let new_tiles = []
         while (tiles.length > 0) {
-            let tile = tiles.pop()
+            let tile = {...tiles.pop()}
             let prev_matching_tiles = []
 
             // if there is a tile at coordinates before current that match this value,
