@@ -6,7 +6,7 @@ export default class Board_map extends React.Component {
         this.coordinates = {}  // stores coordinates
 
         for(let pair of kv_pairs) {
-            let [key, value] = pair
+            let {coordinates: key, tiles: value} = pair
             let value_is_array = Array.isArray(value)
             let value_is_object = value.constructor.name === 'Object'
 

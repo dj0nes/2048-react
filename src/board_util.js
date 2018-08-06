@@ -60,7 +60,7 @@ export function* getSequence(board, board_dimensions, direction, location) {
     while (index < board_dimensions[iteration_dimension] && index >= 0) {
         let location_copy = Object.assign({}, location)
         let coordinate = Object.assign(location_copy, {[iteration_dimension]: index})
-        yield([coordinate, board.get(coordinate)])
+        yield({coordinates: coordinate, tiles: board.get(coordinate)})
         index += iteration_direction
     }
 }
@@ -110,9 +110,9 @@ export function mergeSequence(sequence, tokens) {
     let merged_sequence = []
     let points = 0
     for (let kv_pair of sequence) {
-        let [coordinates, tiles] = kv_pair
+        let {coordinates, tiles} = kv_pair
         if (tiles === undefined || tiles.length === 0) {
-            merged_sequence.push([coordinates, []])
+            merged_sequence.push({coordinates: coordinates, tiles: []})
             continue
         }
 
@@ -130,7 +130,7 @@ export function mergeSequence(sequence, tokens) {
                 let merge_contents = []
                 while (index >= 0) {
                     let previous_kv_pair = merged_sequence[index]
-                    let [/* previous_merged_coord */, prev_merged_tiles] = previous_kv_pair
+                    let {tiles: prev_merged_tiles} = previous_kv_pair
                     prev_matching_tiles = prev_merged_tiles.filter(merged_tile => merged_tile.value === tile.value)
 
                     if (prev_merged_tiles.length > 0 && prev_merged_tiles.every(tile => tile.value === 0)) {
@@ -187,17 +187,13 @@ export function mergeSequence(sequence, tokens) {
                 // ignore zero-valued tiles, they shouldn't exist
                 continue
             }
-            else if (tile.value === 0) {
-                // ignore zero-valued tiles, they shouldn't exist
-                continue
-            }
             else {
                 new_tiles.push(tile)
                 previous_tile = tile
             }
         }
 
-        merged_sequence.push([coordinates, new_tiles])
+        merged_sequence.push({coordinates: coordinates, tiles: new_tiles})
     }
 
     return {merged_sequence, points}
@@ -227,7 +223,7 @@ export function transitionToken(tokens, token) {
 export function sequenceCleanup(sequence) {
     let cleaned_sequence = []
     for(let i = 0; i < sequence.length; i++) {
-        let [coordinates, tiles] = sequence[i]
+        let {coordinates, tiles} = sequence[i]
         if (tiles === undefined) {
             tiles = []
         }
@@ -253,7 +249,7 @@ export function sequenceCleanup(sequence) {
             cleaned_tiles.push(tile)
         }
 
-        cleaned_sequence.push([coordinates, cleaned_tiles])
+        cleaned_sequence.push({coordinates: coordinates, tiles: cleaned_tiles})
     }
 
     return cleaned_sequence
