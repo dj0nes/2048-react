@@ -93,7 +93,7 @@ export function getAllCoordinates(board_dimensions) {
         let extended_pairs = []
         for (let location of dimension) {
             for (let pair of pairs) {
-                let location_copy = Object.assign({}, location)
+                let location_copy = {...location}
                 let extended_pair = Object.assign(location_copy, pair)
                 extended_pairs.push(extended_pair)
             }
