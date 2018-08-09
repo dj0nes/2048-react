@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default class Board_map extends React.Component {
+export default class BoardMap extends React.Component {
     constructor(kv_pairs = []) {
         super()
         this.coordinates = {}  // stores coordinates

@@ -60,7 +60,7 @@ body {
 }
 
 .tile.remove {
-    z-index: 1;
+    z-index: 0;
 }
 
 .board2D {

@@ -49,7 +49,7 @@ export function createTile({id, value, ...rest}) {
 
 export function* getSequence(board, board_dimensions, direction, location) {
     let [iteration_dimension, iteration_direction] = Object.entries(direction)
-        .filter(([dim, dir]) => dir !== 0)
+        .filter(([/* dim */, dir]) => dir !== 0)
         .pop()
 
     let index = 0
@@ -106,94 +106,51 @@ export function getAllCoordinates(board_dimensions) {
     return {all_locations, all_coordinates}
 }
 
+export function mergeTiles(mergee, merger, tokens) {
+    // mergee gets transitioned, merger marked for removal and moves to mergee's position
+    let new_mergee = {...mergee}
+    let new_merger = {...merger}
+
+    new_mergee.merged_from = merger.value
+    let {transitioned_token, transitioned_points} = this.transitionToken(tokens, new_mergee.value)
+    new_mergee.merged_to = transitioned_token
+    new_merger.remove = true
+    return {new_mergee, new_merger, transitioned_points}
+}
+
 export function mergeSequence(sequence, tokens) {
     let merged_sequence = []
     let points = 0
-    for (let kv_pair of sequence) {
-        let {coordinates, tiles} = kv_pair
-        if (tiles === undefined || tiles.length === 0) {
-            merged_sequence.push({coordinates: coordinates, tiles: []})
-            continue
+    let all_coordinates = sequence.map(({coordinates}) => coordinates)
+    let nonzero_locations = sequence.filter(({tiles}) => tiles.length > 0)
+    let results = []
+
+    while(nonzero_locations.length > 0) {
+        let kv_pair = nonzero_locations.shift()
+        let next_kv_pair = nonzero_locations[0]
+        let tile = kv_pair.tiles[0]
+
+        if(next_kv_pair === undefined) {  // end of array
+            results.push([tile])
         }
+        else {
+            let next_tile = next_kv_pair.tiles[0]
 
-        let previous_tile = {value: -1}
-        let new_tiles = []
-        while (tiles.length > 0) {
-            let tile = {...tiles.pop()}
-            let prev_matching_tiles = []
-
-            // if there is a tile at coordinates before current that match this value,
-            // move this tile to those coordinates
-            if (merged_sequence.length > 0) {
-                let index = merged_sequence.length - 1
-                let merge_target = false
-                let merge_contents = []
-                while (index >= 0) {
-                    let previous_kv_pair = merged_sequence[index]
-                    let {tiles: prev_merged_tiles} = previous_kv_pair
-                    prev_matching_tiles = prev_merged_tiles.filter(merged_tile => merged_tile.value === tile.value)
-
-                    if (prev_merged_tiles.length > 0 && prev_merged_tiles.every(tile => tile.value === 0)) {
-                        // skip zeros
-                        index--
-                        continue
-                    }
-                    if (prev_merged_tiles.length === 0 && tile.value !== 0) {
-                        merge_target = prev_merged_tiles
-                        merge_contents = [tile]
-                    }
-                    else if (prev_matching_tiles.length > 1) {
-                        // more than one match in previous cell - not sure this is desired, but skipping
-                        break
-                    }
-                    else if (prev_matching_tiles.length === 1) {
-                        let matching_tile = prev_matching_tiles.pop()
-                        matching_tile.merged_from = tile.value
-                        let {transitioned_token, transitioned_points} = this.transitionToken(tokens, matching_tile.value)
-                        matching_tile.merged_to = transitioned_token
-                        points += transitioned_points
-                        tile.remove = true
-                        merge_target = prev_merged_tiles
-                        merge_contents = [matching_tile, tile]
-                    }
-                    else {
-                        break
-                    }
-
-                    if (merge_contents.length === 0) {
-                        merge_contents = tile
-                    }
-
-                    index--
-                }
-
-                if (merge_target) {
-                    merge_contents.forEach(tile => {
-                        if (!merge_target.includes(tile)) merge_target.push(tile)
-                    })
-                    break
-                }
-                else {
-                    new_tiles.concat(merge_contents)
-                }
-            }
-
-            if (tile.value === previous_tile.value) {
-                // one of them has to go, so we'll skip this one
-                // not updating previous var since this one is now gone
-                continue
-            }
-            else if (tile.value === 0) {
-                // ignore zero-valued tiles, they shouldn't exist
-                continue
+            if(tile.value === next_tile.value) {
+                let {new_mergee, new_merger, transitioned_points} = this.mergeTiles(tile, next_tile, tokens)
+                points += transitioned_points
+                nonzero_locations.shift()  // consume second tile
+                results.push(this.idSort([new_mergee, new_merger]))
             }
             else {
-                new_tiles.push(tile)
-                previous_tile = tile
+                results.push([tile])
             }
         }
+    }
 
-        merged_sequence.push({coordinates: coordinates, tiles: new_tiles})
+    for(let i = 0; i < all_coordinates.length; i++) {
+        let new_tiles = results[i] ? results[i] : []
+        merged_sequence.push({coordinates: all_coordinates[i], tiles: new_tiles})
     }
 
     return {merged_sequence, points}
@@ -215,9 +172,27 @@ export function transitionToken(tokens, token) {
             transitioned_points: tokens[token].points}
     }
     else {
-        console.error('invalid token: ' + token)
+        // console.error('invalid token: ' + token)
         return {}
     }
+}
+
+export function tileCleanup(tile) {
+    if (tile.remove) {
+        return undefined
+    }
+
+    if(tile.merged_to) {
+        tile.value = tile.merged_to
+        delete tile.merged_to
+        delete tile.merged_from
+    }
+
+    if(tile.new_tile) {
+        delete tile.new_tile
+    }
+
+    return tile
 }
 
 export function sequenceCleanup(sequence) {
@@ -231,22 +206,10 @@ export function sequenceCleanup(sequence) {
         tiles = tiles.filter(tile => !tile.remove)
         let cleaned_tiles = []
         for(let i = 0; i < tiles.length; i++) {
-            let tile = tiles[i]
-            if (tile.remove) {
-                continue
+            let tile = this.tileCleanup(tiles[i])
+            if(tile !== undefined) {
+                cleaned_tiles.push(tile)
             }
-
-            if(tile.merged_to) {
-                tile.value = tile.merged_to
-                delete tile.merged_to
-                delete tile.merged_from
-            }
-
-            if(tile.new_tile) {
-                delete tile.new_tile
-            }
-
-            cleaned_tiles.push(tile)
         }
 
         cleaned_sequence.push({coordinates: coordinates, tiles: cleaned_tiles})
@@ -271,12 +234,12 @@ export function mergeLocation(board, board_dimensions, direction, location, toke
     return this.mergeSequence(sequence, tokens)
 }
 
-export function getMoveDimensionDirection(direction) {
-    let [move_dimension, move_direction] = Object.entries(direction)
-        .filter(([dim, dir]) => dir !== 0)
-        .pop()
-    return {move_dimension, move_direction}
-}
+// export function getMoveDimensionDirection(direction) {
+//     let [move_dimension, move_direction] = Object.entries(direction)
+//         .filter(([/* dim */, dir]) => dir !== 0)
+//         .pop()
+//     return {move_dimension, move_direction}
+// }
 
 export function getMoveSequences(board_dimensions, direction) {
     // in an n-dimensional space, returns all n-1 dimensional sequence coordinates for merge
@@ -284,9 +247,11 @@ export function getMoveSequences(board_dimensions, direction) {
     // [{x:0, z:0}, {x:0, z:1}, {x:0, z:2}, {x:0, z:3}, {x:1, z:0},  ... {x:3, z:3}]
     let coordinate_dimensions = {}
     for (let dimension in direction) {
-        let direction_value = direction[dimension]
-        if (direction_value === 0) {
-            coordinate_dimensions[dimension] = board_dimensions[dimension]
+        if(direction.hasOwnProperty(dimension)) {
+            let direction_value = direction[dimension]
+            if (direction_value === 0) {
+                coordinate_dimensions[dimension] = board_dimensions[dimension]
+            }
         }
     }
 
@@ -297,7 +262,7 @@ export function getMoveSequences(board_dimensions, direction) {
 export function mergeBoard(board, board_dimensions, direction, tokens) {
     let move_sequences = this.getMoveSequences(board_dimensions, direction)
     let merged_kv_pairs = []
-    let new_points = 0;
+    let new_points = 0
     for (let location of move_sequences) {
         let {merged_sequence, points} = this.mergeLocation(board, board_dimensions, direction, location, tokens)
         merged_kv_pairs = merged_kv_pairs.concat(merged_sequence)
@@ -348,7 +313,7 @@ export function shuffle(board, board_dimensions) {
         let rand1 = Math.random()
         let random_index = Math.floor(rand1 * remaining_coordinates.length)
         let random_coordinate = remaining_coordinates[random_index]
-        kv_pairs.push([random_coordinate, tiles])
+        kv_pairs.push({coordinates: random_coordinate, tiles: tiles})
 
         // remove the coordinate we just used
         remaining_coordinates = remaining_coordinates.filter((coord, index) => index !== random_index)

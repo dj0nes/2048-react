@@ -9,9 +9,7 @@ function Tile(props) {
         new_tile = 'new_tile'
     }
     let content = [
-        <div className={`tile-inner ${new_tile}`} key={0}>
-            <span>{props.value}</span>
-        </div>
+
     ]
 
     if(props.merged_to) {
@@ -22,15 +20,24 @@ function Tile(props) {
         )
 
     }
+    else {
+        content.push(
+            <div className={`tile-inner ${new_tile}`} key={0}>
+                <span>{props.value}</span>
+            </div>
+        )
+    }
 
     return (
-        <div className={`
-            tile
-            tile-${display_value}
-            row-${props.coordinates.y}-col-${props.coordinates.x}
-            ${remove}
-            `}
+        <div
             onClick={() => props.handleClick(props)}
+            className={`
+                tile
+                tile-${display_value}
+                row-${props.coordinates.y}-col-${props.coordinates.x}
+                ${remove}
+            `}
+
         >
             {content}
         </div>
