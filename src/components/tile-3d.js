@@ -16,7 +16,7 @@ function Tile3D(props) {
 
         return (
             <div key={`${props.coordinates.x}${props.coordinates.y}${props.coordinates.z}`}
-                 className={`tile tile3D tile-${value} ${remove} ${new_tile} ${tile_merged} ${tile_merged_again}`}>
+                className={`tile tile3D tile-${value} ${remove} ${new_tile} ${tile_merged} ${tile_merged_again}`}>
                 {/*Front*/}
                 <div className={'tile-inner'}><span>{value}</span></div>
                 {/*Back*/}
@@ -58,7 +58,7 @@ function Tile3D(props) {
 
     return (
         <div className={`tile3D-wrapper ${depth_class}`}
-             style={tile3D_wrapper_style}
+            style={tile3D_wrapper_style}
         >
             {content}
         </div>

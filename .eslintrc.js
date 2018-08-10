@@ -4,7 +4,11 @@ module.exports = {
         "node": true,
         "jest/globals": true
     },
-    "extends": ["eslint:recommended", "plugin:jest/recommended"],
+    "extends": [
+        "eslint:recommended",
+        "plugin:jest/recommended",
+        "plugin:react/recommended"
+    ],
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true

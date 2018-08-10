@@ -8,7 +8,7 @@ function Board3D(props) {
         // fontSize: '10px'
     }
     let box_size = 8
-    let gutter = box_size * 1
+    let gutter = box_size
     let tile3D_style = ''
     for(let x = 0; x < props.board_size; x++) {
         for (let y = 0; y < props.board_size; y++) {
@@ -23,7 +23,7 @@ function Board3D(props) {
 
     // cube face styles
     for(let i = 1; i <= 6; i++) {
-        tile3D_style += ``
+        tile3D_style += ''
     }
 
     let board_cells = []
@@ -41,7 +41,7 @@ function Board3D(props) {
                 tilesList.push(
                     (
                         <div x-type="placeholder" key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper row-${y}-col-${x}-depth-${z}`}>
-                            <div className={`tile tile3D`}>
+                            <div className={'tile tile3D'}>
                                 {/*Front*/}
                                 <div className={'tile-inner tile-placeholder'}></div>
                                 {/*Back*/}
@@ -56,8 +56,7 @@ function Board3D(props) {
                                 <div className={'tile-inner tile-placeholder'}></div>
                             </div>
                         </div>
-                ))
-
+                    ))
             }
         }
     }
@@ -90,7 +89,7 @@ function Board3D(props) {
     })
 
     return (
-        <div id={"board-3D-wrapper"}>
+        <div id={'board-3D-wrapper'}>
             <style>{tile3D_style}</style>
             <div className="board-3D" style={style}>
                 {tilesList}

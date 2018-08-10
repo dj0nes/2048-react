@@ -3,7 +3,7 @@ import * as BoardUtil from '../board_util'
 import BoardMap from '../board_map'
 import Board from './board'
 import Board3D from './board-3d'
-import {randomTileInsert} from "../board_util"
+import {randomTileInsert} from '../board_util'
 import Hammer from 'react-hammerjs'
 
 const KEY = {
@@ -18,7 +18,7 @@ const KEY = {
     Q: 81,
     E: 69,
     SPACE: 32
-};
+}
 
 class Game extends React.Component {
     constructor(props) {
@@ -76,12 +76,12 @@ class Game extends React.Component {
         }
 
         if(event.keyCode === KEY.SPACE) return this.shuffle()
-        if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left;
-        if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right;
-        if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = this.board_transitions.up;
-        if(event.keyCode === KEY.DOWN   || event.keyCode === KEY.S) direction = this.board_transitions.down;
-        if(event.keyCode === KEY.Q) direction = this.board_transitions.out;
-        if(event.keyCode === KEY.E) direction = this.board_transitions.in;
+        if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left
+        if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right
+        if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = this.board_transitions.up
+        if(event.keyCode === KEY.DOWN   || event.keyCode === KEY.S) direction = this.board_transitions.down
+        if(event.keyCode === KEY.Q) direction = this.board_transitions.out
+        if(event.keyCode === KEY.E) direction = this.board_transitions.in
         if(direction === '') return
 
         let {merged_board, new_points} = BoardUtil.mergeBoard(current, this.board_dimensions, direction, this.tokens)
@@ -96,8 +96,8 @@ class Game extends React.Component {
     }
 
     componentDidMount() {
-        window.addEventListener('keyup',   () => {});
-        window.addEventListener('keydown', this.handleKeys.bind(this, true));
+        window.addEventListener('keyup',   () => {})
+        window.addEventListener('keydown', this.handleKeys.bind(this, true))
     }
 
     handleSwipeUp(event) {
@@ -160,20 +160,20 @@ class Game extends React.Component {
                     threshold: .25
                 }
             }
-        };
+        }
 
         return (
-                <Hammer className={'grid'}
-                        options={options}
-                        direction='DIRECTION_ALL'
-                        onSwipeUp={this.handleSwipeUp.bind(this)}
-                        onSwipeDown={this.handleSwipeDown.bind(this)}
-                        onSwipeRight={this.handleSwipeRight.bind(this)}
-                        onSwipeLeft={this.handleSwipeLeft.bind(this)}
-                        onPinchIn={this.handlePinchIn.bind(this)}
-                        onPinchOut={this.handlePinchOut.bind(this)}
-                >
-                    <div>
+            <Hammer className={'grid'}
+                options={options}
+                direction='DIRECTION_ALL'
+                onSwipeUp={this.handleSwipeUp.bind(this)}
+                onSwipeDown={this.handleSwipeDown.bind(this)}
+                onSwipeRight={this.handleSwipeRight.bind(this)}
+                onSwipeLeft={this.handleSwipeLeft.bind(this)}
+                onPinchIn={this.handlePinchIn.bind(this)}
+                onPinchOut={this.handlePinchOut.bind(this)}
+            >
+                <div>
                     <div className={'header'}>
                         <h1>2048-react</h1>
                         <h2>Score: {this.state.score}</h2>
@@ -189,12 +189,12 @@ class Game extends React.Component {
                     </div>
                     <div id="board2D-container">
                         <style>{board_style}</style>
-                            {boards2D}
+                        {boards2D}
                     </div>
                     <div className="footer">Footer</div>
-                    </div>
-                </Hammer>
-        );
+                </div>
+            </Hammer>
+        )
     }
 }
 
