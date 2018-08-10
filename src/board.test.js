@@ -10,8 +10,8 @@ it('renders without crashing', () => {
     let tile0 = BoardUtil.createTile({value: 2, location: {x:0, y:0}, id: 0})
     let tile1 = BoardUtil.createTile({value: 2, location: {x:0, y:1}, id: 1})
     let kv_pairs = [
-        [tile0_coordinates, tile0],
-        [tile1_coordinates, tile1]
+        {coordinates: tile0_coordinates, tiles: tile0},
+        {coordinates: tile1_coordinates, tiles: tile1}
     ]
     let board_map = new BoardMap(kv_pairs)
 
