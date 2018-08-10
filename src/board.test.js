@@ -1,8 +1,8 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Board from './components/board';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import Board from './components/board'
 import BoardMap from './board_map'
-import * as BoardUtil from "./board_util";
+import * as BoardUtil from './board_util'
 
 it('renders without crashing', () => {
     let tile0_coordinates = {x:0, y:0}
@@ -15,7 +15,7 @@ it('renders without crashing', () => {
     ]
     let board_map = new BoardMap(kv_pairs)
 
-    const div = document.createElement('div');
-    ReactDOM.render(<Board board_map={board_map} board_dimensions={{x:3, y:3, z:3}}/>, div);
-    ReactDOM.unmountComponentAtNode(div);
-});
+    const div = document.createElement('div')
+    ReactDOM.render(<Board board_map={board_map} board_dimensions={{x:3, y:3, z:3}}/>, div)
+    ReactDOM.unmountComponentAtNode(div)
+})

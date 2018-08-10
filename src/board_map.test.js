@@ -74,26 +74,26 @@ describe('BoardMap has these properties:', () => {
     it('stringifies tiles array with one member', () => {
         let result = board_map.tiles_to_string([tile0])
         // this is totally arbitrary
-        let expected_result = `[{id: 0, value: 2, location: [object Object]}]`
+        let expected_result = '[{id: 0, value: 2, location: [object Object]}]'
         expect(result).toEqual(expected_result)
     })
 
     it('stringifies tiles array with more than one member', () => {
         let result = board_map.tiles_to_string([tile0, tile1])
-        let expected_result = `[{id: 0, value: 2, location: [object Object]}, {id: 1, value: 2, location: [object Object]}]`
+        let expected_result = '[{id: 0, value: 2, location: [object Object]}, {id: 1, value: 2, location: [object Object]}]'
         expect(result).toEqual(expected_result)
     })
 
     it('stringifies tiles array with more than one member on given properties', () => {
         let result = board_map.tiles_to_string([tile0, tile1], ['id', 'value'])
-        let expected_result = `[{id: 0, value: 2}, {id: 1, value: 2}]`
+        let expected_result = '[{id: 0, value: 2}, {id: 1, value: 2}]'
         expect(result).toEqual(expected_result)
     })
 
     it('stringifies tiles array with more than one member on given properties, excluding those with certain keys', () => {
         let tile2 = BoardUtil.createTile({value: 2, id: 2, remove: true})
         let result = board_map.tiles_to_string([tile0, tile1, tile2], ['id', 'value'], ['remove'])
-        let expected_result = `[{id: 0, value: 2}, {id: 1, value: 2}]`
+        let expected_result = '[{id: 0, value: 2}, {id: 1, value: 2}]'
         expect(result).toEqual(expected_result)
     })
 
@@ -113,7 +113,7 @@ describe('BoardMap has these properties:', () => {
     it('stringifies itself', () => {
         let result = board_map.toString()
         // this is totally arbitrary
-        let expected_result = `[[{\"x\":0},{\"y\":0}]: [{id: 0, value: 2, location: [object Object]}]], [[{\"x\":0},{\"y\":1}]: [{id: 1, value: 2, location: [object Object]}]]`
+        let expected_result = '[[{"x":0},{"y":0}]: [{id: 0, value: 2, location: [object Object]}]], [[{"x":0},{"y":1}]: [{id: 1, value: 2, location: [object Object]}]]'
         expect(result).toEqual(expected_result)
     })
 
