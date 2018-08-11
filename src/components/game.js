@@ -185,7 +185,7 @@ class Game extends React.Component {
             recognizers: {
                 pinch: {
                     enable: true,
-                    threshold: .05
+                    threshold: .15
                 },
                 swipe: {
                     threshold: 1,

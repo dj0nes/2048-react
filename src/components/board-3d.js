@@ -40,7 +40,7 @@ function Board3D(props) {
             for (let z = 0; z < props.board_size; z++) {
                 placeholders.push(
                     (
-                        <div x-type="placeholder" key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper row-${y}-col-${x}-depth-${z}`}>
+                        <div key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper tile3D-placeholder row-${y}-col-${x}-depth-${z}`}>
                             <div className={'tile tile3D'}>
                                 {/*Front*/}
                                 <div className={'tile-inner tile-placeholder'}></div>
