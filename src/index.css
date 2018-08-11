@@ -96,20 +96,22 @@ body {
     grid-area: board2D-container;
     display: flex;
     justify-content: center;
-    font-size: 8px;
+    font-size: 2vw;
+    align-items: center;
     top:0;
     right:0;
- }
+}
 
 #board3D-container {
     position: relative;
     grid-area: board3D-container;
+    width: 375px;
+    font-size: 6px;
 }
 
 .header {
     grid-area: header;
 }
-
 
 .grid {
     display: grid;
@@ -122,14 +124,14 @@ body {
 }
 
 /*@media only screen and (min-width: 500px)  {*/
-    /*.grid {*/
-        /*grid-template-columns: auto;*/
-        /*grid-template-areas:*/
-                /*"header"*/
-                /*"board3D-container"*/
-                /*"board2D-container"*/
-                /*"footer";*/
-    /*}*/
+/*.grid {*/
+/*grid-template-columns: auto;*/
+/*grid-template-areas:*/
+/*"header"*/
+/*"board3D-container"*/
+/*"board2D-container"*/
+/*"footer";*/
+/*}*/
 /*}*/
 
 @media only screen and (min-width: 1200px)   {
@@ -141,5 +143,15 @@ body {
                 "board3D-container board2D-container"
                 "footer  footer";
         max-width: 600px;
+    }
+
+    #board2D-container {
+        /*width: 1vw;*/
+        font-size: 16px;
+    }
+
+    #board3D-container {
+        width: 45vw;
+        font-size: 10px;
     }
 }

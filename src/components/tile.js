@@ -1,4 +1,5 @@
 import React from 'react'
+import {getFontSizeClass} from '../board_util'
 
 function Tile(props) {
     let remove = props.remove !== undefined ? 'remove' : ''
@@ -8,24 +9,19 @@ function Tile(props) {
     if(props.new_tile) {
         new_tile = 'new_tile'
     }
-    let content = [
 
-    ]
-
+    let content = ''
     if(props.merged_to) {
-        content.push(
-            <div className="tile-inner tile-merged" key={1}>
+        content =
+            <div className={'tile-inner tile-merged'} key={1}>
                 <span>{props.merged_to}</span>
             </div>
-        )
-
     }
     else {
-        content.push(
+        content =
             <div className={`tile-inner ${new_tile}`} key={0}>
                 <span>{props.value}</span>
             </div>
-        )
     }
 
     return (
@@ -34,6 +30,7 @@ function Tile(props) {
             className={`
                 tile
                 tile-${display_value}
+                ${getFontSizeClass(display_value)}
                 row-${props.coordinates.y}-col-${props.coordinates.x}
                 ${remove}
             `}

@@ -20,6 +20,27 @@ it('generates 2048 tokens', () => {
         points: 2048
     })
 })
+describe('getFontSizeClass', () => {
+    it('returns a css class for values over 100', () => {
+        let result = BoardUtil.getFontSizeClass(128)
+        expect(result).toEqual('tile-100')
+    })
+
+    it('returns a css class for values over 1000', () => {
+        let result = BoardUtil.getFontSizeClass(1024)
+        expect(result).toEqual('tile-1000')
+    })
+
+    it('returns a css class for values over 10000', () => {
+        let result = BoardUtil.getFontSizeClass(65536)
+        expect(result).toEqual('tile-10000')
+    })
+
+    it('returns a css class for values over 100000', () => {
+        let result = BoardUtil.getFontSizeClass(131072)
+        expect(result).toEqual('tile-100000')
+    })
+})
 
 describe('range function', () => {
     it('generates values given a stop value only', () => {

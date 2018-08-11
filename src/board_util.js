@@ -34,6 +34,12 @@ export function generate2048Tokens() {
     return tokens
 }
 
+export function getFontSizeClass(value) {
+    let zeroes = Math.floor(Math.log10(value))
+    let result = Math.pow(10, zeroes)
+    return `tile-${result}`
+}
+
 export function idSort(tiles) {
     return tiles.sort((t1, t2) => {
         if(t1.id < t2.id) return -1

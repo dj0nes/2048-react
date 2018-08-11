@@ -15,12 +15,12 @@ function Board(props) {
     }
 
     let board_map = props.board_map
-    let tilesList = []
+    let placeholders = []
 
     // populate board with placeholder tiles
     for(let x = 0; x < props.board_size; x++) {
         for (let y = 0; y < props.board_size; y++) {
-            tilesList.push(
+            placeholders.push(
                 (
                     <div x-type="placeholder" key={`${x}${y}-placeholder`} className={`
                         tile
@@ -32,6 +32,7 @@ function Board(props) {
     }
 
 
+    let tilesList = []
     for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
@@ -65,7 +66,10 @@ function Board(props) {
     return (
         <div className="board2D">
             <style>{style}</style>
-            <div>
+            <div className="placeholders2D">
+                {placeholders}
+            </div>
+            <div className="tiles2D">
                 {tilesList}
             </div>
         </div>

@@ -35,15 +35,32 @@ class Game extends React.Component {
             in: {x: 0, y: 0, z: -1},
             out: {x: 0, y: 0, z: 1}
         }
+        this.touch_delay_ms = 100
+        this.debouncing = false
 
         let board = new BoardMap()
+
+        this.generateTestBoard(board, this.board_size)
+
         // start with two random tiles
-        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
-        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
+        // BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
+        // BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
 
         this.state = {
             score: 0,
             history: [board]
+        }
+    }
+
+    generateTestBoard(board, board_size) {
+        let value = 1
+        for(let x = 0; x < board_size; x++) {
+            for (let y = 0; y < board_size; y++) {
+                for (let z = 0; z < board_size; z++) {
+                    value *= 2
+                    board.set({x, y, z}, [BoardUtil.createTile({value: value})])
+                }
+            }
         }
     }
 
@@ -100,34 +117,45 @@ class Game extends React.Component {
         window.addEventListener('keydown', this.handleKeys.bind(this, true))
     }
 
+    touchDebounce(fn, args) {
+        if(this.debouncing !== true) {
+            this.debouncing = true
+            fn.apply(this, args)
+            setTimeout(() => {
+                this.debouncing = false
+            }, this.touch_delay_ms)
+        }
+
+    }
+
     handleSwipeUp(event) {
         event.keyCode = KEY.W
-        return this.handleKeys({}, event)
+        this.touchDebounce(this.handleKeys, [{}, event])
     }
 
     handleSwipeDown(event) {
         event.keyCode = KEY.S
-        return this.handleKeys({}, event)
+        this.touchDebounce(this.handleKeys, [{}, event])
     }
 
     handleSwipeRight(event) {
         event.keyCode = KEY.D
-        return this.handleKeys({}, event)
+        this.touchDebounce(this.handleKeys, [{}, event])
     }
 
     handleSwipeLeft(event) {
         event.keyCode = KEY.A
-        return this.handleKeys({}, event)
+        this.touchDebounce(this.handleKeys, [{}, event])
     }
 
     handlePinchIn(event) {
         event.keyCode = KEY.E
-        return this.handleKeys({}, event)
+        this.touchDebounce(this.handleKeys, [{}, event])
     }
 
     handlePinchOut(event) {
         event.keyCode = KEY.Q
-        return this.handleKeys({}, event)
+        this.touchDebounce(this.handleKeys, [{}, event])
     }
 
     render() {
@@ -158,6 +186,10 @@ class Game extends React.Component {
                 pinch: {
                     enable: true,
                     threshold: .25
+                },
+                swipe: {
+                    threshold: 2,
+                    velocity: .1
                 }
             }
         }

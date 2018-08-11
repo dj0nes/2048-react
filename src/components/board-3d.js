@@ -32,13 +32,13 @@ function Board3D(props) {
     }
 
     let board_map = props.board_map
-    let tilesList = []
+    let placeholders = []
 
     // populate board with placeholder tiles
     for(let x = 0; x < props.board_size; x++) {
         for (let y = 0; y < props.board_size; y++) {
             for (let z = 0; z < props.board_size; z++) {
-                tilesList.push(
+                placeholders.push(
                     (
                         <div x-type="placeholder" key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper row-${y}-col-${x}-depth-${z}`}>
                             <div className={'tile tile3D'}>
@@ -62,6 +62,7 @@ function Board3D(props) {
     }
 
 
+    let tilesList = []
     for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
@@ -92,7 +93,12 @@ function Board3D(props) {
         <div id={'board-3D-wrapper'}>
             <style>{tile3D_style}</style>
             <div className="board-3D" style={style}>
-                {tilesList}
+                <div className="placeholders3D">
+                    {placeholders}
+                </div>
+                <div className="tiles3D">
+                    {tilesList}
+                </div>
             </div>
         </div>
     )

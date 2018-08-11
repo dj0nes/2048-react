@@ -1,4 +1,5 @@
 import React from 'react'
+import {getFontSizeClass} from '../board_util'
 
 function Tile3D(props) {
     let remove = props.remove !== undefined ? 'remove' : ''
@@ -16,7 +17,9 @@ function Tile3D(props) {
 
         return (
             <div key={`${props.coordinates.x}${props.coordinates.y}${props.coordinates.z}`}
-                className={`tile tile3D tile-${value} ${remove} ${new_tile} ${tile_merged} ${tile_merged_again}`}>
+                className={`tile tile3D tile-${value} ${getFontSizeClass(display_value)} ${remove} ${new_tile}` +
+                    `${tile_merged} ${tile_merged_again}`}
+            >
                 {/*Front*/}
                 <div className={'tile-inner'}><span>{value}</span></div>
                 {/*Back*/}
@@ -47,19 +50,8 @@ function Tile3D(props) {
         base3Dtile(display_value, new_tile, tile_merged, props.tokens)
     ]
 
-
-    let tile3D_wrapper_style = {
-        // position: 'absolute',
-        // width: '100px',
-        // height: '100px',
-        // perspective: '700px',
-        // margin:'100 px auto'
-    }
-
     return (
-        <div className={`tile3D-wrapper ${depth_class}`}
-            style={tile3D_wrapper_style}
-        >
+        <div className={`tile3D-wrapper ${depth_class}`}>
             {content}
         </div>
     )
