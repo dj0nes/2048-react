@@ -48,6 +48,7 @@ class Game extends React.Component {
 
         this.state = {
             score: 0,
+            new_points: 0,
             history: [board]
         }
     }
@@ -107,7 +108,8 @@ class Game extends React.Component {
 
             this.setState({
                 history: this.state.history.concat(merged_board),
-                score: this.state.score + new_points
+                score: this.state.score + new_points,
+                new_points
             })
         }
     }
@@ -181,6 +183,8 @@ class Game extends React.Component {
             --boxes: ${this.board_size};
         }`
 
+        let scored = this.state.new_points === 0 ? '' : 'scored'
+
         let options = {
             recognizers: {
                 pinch: {
@@ -193,6 +197,10 @@ class Game extends React.Component {
                 }
             }
         }
+
+        // css animations don't "restart" unless a reflow is triggered
+        // we'll just alternate between two different keys, so react renders a new element each turn
+        let new_score_id = this.state.history.length % 2 === 1
 
         return (
             <Hammer className={'grid'}
@@ -208,7 +216,13 @@ class Game extends React.Component {
                 <div>
                     <div className={'header'}>
                         <h1>2048-react</h1>
-                        <h2>Score: {this.state.score}</h2>
+                        <div className={'score-container'}>
+                            <h2>Score: {this.state.score}</h2>
+                            <h2 key={new_score_id} className={`new-points ${scored}`}
+                                style={{display: this.state.new_points === 0 ? 'none' : 'inline-block'}}>
+                                +{this.state.new_points}
+                            </h2>
+                        </div>
                     </div>
 
                     <div id="board3D-container">

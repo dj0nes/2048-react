@@ -21,6 +21,35 @@ body {
     --boxes: 3;
 }
 
+.score-container {
+    display: inline-block;
+    position: relative;
+}
+
+@keyframes move-up {
+    0% {
+        top: 0px;
+        opacity: 1;
+    }
+
+    100% {
+        top: -50px;
+        opacity: 0;
+    }
+}
+
+.new-points {
+    position: absolute;
+    left: 42px;
+    top: 0px;
+    display: inline-block;
+}
+
+.scored {
+    animation: move-up 600ms ease-in;
+    animation-fill-mode: both;
+}
+
 .cell {
     background-color: rgba(238, 228, 218, 0.35);
     margin: calc(var(--gutter) / 2);
