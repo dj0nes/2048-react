@@ -2,6 +2,8 @@ body,
 html {
     position: fixed;
     width: 100%;
+    background: #faf8ef;
+    color: #211e1d;
 }
 
 body {
@@ -33,11 +35,9 @@ body {
     position: absolute;
     width: var(--box-size);
     height: var(--box-size);
-    /*opacity: .75;*/
     z-index: 2;
     margin: calc(var(--gutter) / 2);
     transition: all 100ms cubic-bezier(0.77, 0, 0.175, 1);
-    /*animation: fadein 1000ms;*/
 }
 
 @keyframes fadein {
@@ -105,12 +105,17 @@ body {
 #board3D-container {
     position: relative;
     grid-area: board3D-container;
-    width: 375px;
-    font-size: 6px;
+    font-size: 5px;
 }
 
 .header {
     grid-area: header;
+    text-align: center;
+}
+
+.footer {
+    grid-area: footer;
+    text-align: center;
 }
 
 .grid {
@@ -123,21 +128,53 @@ body {
             "footer"
 }
 
-/*@media only screen and (min-width: 500px)  {*/
-/*.grid {*/
-/*grid-template-columns: auto;*/
-/*grid-template-areas:*/
-/*"header"*/
-/*"board3D-container"*/
-/*"board2D-container"*/
-/*"footer";*/
-/*}*/
-/*}*/
+@media only screen and (min-width: 375px)   {
+    #board3D-container {
+        font-size: 6px;
+    }
 
-@media only screen and (min-width: 1200px)   {
+    #board3D-container .board-3D {
+        width: 300px;
+    }
+}
+
+@media only screen and (min-width: 768px) and (min-height: 1024px) {
+    #board3D-container {
+        font-size: 11px;
+    }
+
+    #board3D-container .board-3D {
+        width: 500px;
+        padding: 8em 0 0;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    #board2D-container {
+        font-size: 14px;
+    }
+}
+
+
+@media only screen and (min-width: 1024px) and (min-height: 768px) {
+    #board3D-container {
+        font-size: 9px;
+    }
+
+    #board3D-container .board-3D {
+        width: 410px;
+        padding: 8em 0 0;
+    }
+
+    #board2D-container {
+        font-size: 10px;
+    }
+}
+
+@media only screen and (min-width: 11200px) {
     .grid {
         /*grid-gap: 20px;*/
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr auto;
         grid-template-areas:
                 "header  header"
                 "board3D-container board2D-container"
@@ -146,12 +183,12 @@ body {
     }
 
     #board2D-container {
-        /*width: 1vw;*/
-        font-size: 16px;
+        font-size: 14px;
     }
 
     #board3D-container {
         width: 45vw;
+        max-width: 600px;
         font-size: 10px;
     }
 }

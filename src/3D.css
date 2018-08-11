@@ -12,10 +12,12 @@
     perspective-origin: 50% 0%;
     transform-style:preserve-3d;
     transform: rotate3d(1, 2, 0, -20deg);
-    transition: 200ms ease-in;
+    transition: all 100ms ease-in;
     height: 45em;
+    width: 70%;
+    margin: auto;
     position: relative;
-    padding: 5em 0 0 8em;
+    padding: 4em 0 0;
 }
 
 .tile3D-wrapper{
@@ -76,7 +78,7 @@
 }
 
 .tile3D.remove {
-    transform: scale3d(0.5, 0.5, 0.5);
+    transform: scale3d(0.5, 0.5, 0.5) translate3d(1em, 1em, -1em);
 }
 
 .tile3D div:nth-child(1){

@@ -40,11 +40,11 @@ class Game extends React.Component {
 
         let board = new BoardMap()
 
-        this.generateTestBoard(board, this.board_size)
+        // this.generateTestBoard(board, this.board_size)
 
         // start with two random tiles
-        // BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
-        // BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
+        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
+        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
 
         this.state = {
             score: 0,
@@ -185,10 +185,10 @@ class Game extends React.Component {
             recognizers: {
                 pinch: {
                     enable: true,
-                    threshold: .25
+                    threshold: .05
                 },
                 swipe: {
-                    threshold: 2,
+                    threshold: 1,
                     velocity: .1
                 }
             }
