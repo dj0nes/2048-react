@@ -14,13 +14,6 @@ body {
     overflow: hidden;
 }
 
-:root {
-    /* these are default values that can be overridden with another style tag in game.js*/
-    --box-size: 4em;
-    --gutter: calc(var(--box-size) / 8);
-    --boxes: 3;
-}
-
 .score-container {
     display: inline-block;
     position: relative;
@@ -28,7 +21,7 @@ body {
 
 @keyframes move-up {
     0% {
-        top: 0px;
+        top: 0;
         opacity: 1;
     }
 
@@ -41,83 +34,13 @@ body {
 .new-points {
     position: absolute;
     left: 42px;
-    top: 0px;
+    top: 0;
     display: inline-block;
 }
 
 .scored {
     animation: move-up 600ms ease-in;
     animation-fill-mode: both;
-}
-
-.cell {
-    background-color: rgba(238, 228, 218, 0.35);
-    margin: calc(var(--gutter) / 2);
-    border-radius: 3px;
-
-}
-
-.tile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    width: var(--box-size);
-    height: var(--box-size);
-    z-index: 2;
-    margin: calc(var(--gutter) / 2);
-    transition: all 100ms cubic-bezier(0.77, 0, 0.175, 1);
-}
-
-@keyframes fadein {
-    from {
-        opacity: 0;
-        transform: scale(0)
-    }
-    to   {
-        opacity: 1;
-        transform: scale(0)
-    }
-}
-
-
-.tiles {
-    position: absolute;
-    height: 100%;
-    margin: 0;
-    top: 0;
-}
-
-.tile.remove {
-    z-index: 0;
-}
-
-.board2D {
-    position: relative;
-    background-color: #bbada0;
-    border-radius: 3px;
-    border: 0.35em solid #bbada0;
-    margin-right: 1px;
-    font-size: 1em;
-    height: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
-    width: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
-}
-
-.board2D .tile-placeholder {
-    z-index: 0;
-}
-
-
-.board2D .tile-inner {
-    font-size: 2em;
-}
-
-.board2D .tile-1024 .tile-inner, .board2D .tile-2048 .tile-inner, .board2D .tile-super .tile-inner {
-    font-size: 1.5em;
-}
-
-.board2D .tile-placeholder .tile-inner {
-    background: rgba(238, 228, 218, 0.35);
 }
 
 #board2D-container {
@@ -139,7 +62,10 @@ body {
 
 .header {
     grid-area: header;
-    text-align: center;
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
 }
 
 .footer {

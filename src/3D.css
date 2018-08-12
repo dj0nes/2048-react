@@ -44,7 +44,7 @@
     height:var(--cube-size);
     transform-style:preserve-3d;
     /*transform: translate3d(0em, 0em, 0em) rotateY(30deg);*/
-    /*transition:200ms ease-in;*/
+    /*transition:100ms ease-in;*/
 }
 
 .tile3D-placeholder .tile3D {
@@ -138,17 +138,17 @@
 }
 
 .tile3D.new_tile {
-    animation: appear3D 200ms ease 100ms;
+    animation: appear3D 100ms ease 100ms;
     animation-fill-mode: backwards;
 }
 
 .tile3D.tile_merged {
-    animation: pop 200ms ease 100ms;
+    animation: pop 100ms ease 100ms;
     animation-fill-mode: backwards;
 }
 
 .tile3D.tile_merged_again {
-    animation: popAgain 200ms ease 100ms;
+    animation: popAgain 100ms ease 100ms;
     animation-fill-mode: backwards;
 }
 

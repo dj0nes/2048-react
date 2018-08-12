@@ -237,13 +237,13 @@ class Game extends React.Component {
             >
                 <div>
                     <div className={'header'}>
-                        <h1>2048-react</h1>
+                        <h1 className={'title'}>2048-react</h1>
                         <div className={'score-container'}>
                             <h2>Score: {this.state.score}</h2>
-                            <h2 key={new_score_id} className={`new-points ${scored}`}
+                            <span key={new_score_id} className={`new-points ${scored}`}
                                 style={{display: this.state.new_points === 0 ? 'none' : 'inline-block'}}>
                                 +{this.state.new_points}
-                            </h2>
+                            </span>
                         </div>
                     </div>
 
@@ -259,7 +259,7 @@ class Game extends React.Component {
                         <style>{board_style}</style>
                         {boards2D}
                     </div>
-                    <div className="footer">Footer</div>
+                    <div className="footer">Made with <span role={'img'} aria-label={'love'}>💙</span> by Dillon Jones</div>
                 </div>
             </Hammer>
         )
