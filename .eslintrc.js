@@ -7,7 +7,8 @@ module.exports = {
     "globals": {
         "window": true,
         "browser": true,
-        "localStorage":true
+        "localStorage":true,
+        "document": true
     },
     "extends": [
         "eslint:recommended",

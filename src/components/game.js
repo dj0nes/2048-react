@@ -5,6 +5,8 @@ import Board from './board'
 import Board3D from './board-3d'
 import {randomTileInsert} from '../board_util'
 import Hammer from 'react-hammerjs'
+import PropTypes from 'prop-types'
+
 
 const KEY = {
     LEFT:  37,
@@ -23,10 +25,9 @@ const KEY = {
 class Game extends React.Component {
     constructor(props) {
         super(props)
-
-        this.board_size = props.board_size || 3
-        this.board_dimensions = props.board_dimensions || {x: this.board_size, y: this.board_size, z: this.board_size}
-        this.tokens = BoardUtil.generate2048Tokens.bind(BoardUtil)()
+        let board_size = props.board_size || 3
+        let board_dimensions = props.board_dimensions || {x: board_size, y: board_size, z: board_size}
+        let tokens = BoardUtil.generate2048Tokens.bind(BoardUtil)()
         this.board_transitions = {
             up: {x: 0, y: -1, z: 0},
             down: {x: 0, y: 1, z: 0},
@@ -38,21 +39,27 @@ class Game extends React.Component {
         this.touch_delay_ms = 100
         this.debouncing = false
 
-        let board = new BoardMap()
         let saved_game = localStorage.getItem('game')
-        if(saved_game !== null && true) {
+        if(saved_game !== null && false) {
             this.state = this.loadGame(saved_game)
         }
         else {
-            // this.generateTestBoard(board, this.board_size)
-            // start with two random tiles
-            BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
-            BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
-            this.state = {
-                score: 0,
-                new_points: 0,
-                history: [board]
-            }
+            this.state = this.newGame(board_size, board_dimensions, tokens)
+        }
+    }
+
+    newGame(board_size = 3, board_dimensions = {x: 3, y: 3, z: 3}, tokens = BoardUtil.generate2048Tokens.bind(BoardUtil)()) {
+        // start with two random tiles
+        let board = new BoardMap()
+        BoardUtil.randomTileInsert(board, board_dimensions, tokens)
+        BoardUtil.randomTileInsert(board, board_dimensions, tokens)
+        return {
+            score: 0,
+            new_points: 0,
+            board_size,
+            board_dimensions,
+            tokens,
+            history: [board]
         }
     }
 
@@ -85,13 +92,13 @@ class Game extends React.Component {
         return {...deserialized, history: [board]}
     }
 
-    handleClick(i) {
+    handleClick() {
         // noop, maybe I'll need this in the future?
     }
 
     shuffle() {
         let current = this.state.history[this.state.history.length - 1]
-        let new_board = BoardUtil.shuffle(current, this.board_dimensions)
+        let new_board = BoardUtil.shuffle(current, this.state.board_dimensions)
         this.setState({
             board_size: this.state.board_size,
             history: this.state.history.concat(new_board),
@@ -122,9 +129,15 @@ class Game extends React.Component {
         if(event.keyCode === KEY.E) direction = this.board_transitions.in
         if(direction === '') return
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(current, this.board_dimensions, direction, this.tokens)
+        // cut the direction object down to dimensions we're dealing with, eg. x, y for a 2D board, not x, y, z
+        let intersection = Object.entries(direction).filter(([k, /* v */]) => k in this.state.board_dimensions)
+        let final_direction = {}
+        for(const [key, value] of intersection) {
+            final_direction[key] = value
+        }
+        let {merged_board, new_points} = BoardUtil.mergeBoard(current, this.state.board_dimensions, final_direction, this.state.tokens)
         if(!current.equals(merged_board, ['id', 'value'], ['remove'])) {
-            randomTileInsert(merged_board, this.board_dimensions, this.tokens, 1)  // will insert max(board_dimensions) - 1 tiles
+            randomTileInsert(merged_board, this.state.board_dimensions, this.state.tokens, 1)  // will insert max(board_dimensions) - 1 tiles
 
             this.setState({
                 history: this.state.history.concat(merged_board),
@@ -182,16 +195,32 @@ class Game extends React.Component {
         this.touchDebounce(this.handleKeys, [{}, event])
     }
 
+    handleNewGame(board_size, board_dimensions) {
+        this.setState(this.newGame(board_size, board_dimensions))
+    }
+
     render() {
         const history = this.state.history
         const current_board_map = history[history.length - 1]
-        // setTimeout(() => this.handleClick('blah'), 800)
+
+        let boards3D = []
+        let board3D_count = Object.keys(this.state.board_dimensions).length - 3 // not entirely correct, but I haven't implemented 4D yet
+        for(let i = 0; i <= board3D_count; i++) {
+            boards3D.push(<Board3D
+                board_map={current_board_map}
+                board_size={this.state.board_size}
+                tokens={this.state.tokens}
+                key={i}
+                handleClick={(i)=>this.handleClick(i)}
+            />)
+        }
 
         let boards2D = []
-        for(let i = 0; i < this.board_dimensions.x; i++) {
+        let board2D_count = this.state.board_dimensions.z - 1 || 0
+        for(let i = 0; i <= board2D_count; i++) {
             boards2D.push(<Board
                 board_map={current_board_map}
-                board_size={this.board_size}
+                board_size={this.state.board_size}
                 z_layer={i}
                 key={i}
                 handleClick={(i)=>this.handleClick(i)}
@@ -202,7 +231,7 @@ class Game extends React.Component {
         :root {
             --box-size: 4em;
             --gutter: calc(var(--box-size) / 8);
-            --boxes: ${this.board_size};
+            --boxes: ${this.state.board_size};
         }`
 
         let scored = this.state.new_points === 0 ? '' : 'scored'
@@ -242,18 +271,15 @@ class Game extends React.Component {
                             <h2>Score: {this.state.score}</h2>
                             <span key={new_score_id} className={`new-points ${scored}`}
                                 style={{display: this.state.new_points === 0 ? 'none' : 'inline-block'}}>
-                                +{this.state.new_points}
+                                + {this.state.new_points}
                             </span>
+                            <button onClick={function() {this.handleNewGame.apply(this, [3, {x: 3, y: 3, z: 3}])}.bind(this)}>New Game</button>
+                            <button onClick={function() {this.handleNewGame.apply(this, [4, {x: 4, y: 4}])}.bind(this)}>New 2D Game</button>
                         </div>
                     </div>
 
                     <div id="board3D-container">
-                        <Board3D
-                            board_map={current_board_map}
-                            board_size={this.board_size}
-                            tokens={this.tokens}
-                            handleClick={(i)=>this.handleClick(i)}
-                        />
+                        {boards3D}
                     </div>
                     <div id="board2D-container">
                         <style>{board_style}</style>
@@ -264,6 +290,11 @@ class Game extends React.Component {
             </Hammer>
         )
     }
+}
+
+Game.propTypes = {
+    board_size: PropTypes.number,
+    board_dimensions: PropTypes.number
 }
 
 export default Game

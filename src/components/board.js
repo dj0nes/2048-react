@@ -1,5 +1,6 @@
 import React from 'react'
 import Tile from './tile'
+import PropTypes from 'prop-types'
 
 function Board(props) {
     // dynamic css classes based on number of tiles
@@ -40,7 +41,7 @@ function Board(props) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
 
-        if(coordinates.z !== z_layer) {
+        if(coordinates.hasOwnProperty('z') && coordinates.z !== z_layer) {
             continue
         }
 
@@ -77,6 +78,12 @@ function Board(props) {
             </div>
         </div>
     )
+}
+
+Board.propTypes = {
+    board_size: PropTypes.number.isRequired,
+    z_layer: PropTypes.number.isRequired,
+    // board_dimensions: PropTypes.number.isRequired
 }
 
 export default Board
