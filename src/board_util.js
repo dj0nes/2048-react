@@ -29,7 +29,7 @@ export function range(start = 0, stop, step = 1) {
 
 export function generate2048Tokens() {
     let tokens = {}
-    let range = this.range(1, 12)
+    let range = this.range(1, 24)
     for(let exponent of range) {
         let value = Math.pow(2, exponent)
         let next_value = Math.pow(2, exponent + 1)

@@ -7,7 +7,7 @@ function Tile3D(props) {
 
     let new_tile = props.new_tile ? 'new_tile' : ''
     let tile_merged = props.merged_to ? 'tile_merged' : ''
-    let depth_class = `row-${props.coordinates.y}-col-${props.coordinates.x}-depth-${props.coordinates.z}`
+    let depth_class = `col-${props.coordinates.x}-row-${props.coordinates.y}-depth-${props.coordinates.z}`
 
     // apply an additional css class with the same animation, but only on merged with an odd value index
     let tile_merged_again = ''

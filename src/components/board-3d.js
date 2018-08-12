@@ -13,9 +13,10 @@ function Board3D(props) {
     for(let x = 0; x < props.board_size; x++) {
         for (let y = 0; y < props.board_size; y++) {
             for (let z = 0; z < props.board_size; z++) {
-                tile3D_style += `.row-${y}-col-${x}-depth-${z} {transform: translate3d(` +
+                tile3D_style += `.col-${x}-row-${y}-depth-${z} {transform: translate3d(` +
                 `${x * (box_size + gutter)}em,` +
-                `${y * (box_size + gutter)}em,` +
+                // (props.board_size + 1) * box_size allows us to have 0, 0, 0 at bottom left
+                `${-y * (box_size + gutter) + (props.board_size + 1) * box_size}em,` +
                 `${-z * (box_size + gutter)}em)}\n`
             }
         }
@@ -40,7 +41,7 @@ function Board3D(props) {
             for (let z = 0; z < props.board_size; z++) {
                 placeholders.push(
                     (
-                        <div key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper tile3D-placeholder row-${y}-col-${x}-depth-${z}`}>
+                        <div key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper tile3D-placeholder col-${x}-row-${y}-depth-${z}`}>
                             <div className={'tile tile3D'}>
                                 {/*Front*/}
                                 <div className={'tile-inner tile-placeholder'}></div>

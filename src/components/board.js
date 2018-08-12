@@ -10,7 +10,10 @@ function Board(props) {
 
     for(let x = 0; x < props.board_size; x++) {
         for (let y = 0; y < props.board_size; y++) {
-            style += `.row-${y}-col-${x} {transform: translate(${x * (box_size + gutter)}em, ${y * (box_size + gutter)}em)}\n`
+            style += `.row-${y}-col-${x}` +
+                `{transform: translate(${x * (box_size + gutter)}em,` +
+                //  + (props.board_size - 1) * (box_size + gutter)} allows us to have 0, 0 at bottom left
+                `${-y * (box_size + gutter) + (props.board_size - 1) * (box_size + gutter)}em)}\n`
         }
     }
 
