@@ -40,7 +40,7 @@ class Game extends React.Component {
         this.debouncing = false
 
         let saved_game = localStorage.getItem('game')
-        if(saved_game !== null && false) {
+        if(saved_game !== null && true) {
             this.state = this.loadGame(saved_game)
         }
         else {
@@ -54,42 +54,35 @@ class Game extends React.Component {
         BoardUtil.randomTileInsert(board, board_dimensions, tokens)
         BoardUtil.randomTileInsert(board, board_dimensions, tokens)
         return {
-            score: 0,
-            new_points: 0,
             board_size,
             board_dimensions,
             tokens,
-            history: [board]
-        }
-    }
-
-    generateTestBoard(board, board_size) {
-        let value = 1
-        for(let x = 0; x < board_size; x++) {
-            for (let y = 0; y < board_size; y++) {
-                for (let z = 0; z < board_size; z++) {
-                    value *= 2
-                    board.set({x, y, z}, [BoardUtil.createTile({value: value})])
-                }
-            }
+            history: [{
+                board: board,
+                score: 0,
+                new_points: 0
+            }]
         }
     }
 
     saveGame() {
         // saves only the current board, not entire history
-        let serialized_game = JSON.stringify({
+        let current = this.state.history[this.state.history.length - 1]
+        let state_copy = {
             ...this.state,
-            global_tile_id: BoardUtil.getGlobalTileIdCounter.bind(BoardUtil)(),
-            board: this.state.history[this.state.history.length - 1]
-        })
+            global_tile_id: BoardUtil.getGlobalTileIdCounter.bind(BoardUtil)()
+        }
+        state_copy.history = [current]
+        let serialized_game = JSON.stringify(state_copy)
         localStorage.setItem('game', serialized_game)
     }
 
     loadGame(saved_game) {
         let deserialized = JSON.parse(saved_game)
-        let board = new BoardMap([], deserialized.board.coordinates)
+        let board = new BoardMap([], deserialized.history[0].board.coordinates)
+        deserialized.history[0].board = board
         BoardUtil.setGlobalTileIdCounter.bind(BoardUtil)(deserialized.global_tile_id)
-        return {...deserialized, history: [board]}
+        return {...deserialized}
     }
 
     handleClick() {
@@ -98,29 +91,29 @@ class Game extends React.Component {
 
     shuffle() {
         let current = this.state.history[this.state.history.length - 1]
-        let new_board = BoardUtil.shuffle(current, this.state.board_dimensions)
+        let new_board = BoardUtil.shuffle(current.board, this.state.board_dimensions)
         this.setState({
-            board_size: this.state.board_size,
-            history: this.state.history.concat(new_board),
-            score: this.state.score
+            history: this.state.history.concat({
+                board: new_board,
+                score: current.score,
+                new_points: 0
+            })
+        })
+    }
+
+    undo() {
+        // set state back by one
+        let history = this.state.history.slice(0, this.state.history.length - 1)
+        this.setState({
+            history: history
         })
     }
 
     handleKeys(value, event) {
         let current = this.state.history[this.state.history.length - 1]
         let direction = ''
-        if (event.keyCode === 90 && (event.ctrlKey || event.metaKey) && this.state.history.length > 1) {
-            // undo! set state back by one
-            let history = this.state.history.slice(0, this.state.history.length - 1)
-            this.setState({
-                history: history,
-                score: this.state.score
-            })
-
-            return
-        }
-
         if(event.keyCode === KEY.SPACE) return this.shuffle()
+        if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && this.state.history.length > 1) return this.undo()
         if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left
         if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right
         if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = this.board_transitions.up
@@ -135,14 +128,16 @@ class Game extends React.Component {
         for(const [key, value] of intersection) {
             final_direction[key] = value
         }
-        let {merged_board, new_points} = BoardUtil.mergeBoard(current, this.state.board_dimensions, final_direction, this.state.tokens)
-        if(!current.equals(merged_board, ['id', 'value'], ['remove'])) {
-            randomTileInsert(merged_board, this.state.board_dimensions, this.state.tokens, 1)  // will insert max(board_dimensions) - 1 tiles
+        let {merged_board, new_points} = BoardUtil.mergeBoard(current.board, this.state.board_dimensions, final_direction, this.state.tokens)
+        if(!current.board.equals(merged_board, ['id', 'value'], ['remove'])) {
+            randomTileInsert(merged_board, this.state.board_dimensions, this.state.tokens, 1)
 
             this.setState({
-                history: this.state.history.concat(merged_board),
-                score: this.state.score + new_points,
-                new_points
+                history: this.state.history.concat({
+                    board: merged_board,
+                    score: current.score + new_points,
+                    new_points
+                })
             })
 
             this.saveGame()
@@ -152,6 +147,18 @@ class Game extends React.Component {
     componentDidMount() {
         window.addEventListener('keyup',   () => {})
         window.addEventListener('keydown', this.handleKeys.bind(this, true))
+    }
+
+    generateTestBoard(board, board_size) {
+        let value = 1
+        for(let x = 0; x < board_size; x++) {
+            for (let y = 0; y < board_size; y++) {
+                for (let z = 0; z < board_size; z++) {
+                    value *= 2
+                    board.set({x, y, z}, [BoardUtil.createTile({value: value})])
+                }
+            }
+        }
     }
 
     touchDebounce(fn, args) {
@@ -201,7 +208,8 @@ class Game extends React.Component {
 
     render() {
         const history = this.state.history
-        const current_board_map = history[history.length - 1]
+        let current = history[history.length - 1]
+        const current_board_map = current.board
 
         let boards3D = []
         let board3D_count = Object.keys(this.state.board_dimensions).length - 3 // not entirely correct, but I haven't implemented 4D yet
@@ -268,10 +276,10 @@ class Game extends React.Component {
                     <div className={'header'}>
                         <h1 className={'title'}>2048-react</h1>
                         <div className={'score-container'}>
-                            <h2>Score: {this.state.score}</h2>
+                            <h2>Score: {current.score}</h2>
                             <span key={new_score_id} className={`new-points ${scored}`}
-                                style={{display: this.state.new_points === 0 ? 'none' : 'inline-block'}}>
-                                + {this.state.new_points}
+                                style={{display: current.new_points === 0 ? 'none' : 'inline-block'}}>
+                                + {current.new_points}
                             </span>
                             <button onClick={function() {this.handleNewGame.apply(this, [3, {x: 3, y: 3, z: 3}])}.bind(this)}>New Game</button>
                             <button onClick={function() {this.handleNewGame.apply(this, [4, {x: 4, y: 4}])}.bind(this)}>New 2D Game</button>
