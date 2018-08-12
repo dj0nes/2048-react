@@ -32,6 +32,10 @@
     width: calc((var(--box-size) + var(--gutter)) * var(--boxes) + 0 * var(--gutter));
 }
 
+.board2D:only-child {
+    font-size: 2em;
+}
+
 .board2D .tile-placeholder {
     z-index: 0;
 }

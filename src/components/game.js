@@ -286,11 +286,12 @@ class Game extends React.Component {
                         </div>
                     </div>
 
+
+                    <style>{board_style}</style>
                     <div id="board3D-container">
                         {boards3D}
                     </div>
                     <div id="board2D-container">
-                        <style>{board_style}</style>
                         {boards2D}
                     </div>
                     <div className="footer">Made with <span role={'img'} aria-label={'love'}>💙</span> by Dillon Jones</div>
