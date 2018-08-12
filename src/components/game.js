@@ -28,8 +28,8 @@ class Game extends React.Component {
         this.board_dimensions = props.board_dimensions || {x: this.board_size, y: this.board_size, z: this.board_size}
         this.tokens = BoardUtil.generate2048Tokens.bind(BoardUtil)()
         this.board_transitions = {
-            up: {x: 0, y: 1, z: 0},
-            down: {x: 0, y: -1, z: 0},
+            up: {x: 0, y: -1, z: 0},
+            down: {x: 0, y: 1, z: 0},
             left: {x: 1, y: 0, z: 0},
             right: {x: -1, y: 0, z: 0},
             in: {x: 0, y: 0, z: -1},
