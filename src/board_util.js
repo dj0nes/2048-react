@@ -2,6 +2,14 @@ import BoardMap from './board_map'
 
 let global_id = 0
 
+export function setGlobalTileIdCounter(id) {
+    global_id = id
+}
+
+export function getGlobalTileIdCounter() {
+    return global_id
+}
+
 export function range(start = 0, stop, step = 1) {
     if(stop === undefined) {
         // then this was passed only one parameter, which should be interpreted as the stop value
@@ -239,6 +247,21 @@ export function mergeLocation(board, board_dimensions, direction, location, toke
     sequence = this.sequenceCleanup(sequence)
     return this.mergeSequence(sequence, tokens)
 }
+
+// export function boardCleanup(board, board_dimensions, direction, location, tokens) {
+//     let getSequence = this.getSequence(board, board_dimensions, direction, location)
+//     let sequence = []
+//     let done = false
+//     while (!done) {
+//         let iteration = getSequence.next()
+//         if (iteration.value) {
+//             sequence.push(iteration.value)
+//         }
+//         done = iteration.done
+//     }
+//
+//     sequence = this.sequenceCleanup(sequence)
+// }
 
 // export function getMoveDimensionDirection(direction) {
 //     let [move_dimension, move_direction] = Object.entries(direction)

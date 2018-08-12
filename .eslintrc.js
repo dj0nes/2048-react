@@ -4,6 +4,11 @@ module.exports = {
         "node": true,
         "jest/globals": true
     },
+    "globals": {
+        "window": true,
+        "browser": true,
+        "localStorage":true
+    },
     "extends": [
         "eslint:recommended",
         "plugin:jest/recommended",

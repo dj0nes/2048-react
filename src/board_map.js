@@ -1,9 +1,9 @@
 import React from 'react'
 
 export default class BoardMap extends React.Component {
-    constructor(kv_pairs = []) {
+    constructor(kv_pairs = [], coordinates) {
         super()
-        this.coordinates = {}  // stores coordinates
+        this.coordinates = coordinates || {}  // naively accepting coordinates for now
 
         for(let pair of kv_pairs) {
             let {coordinates: key, tiles: value} = pair
@@ -144,8 +144,10 @@ export default class BoardMap extends React.Component {
     }
 
     equals(other, properties_to_compare = [], ignore_tiles_with_props = []) {
-        if(other.toString(properties_to_compare, ignore_tiles_with_props) ===
-            this.toString(properties_to_compare, ignore_tiles_with_props)) {
+        let a = this.toString(properties_to_compare, ignore_tiles_with_props)
+        let b = other.toString(properties_to_compare, ignore_tiles_with_props)
+
+        if( a === b) {
             return true
         }
 

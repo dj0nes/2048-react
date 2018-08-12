@@ -39,17 +39,20 @@ class Game extends React.Component {
         this.debouncing = false
 
         let board = new BoardMap()
-
-        // this.generateTestBoard(board, this.board_size)
-
-        // start with two random tiles
-        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
-        BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
-
-        this.state = {
-            score: 0,
-            new_points: 0,
-            history: [board]
+        let saved_game = localStorage.getItem('game')
+        if(saved_game !== null && true) {
+            this.state = this.loadGame(saved_game)
+        }
+        else {
+            // this.generateTestBoard(board, this.board_size)
+            // start with two random tiles
+            BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
+            BoardUtil.randomTileInsert(board, this.board_dimensions, this.tokens)
+            this.state = {
+                score: 0,
+                new_points: 0,
+                history: [board]
+            }
         }
     }
 
@@ -63,6 +66,23 @@ class Game extends React.Component {
                 }
             }
         }
+    }
+
+    saveGame() {
+        // saves only the current board, not entire history
+        let serialized_game = JSON.stringify({
+            ...this.state,
+            global_tile_id: BoardUtil.getGlobalTileIdCounter.bind(BoardUtil)(),
+            board: this.state.history[this.state.history.length - 1]
+        })
+        localStorage.setItem('game', serialized_game)
+    }
+
+    loadGame(saved_game) {
+        let deserialized = JSON.parse(saved_game)
+        let board = new BoardMap([], deserialized.board.coordinates)
+        BoardUtil.setGlobalTileIdCounter.bind(BoardUtil)(deserialized.global_tile_id)
+        return {...deserialized, history: [board]}
     }
 
     handleClick(i) {
@@ -111,6 +131,8 @@ class Game extends React.Component {
                 score: this.state.score + new_points,
                 new_points
             })
+
+            this.saveGame()
         }
     }
 
