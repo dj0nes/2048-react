@@ -200,13 +200,12 @@ export function tileCleanup(tile) {
 
     if(cleaned_tile.merged_to) {
         cleaned_tile.value = cleaned_tile.merged_to
-        delete cleaned_tile.merged_to
-        delete cleaned_tile.merged_from
     }
 
-    if(cleaned_tile.new_tile) {
-        delete cleaned_tile.new_tile
-    }
+    delete cleaned_tile.merged_to
+    delete cleaned_tile.merged_from
+    delete cleaned_tile.new_tile
+    delete cleaned_tile.swept
 
     return cleaned_tile
 }

@@ -143,11 +143,11 @@ export default class BoardMap extends React.Component {
         return pairs.join('], ') + ']'
     }
 
-    equals(other, properties_to_compare = ['id', 'value'], ignore_tiles_with_props = ['remove']) {
+    equals(other, properties_to_compare = ['id', 'value'], ignore_tiles_with_props = ['remove', 'sweep']) {
         let a = this.toString(properties_to_compare, ignore_tiles_with_props)
         let b = other.toString(properties_to_compare, ignore_tiles_with_props)
 
-        if( a === b) {
+        if(a === b) {
             return true
         }
 

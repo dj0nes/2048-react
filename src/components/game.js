@@ -123,6 +123,8 @@ class Game extends React.Component {
         // set state back by one
         if(this.state.history.length > 1) {
             let history = this.state.history.slice(0, this.state.history.length - 1)
+            let current = history[history.length - 1]
+            current.board = BoardUtil.boardCleanup(current.board)  // eliminates special tile states when rewinding
             this.setState({
                 history: history
             }, this.saveGame)
@@ -149,7 +151,7 @@ class Game extends React.Component {
             final_direction[key] = value
         }
         let {merged_board, new_points} = BoardUtil.mergeBoard(current.board, this.state.board_dimensions, final_direction, this.state.tokens)
-        if(!current.board.equals(merged_board, ['id', 'value'], ['remove'])) {
+        if(!current.board.equals(merged_board)) {
             randomTileInsert(merged_board, this.state.board_dimensions, this.state.tokens, 1)
 
             this.setState({
