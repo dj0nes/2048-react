@@ -29,6 +29,8 @@
     "object-assign": "^4.1.1",
     "postcss-flexbugs-fixes": "^3.3.1",
     "postcss-loader": "^2.1.6",
+    "preact": "^8.3.0",
+    "preact-compat": "^3.18.2",
     "promise": "^8.0.1",
     "prop-types": "^15.6.2",
     "raf": "^3.4.0",
@@ -49,7 +51,8 @@
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js --env=jsdom",
-    "coverage": "node scripts/test.js --env=jsdom --coverage"
+    "coverage": "node scripts/test.js --env=jsdom --coverage",
+    "analyze": "NODE_ENV=production npx webpack --profile --config config/webpack.config.prod.js --json > stats-prod.json && npx webpack-bundle-analyzer stats-prod.json"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -58,6 +61,7 @@
     "eslint": "^4.19.1",
     "eslint-plugin-jest": "^21.21.0",
     "eslint-plugin-react": "^7.10.0",
-    "jest": "^23.5.0"
+    "jest": "^23.5.0",
+    "webpack-bundle-analyzer": "^2.13.1"
   }
 }
