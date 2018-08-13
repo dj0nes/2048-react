@@ -104,7 +104,7 @@ class Game extends React.Component {
                 score: current.score,
                 new_points: 0
             })
-        })
+        }, this.saveGame)
     }
 
     sweep() {
@@ -116,15 +116,17 @@ class Game extends React.Component {
                 score: current.score,
                 new_points: 0
             })
-        })
+        }, this.saveGame)
     }
 
     undo() {
         // set state back by one
-        let history = this.state.history.slice(0, this.state.history.length - 1)
-        this.setState({
-            history: history
-        })
+        if(this.state.history.length > 1) {
+            let history = this.state.history.slice(0, this.state.history.length - 1)
+            this.setState({
+                history: history
+            }, this.saveGame)
+        }
     }
 
     handleKeys(value, event) {
@@ -302,6 +304,8 @@ class Game extends React.Component {
                             <button onClick={function() {this.handleNewGame.apply(this, [3, {x: 3, y: 3, z: 3}])}.bind(this)}>New Game</button>
                             <button onClick={function() {this.handleNewGame.apply(this, [4, {x: 4, y: 4}])}.bind(this)}>New 2D Game</button>
                             <button onClick={this.sweep.bind(this)}>Sweep</button>
+                            <button onClick={this.shuffle.bind(this)}>Shuffle</button>
+                            <button onClick={this.undo.bind(this)}>Undo</button>
                         </div>
                     </div>
 

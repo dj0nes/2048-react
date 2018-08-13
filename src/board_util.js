@@ -371,5 +371,5 @@ export function shuffle(board, board_dimensions) {
         remaining_coordinates = remaining_coordinates.filter((coord, index) => index !== random_index)
     }
 
-    return new BoardMap(kv_pairs)
+    return this.boardCleanup(new BoardMap(kv_pairs))
 }
