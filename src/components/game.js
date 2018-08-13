@@ -80,7 +80,8 @@ class Game extends React.Component {
     loadGame(saved_game) {
         let deserialized = JSON.parse(saved_game)
         let board = new BoardMap([], deserialized.history[0].board.coordinates)
-        deserialized.history[0].board = board
+        deserialized.history[0].board = BoardUtil.boardCleanup(board)  // eliminates new tile popping on reload
+        deserialized.history[0].new_points = 0
         BoardUtil.setGlobalTileIdCounter.bind(BoardUtil)(deserialized.global_tile_id)
         return {...deserialized}
     }
