@@ -1,8 +1,10 @@
 import React from 'react'
 import {getFontSizeClass} from '../board_util'
+import PropTypes from 'prop-types'
 
 function Tile(props) {
     let remove = props.remove !== undefined ? 'remove' : ''
+    let swept = props.swept !== undefined ? 'swept' : ''
     let display_value = props.merged_to ? props.merged_to : props.value
 
     let new_tile = ''
@@ -27,18 +29,23 @@ function Tile(props) {
     return (
         <div
             onClick={() => props.handleClick(props)}
-            className={`
-                tile
-                tile-${display_value}
-                ${getFontSizeClass(display_value)}
-                row-${props.coordinates.y}-col-${props.coordinates.x}
-                ${remove}
-            `}
-
+            className={`tile tile-${display_value} ${getFontSizeClass(display_value)} ` +
+                `row-${props.coordinates.y}-col-${props.coordinates.x} ${remove} ${swept}`}
         >
             {content}
         </div>
     )
+}
+
+Tile.propTypes = {
+    swept: PropTypes.bool,
+    remove: PropTypes.bool,
+    merged_to: PropTypes.number,
+    new_tile: PropTypes.bool,
+    handleClick: PropTypes.func,
+    value: PropTypes.number.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    tokens: PropTypes.object
 }
 
 export default Tile

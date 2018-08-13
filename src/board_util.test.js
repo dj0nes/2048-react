@@ -198,7 +198,6 @@ describe('tile and sequence cleaning', () => {
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
-
         let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
         let sequence = []
         let done = false
@@ -211,13 +210,12 @@ describe('tile and sequence cleaning', () => {
         }
 
         expect(sequence).toEqual([
-            {coordinates: tile0_coordinates, tiles: [tile0_obj, tile1_obj]},
+            {coordinates: tile0_coordinates, tiles: [tile0, tile1]},
             {coordinates: tile1_coordinates, tiles: undefined},
             {coordinates: tile2_coordinates, tiles: undefined},
             {coordinates: tile3_coordinates, tiles: undefined}
         ])
         let cleaned_sequence = BoardUtil.sequenceCleanup(sequence)
-        expect(tile0).toEqual({id:0, value: 16})
         expect(cleaned_sequence).toEqual([
             {coordinates: tile0_coordinates, tiles: [{value: 16, id: 0}]},
             {coordinates: tile1_coordinates, tiles: []},

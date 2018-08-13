@@ -53,6 +53,7 @@ function Board(props) {
                 id={tile.id}
                 coordinates={coordinates}
                 remove={tile.remove}
+                swept={tile.swept}
                 merged_from={tile.merged_from}
                 merged_to={tile.merged_to}
                 new_tile={tile.new_tile}

@@ -1,5 +1,6 @@
 import React from 'react'
 import Tile3D from './tile-3d'
+import PropTypes from 'prop-types'
 
 function Board3D(props) {
     // dynamic css classes based on number of tiles
@@ -44,17 +45,17 @@ function Board3D(props) {
                         <div key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper tile3D-placeholder col-${x}-row-${y}-depth-${z}`}>
                             <div className={'tile tile3D'}>
                                 {/*Front*/}
-                                <div className={'tile-inner tile-placeholder'}></div>
+                                <div className={'tile-inner tile-placeholder'}> </div>
                                 {/*Back*/}
-                                <div className={'tile-inner tile-placeholder'}></div>
+                                <div className={'tile-inner tile-placeholder'}> </div>
                                 {/*Left*/}
-                                <div className={'tile-inner tile-placeholder'}></div>
+                                <div className={'tile-inner tile-placeholder'}> </div>
                                 {/*Right*/}
-                                <div className={'tile-inner tile-placeholder'}></div>
+                                <div className={'tile-inner tile-placeholder'}> </div>
                                 {/*Top*/}
-                                <div className={'tile-inner tile-placeholder'}></div>
+                                <div className={'tile-inner tile-placeholder'}> </div>
                                 {/*Bottom*/}
-                                <div className={'tile-inner tile-placeholder'}></div>
+                                <div className={'tile-inner tile-placeholder'}> </div>
                             </div>
                         </div>
                     ))
@@ -75,6 +76,7 @@ function Board3D(props) {
                 id={tile.id}
                 coordinates={coordinates}
                 remove={tile.remove}
+                swept={tile.swept}
                 merged_from={tile.merged_from}
                 merged_to={tile.merged_to}
                 new_tile={tile.new_tile}
@@ -103,6 +105,12 @@ function Board3D(props) {
             </div>
         </div>
     )
+}
+
+Board3D.propTypes = {
+    board_map: PropTypes.object.isRequired,
+    board_size: PropTypes.number.isRequired,
+    tokens: PropTypes.object.isRequired
 }
 
 export default Board3D

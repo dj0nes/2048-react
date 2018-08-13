@@ -83,6 +83,12 @@
     transform: scale3d(0.5, 0.5, 0.5) translate3d(1em, 1em, -1em);
 }
 
+.tile3D.swept {
+    animation: pop 200ms ease;
+    animation-fill-mode: forwards;
+    animation-direction: reverse;
+}
+
 .tile3D div:nth-child(1){
     transform:translateZ(var(--cube-size-half));
 }

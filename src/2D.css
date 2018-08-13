@@ -21,6 +21,16 @@
     z-index: 0;
 }
 
+.tile.remove.swept {
+    z-index: 2;
+}
+
+.tile.remove.swept .tile-inner {
+    animation: pop 200ms ease;
+    animation-fill-mode: forwards;
+    animation-direction: reverse;
+}
+
 .board2D {
     position: relative;
     background-color: #bbada0;

@@ -78,12 +78,17 @@ class Game extends React.Component {
     }
 
     loadGame(saved_game) {
-        let deserialized = JSON.parse(saved_game)
-        let board = new BoardMap([], deserialized.history[0].board.coordinates)
-        deserialized.history[0].board = BoardUtil.boardCleanup(board)  // eliminates new tile popping on reload
-        deserialized.history[0].new_points = 0
-        BoardUtil.setGlobalTileIdCounter.bind(BoardUtil)(deserialized.global_tile_id)
-        return {...deserialized}
+        try {
+            let deserialized = JSON.parse(saved_game)
+            let board = new BoardMap([], deserialized.history[0].board.coordinates)
+            deserialized.history[0].board = BoardUtil.boardCleanup(board)  // eliminates new tile popping on reload
+            deserialized.history[0].new_points = 0
+            BoardUtil.setGlobalTileIdCounter.bind(BoardUtil)(deserialized.global_tile_id)
+            return {...deserialized}
+        }
+        catch(error) {
+            return this.newGame()
+        }
     }
 
     handleClick() {
@@ -93,6 +98,18 @@ class Game extends React.Component {
     shuffle() {
         let current = this.state.history[this.state.history.length - 1]
         let new_board = BoardUtil.shuffle(current.board, this.state.board_dimensions)
+        this.setState({
+            history: this.state.history.concat({
+                board: new_board,
+                score: current.score,
+                new_points: 0
+            })
+        })
+    }
+
+    sweep() {
+        let current = this.state.history[this.state.history.length - 1]
+        let new_board = BoardUtil.sweep(current.board, 64)
         this.setState({
             history: this.state.history.concat({
                 board: new_board,
@@ -284,6 +301,7 @@ class Game extends React.Component {
                             </span>
                             <button onClick={function() {this.handleNewGame.apply(this, [3, {x: 3, y: 3, z: 3}])}.bind(this)}>New Game</button>
                             <button onClick={function() {this.handleNewGame.apply(this, [4, {x: 4, y: 4}])}.bind(this)}>New 2D Game</button>
+                            <button onClick={this.sweep.bind(this)}>Sweep</button>
                         </div>
                     </div>
 

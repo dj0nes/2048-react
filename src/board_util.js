@@ -196,17 +196,19 @@ export function tileCleanup(tile) {
         return undefined
     }
 
-    if(tile.merged_to) {
-        tile.value = tile.merged_to
-        delete tile.merged_to
-        delete tile.merged_from
+    let cleaned_tile = {...tile}
+
+    if(cleaned_tile.merged_to) {
+        cleaned_tile.value = cleaned_tile.merged_to
+        delete cleaned_tile.merged_to
+        delete cleaned_tile.merged_from
     }
 
-    if(tile.new_tile) {
-        delete tile.new_tile
+    if(cleaned_tile.new_tile) {
+        delete cleaned_tile.new_tile
     }
 
-    return tile
+    return cleaned_tile
 }
 
 export function locationCleanup({coordinates, tiles}) {
@@ -230,19 +232,7 @@ export function sequenceCleanup(sequence) {
     let cleaned_sequence = []
     for(let i = 0; i < sequence.length; i++) {
         let {coordinates, tiles} = sequence[i]
-        if (tiles === undefined) {
-            tiles = []
-        }
-
-        tiles = tiles.filter(tile => !tile.remove)
-        let cleaned_tiles = []
-        for(let i = 0; i < tiles.length; i++) {
-            let tile = this.tileCleanup(tiles[i])
-            if(tile !== undefined) {
-                cleaned_tiles.push(tile)
-            }
-        }
-
+        let {tiles: cleaned_tiles} = this.locationCleanup({coordinates, tiles})
         cleaned_sequence.push({coordinates: coordinates, tiles: cleaned_tiles})
     }
 
@@ -256,6 +246,23 @@ export function boardCleanup(board) {
         let {tiles: cleaned_tiles} = this.locationCleanup({coordinates, tiles})
         if(cleaned_tiles.length > 0) {
             new_board.set(coordinates, cleaned_tiles)
+        }
+    }
+
+    return new_board
+}
+
+export function sweep(board, threshold_token) {
+    let new_board = this.boardCleanup(board)
+    let contents = new_board.getContents()
+    for(const [coordinates, tiles] of Object.entries(contents)) {
+        if(tiles.length > 0) {
+            let tile = tiles.pop()
+            if(tile.value < threshold_token) {
+                tile.swept = true
+                tile.remove = true
+            }
+            new_board.set(coordinates, [tile])
         }
     }
 

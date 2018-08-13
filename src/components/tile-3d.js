@@ -1,8 +1,15 @@
 import React from 'react'
 import {getFontSizeClass} from '../board_util'
+import PropTypes from 'prop-types'
 
 function Tile3D(props) {
     let remove = props.remove !== undefined ? 'remove' : ''
+    let swept = props.swept !== undefined ? 'swept' : ''
+    if(swept === 'swept') {
+        // deals with the idiosyncrasy of two CSS classes applying transforms, by applying only one of the classes
+        // does not change underlying representation in board_map, will still be removed
+        remove = ''
+    }
     let display_value = props.merged_to ? props.merged_to : props.value
 
     let new_tile = props.new_tile ? 'new_tile' : ''
@@ -25,8 +32,8 @@ function Tile3D(props) {
     return (
         <div className={`tile3D-wrapper ${depth_class}`}>
             <div key={`${props.coordinates.x}${props.coordinates.y}${props.coordinates.z}`}
-                className={`tile tile3D tile-${display_value} ${getFontSizeClass(display_value)} ${remove} ${new_tile}` +
-                 `${tile_merged} ${tile_merged_again}`}
+                className={`tile tile3D tile-${display_value} ${getFontSizeClass(display_value)} ${remove} ${swept}` +
+                 `${new_tile} ${tile_merged} ${tile_merged_again}`}
             >
                 {/*Front*/}
                 <div className={'tile-inner'}><span>{display_value}</span></div>
@@ -43,6 +50,16 @@ function Tile3D(props) {
             </div>
         </div>
     )
+}
+
+Tile3D.propTypes = {
+    swept: PropTypes.bool,
+    remove: PropTypes.bool,
+    merged_to: PropTypes.number,
+    new_tile: PropTypes.bool,
+    value: PropTypes.number.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    tokens: PropTypes.object
 }
 
 export default Tile3D
