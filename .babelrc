@@ -1,5 +1,5 @@
 {
-  "presets": ["babel-preset-env"],
-  "plugins": ["transform-object-rest-spread"],
+  "presets": ["babel-preset-env", "react"],
+  "plugins": ["transform-object-rest-spread", "transform-runtime"],
   "sourceMap": "inline"
 }

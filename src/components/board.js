@@ -26,11 +26,9 @@ function Board(props) {
         for (let y = 0; y < props.board_size; y++) {
             placeholders.push(
                 (
-                    <div x-type="placeholder" key={`${x}${y}-placeholder`} className={`
-                        tile
-                        tile-placeholder
-                        row-${y}-col-${x}`}
-                    ><div className="tile-inner"> </div></div>
+                    <div key={`${x}${y}-placeholder`} className={`tile tile-placeholder row-${y}-col-${x}`}>
+                        <div className="tile-inner"> </div>
+                    </div>
                 ))
         }
     }
@@ -84,6 +82,7 @@ function Board(props) {
 Board.propTypes = {
     board_size: PropTypes.number.isRequired,
     z_layer: PropTypes.number.isRequired,
+    board_map: PropTypes.object.isRequired
     // board_dimensions: PropTypes.number.isRequired
 }
 

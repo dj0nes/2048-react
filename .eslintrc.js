@@ -8,7 +8,9 @@ module.exports = {
         "window": true,
         "browser": true,
         "localStorage":true,
-        "document": true
+        "document": true,
+        "fetch": true,
+        "navigator": true
     },
     "extends": [
         "eslint:recommended",
