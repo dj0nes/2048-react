@@ -74,13 +74,13 @@ describe('BoardMap has these properties:', () => {
     it('stringifies tiles array with one member', () => {
         let result = board_map.tiles_to_string([tile0])
         // this is totally arbitrary
-        let expected_result = '[{id: 0, value: 2, location: [object Object]}]'
+        let expected_result = '[{id: 0, location: [object Object], value: 2}]'
         expect(result).toEqual(expected_result)
     })
 
     it('stringifies tiles array with more than one member', () => {
         let result = board_map.tiles_to_string([tile0, tile1])
-        let expected_result = '[{id: 0, value: 2, location: [object Object]}, {id: 1, value: 2, location: [object Object]}]'
+        let expected_result = '[{id: 0, location: [object Object], value: 2}, {id: 1, location: [object Object], value: 2}]'
         expect(result).toEqual(expected_result)
     })
 
@@ -110,10 +110,48 @@ describe('BoardMap has these properties:', () => {
         expect(result_true).toBe(true)
     })
 
+    it('checks for equality on given properties, irrespective of key order', () => {
+        let coordinates1 = {
+            '[{"x":0},{"y":0}]': [
+                {
+                    'id': 0,
+                    'value': 4
+                }
+            ],
+            '[{"x":0},{"y":2}]': [
+                {
+                    'id': 2,
+                    'value': 16
+                }
+            ]
+        }
+
+        let coordinates2 = {
+            '[{"x":0},{"y":0}]': [
+                {
+                    'value': 4,
+                    'id': 0
+                }
+            ],
+            '[{"x":0},{"y":2}]': [
+                {
+                    'value': 16,
+                    'id': 2
+                }
+            ]
+        }
+
+        let board_map1 = new BoardMap([], coordinates1)
+        let board_map2 = new BoardMap([], coordinates2)
+
+        let result_true = board_map1.equals(board_map2)
+        expect(result_true).toBe(true)
+    })
+
     it('stringifies itself', () => {
         let result = board_map.toString()
         // this is totally arbitrary
-        let expected_result = '[[{"x":0},{"y":0}]: [{id: 0, value: 2, location: [object Object]}]], [[{"x":0},{"y":1}]: [{id: 1, value: 2, location: [object Object]}]]'
+        let expected_result = '[[{"x":0},{"y":0}]: [{id: 0, location: [object Object], value: 2}]], [[{"x":0},{"y":1}]: [{id: 1, location: [object Object], value: 2}]]'
         expect(result).toEqual(expected_result)
     })
 

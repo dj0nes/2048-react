@@ -209,6 +209,23 @@ export function tileCleanup(tile) {
     return tile
 }
 
+export function locationCleanup({coordinates, tiles}) {
+    if (tiles === undefined) {
+        tiles = []
+    }
+
+    tiles = tiles.filter(tile => !tile.remove)
+    let cleaned_tiles = []
+    for(let i = 0; i < tiles.length; i++) {
+        let tile = this.tileCleanup(tiles[i])
+        if(tile !== undefined) {
+            cleaned_tiles.push(tile)
+        }
+    }
+
+    return {coordinates, tiles: cleaned_tiles}
+}
+
 export function sequenceCleanup(sequence) {
     let cleaned_sequence = []
     for(let i = 0; i < sequence.length; i++) {
@@ -232,6 +249,19 @@ export function sequenceCleanup(sequence) {
     return cleaned_sequence
 }
 
+export function boardCleanup(board) {
+    let contents = board.getContents()
+    let new_board = new BoardMap()
+    for(const [coordinates, tiles] of Object.entries(contents)) {
+        let {tiles: cleaned_tiles} = this.locationCleanup({coordinates, tiles})
+        if(cleaned_tiles.length > 0) {
+            new_board.set(coordinates, cleaned_tiles)
+        }
+    }
+
+    return new_board
+}
+
 export function mergeLocation(board, board_dimensions, direction, location, tokens) {
     let getSequence = this.getSequence(board, board_dimensions, direction, location)
     let sequence = []
@@ -248,21 +278,6 @@ export function mergeLocation(board, board_dimensions, direction, location, toke
     return this.mergeSequence(sequence, tokens)
 }
 
-// export function boardCleanup(board, board_dimensions, direction, location, tokens) {
-//     let getSequence = this.getSequence(board, board_dimensions, direction, location)
-//     let sequence = []
-//     let done = false
-//     while (!done) {
-//         let iteration = getSequence.next()
-//         if (iteration.value) {
-//             sequence.push(iteration.value)
-//         }
-//         done = iteration.done
-//     }
-//
-//     sequence = this.sequenceCleanup(sequence)
-// }
-
 // export function getMoveDimensionDirection(direction) {
 //     let [move_dimension, move_direction] = Object.entries(direction)
 //         .filter(([/* dim */, dir]) => dir !== 0)
@@ -274,6 +289,8 @@ export function getMoveSequences(board_dimensions, direction) {
     // in an n-dimensional space, returns all n-1 dimensional sequence coordinates for merge
     // ie for 3D board {x:3, y:3, z:3} with direction {x:0, y:1, z:0}, this returns
     // [{x:0, z:0}, {x:0, z:1}, {x:0, z:2}, {x:0, z:3}, {x:1, z:0},  ... {x:3, z:3}]
+    // that allows us to iterate over each location in the remaining dimension, eg.
+    // for {x:0, z:0}, we'd get [{x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:2, z:0}]
     let coordinate_dimensions = {}
     for (let dimension in direction) {
         if(direction.hasOwnProperty(dimension)) {
@@ -326,7 +343,6 @@ export function randomTileInsert(board, board_dimensions, tokens, max_tiles_to_i
     }
 
     return true
-
 }
 
 export function shuffle(board, board_dimensions) {
@@ -350,25 +366,3 @@ export function shuffle(board, board_dimensions) {
 
     return new BoardMap(kv_pairs)
 }
-
-// export function shuffle(tiles) {
-//     let tiles_to_shuffle = tiles.map(obj => Object.assign({}, obj))
-//     let used_indices = new Set()
-//     let all_indices = new Set()
-//     let board_size = Math.sqrt(tiles.length)
-//     for(let i = 0; i < board_size; i++) {
-//         for(let j = 0; j < board_size; j++) {
-//             all_indices.add({x: i, y: j})
-//         }
-//     }
-//
-//     return tiles_to_shuffle.map(tile => {
-//         let unused_indices = [...all_indices].filter(x => !used_indices.has(x)) // all - used = unused
-//         let random_index = Math.floor(Math.random() * unused_indices.length)
-//         let index = unused_indices[random_index]
-//         used_indices.add(index)
-//         tile.x = index.x
-//         tile.y = index.y
-//         return tile
-//     })
-// }

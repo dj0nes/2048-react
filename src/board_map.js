@@ -93,7 +93,7 @@ export default class BoardMap extends React.Component {
             }
 
             if(add_tile) {
-                coordinate_list.push(tile_list.join(', '))
+                coordinate_list.push(tile_list.sort().join(', '))
             }
         }
 
@@ -143,7 +143,7 @@ export default class BoardMap extends React.Component {
         return pairs.join('], ') + ']'
     }
 
-    equals(other, properties_to_compare = [], ignore_tiles_with_props = []) {
+    equals(other, properties_to_compare = ['id', 'value'], ignore_tiles_with_props = ['remove']) {
         let a = this.toString(properties_to_compare, ignore_tiles_with_props)
         let b = other.toString(properties_to_compare, ignore_tiles_with_props)
 

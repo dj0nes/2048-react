@@ -94,7 +94,29 @@ it('creates a board_map with preset values', () => {
     expect(board_map.get(tile1_coordinates)).toEqual([tile1])
 })
 
-describe('sequence cleaning', () => {
+describe('tile and sequence cleaning', () => {
+    it('cleans removable tokens and updates values from a single location', () => {
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 0, y: 1}
+        let tile2_coordinates = {x: 0, y: 2}
+        let tile0 = BoardUtil.createTile({value: 4, id: 0, merged_to: 4})
+        let tile1 = BoardUtil.createTile({value: 2, id: 1, remove: true})
+        let tile2 = BoardUtil.createTile({value: 16, id: 2, merged_to: 16, new_tile: true})
+        let tile3 = BoardUtil.createTile({value: 8, id: 3, remove: true})
+        let kv_pairs = [
+            {coordinates: tile0_coordinates, tiles: [tile0]},
+            {coordinates: tile1_coordinates, tiles: [tile1]},
+            {coordinates: tile2_coordinates, tiles: [tile2, tile3]}
+        ]
+
+        let cleaned_sequence = kv_pairs.map(BoardUtil.locationCleanup.bind(BoardUtil))
+        expect(cleaned_sequence).toEqual([
+            {coordinates: tile0_coordinates, tiles: [{value: 4, id: 0}]},
+            {coordinates: tile1_coordinates, tiles: []},
+            {coordinates: tile2_coordinates, tiles: [{value: 16, id: 2}]}
+        ])
+    })
+
     it('cleans sequence of removable tokens and updates values', () => {
         let tile0_coordinates = {x: 0, y: 0}
         let tile1_coordinates = {x: 0, y: 1}
@@ -114,7 +136,6 @@ describe('sequence cleaning', () => {
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
-
         let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
         let sequence = []
         let done = false
@@ -133,6 +154,31 @@ describe('sequence cleaning', () => {
             {coordinates: tile2_coordinates, tiles: [{value: 16, id: 2}]},
             {coordinates: tile3_coordinates, tiles: []}
         ])
+    })
+
+    it('cleans an entire board of removable tokens and updates values', () => {
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 0, y: 1}
+        let tile2_coordinates = {x: 0, y: 2}
+        let tile3_coordinates = {x: 0, y: 3}
+        let tile0 = BoardUtil.createTile({value: 4, id: 0, merged_to: 4})
+        let tile1 = BoardUtil.createTile({value: 2, id: 1, remove: true})
+        let tile2 = BoardUtil.createTile({value: 16, id: 2, merged_to: 16, new_tile: true})
+        let tile3 = BoardUtil.createTile({value: 8, id: 3, remove: true})
+        let kv_pairs = [
+            {coordinates: tile0_coordinates, tiles: [tile0]},
+            {coordinates: tile1_coordinates, tiles: [tile1]},
+            {coordinates: tile2_coordinates, tiles: [tile2, tile3]}
+        ]
+        let board_map = new BoardMap(kv_pairs)
+        let cleaned_board = BoardUtil.boardCleanup(board_map)
+        let correctly_cleaned_board = new BoardMap([
+            {coordinates: tile0_coordinates, tiles: [{value: 4, id: 0}]},
+            {coordinates: tile1_coordinates, tiles: []},
+            {coordinates: tile2_coordinates, tiles: [{value: 16, id: 2}]},
+            {coordinates: tile3_coordinates, tiles: []}
+        ])
+        expect(cleaned_board.equals(correctly_cleaned_board)).toEqual(true)
     })
 
     it('cleans sequence of removable tokens', () => {
@@ -723,7 +769,7 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile3_coordinates, tiles: []}
         ])
 
-        var {merged_sequence: merged_sequence2} = BoardUtil.mergeSequence(merged_sequence, tokens)
+        let {merged_sequence: merged_sequence2} = BoardUtil.mergeSequence(merged_sequence, tokens)
         let {new_mergee: new_mergee3, new_merger: new_merger3} = BoardUtil.mergeTiles(new_mergee, new_mergee2, tokens)
         expect(merged_sequence2).toEqual([
             {coordinates: tile0_coordinates, tiles: BoardUtil.idSort([new_mergee3, new_merger3])},
