@@ -3,7 +3,7 @@
     --cube-size-half: 4em;
 }
 
-.board-3D {
+.board3D {
     /* fixes compositing issue on iOS safari*/
     z-index: 100;
     perspective:1700px;
@@ -12,10 +12,14 @@
     transform: rotate3d(1, 2, 0, -20deg);
     transition: all 100ms ease-in;
     height: 45em;
-    width: 70%;
-    margin: auto;
     position: relative;
-    padding: 4em 0 0;
+    padding: 6em 6em 0;
+}
+
+.board3D-wrapper {
+    position: relative;
+    margin: auto;
+    width: 300px;
 }
 
 .tile3D-wrapper{
@@ -51,31 +55,31 @@
     /*transform: scale3d(0.95, .95, .95) translate3d(1px, 1px, 2px)*/
 }
 
-.board-3D .tile.tile-100 .tile-inner span {
+.board3D .tile.tile-100 .tile-inner span {
     font-size: 4.65em;
 }
 
-.board-3D .tile.tile-1000 .tile-inner span {
+.board3D .tile.tile-1000 .tile-inner span {
     font-size: 3.35em;
 }
 
-.board-3D .tile.tile-10000 .tile-inner span {
+.board3D .tile.tile-10000 .tile-inner span {
     font-size: 2.75em;
 }
 
-.board-3D .tile.tile-100000 .tile-inner span {
+.board3D .tile.tile-100000 .tile-inner span {
     font-size: 2.25em;
 }
 
-.board-3D .tile.tile-1000000 .tile-inner span {
+.board3D .tile.tile-1000000 .tile-inner span {
     font-size: 1.85em;
 }
 
-.board-3D .tile.tile-10000000 .tile-inner span {
+.board3D .tile.tile-10000000 .tile-inner span {
     font-size: 1.65em;
 }
 
-.board-3D .tile.tile-100000000 .tile-inner span {
+.board3D .tile.tile-100000000 .tile-inner span {
     font-size: 1.35em;
 }
 

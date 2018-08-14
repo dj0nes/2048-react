@@ -2,10 +2,11 @@ import React from 'react'
 import * as BoardUtil from '../board_util'
 import BoardMap from '../board_map'
 import Board from './board'
-import Board3D from './board-3d'
-import {randomTileInsert} from '../board_util'
+import Board3D from './board3D'
+import Overlay from './overlay'
 import Hammer from 'react-hammerjs'
 import PropTypes from 'prop-types'
+import Button from './button'
 
 
 const KEY = {
@@ -152,7 +153,7 @@ class Game extends React.Component {
         }
         let {merged_board, new_points} = BoardUtil.mergeBoard(current.board, this.state.board_dimensions, final_direction, this.state.tokens)
         if(!current.board.equals(merged_board)) {
-            randomTileInsert(merged_board, this.state.board_dimensions, this.state.tokens, 1)
+            BoardUtil.randomTileInsert(merged_board, this.state.board_dimensions, this.state.tokens, 1)
 
             this.setState({
                 history: this.state.history.concat({
@@ -228,6 +229,30 @@ class Game extends React.Component {
         this.setState(this.newGame(board_size, board_dimensions))
     }
 
+    openOverlay(props) {
+        this.setState({
+            overlay: {
+                active: true,
+                title: props.title || '',
+                contents: props.contents || '',
+                button_text: props.button_text || '',
+                button_action: props.button_action.bind(this) || this.closeOverlay.bind(this)
+            }
+        })
+    }
+
+    closeOverlay() {
+        this.setState({
+            overlay: {
+                active: false,
+                title: '',
+                contents: '',
+                button_text: '',
+                button_action: () => {}
+            }
+        })
+    }
+
     render() {
         const history = this.state.history
         let current = history[history.length - 1]
@@ -283,6 +308,16 @@ class Game extends React.Component {
         // we'll just alternate between two different keys, so react renders a new element each turn
         let new_score_id = this.state.history.length % 2 === 1
 
+        // testing
+        this.openOverlay({
+            active: true,
+            title: 'Title',
+            contents: 'Contents',
+            button_text: 'Button Text',
+            button_action: this.closeOverlay.bind(this)
+        })
+
+
         return (
             <Hammer className={'grid'}
                 options={options}
@@ -295,6 +330,7 @@ class Game extends React.Component {
                 onPinchOut={this.handlePinchOut.bind(this)}
             >
                 <div>
+
                     <div className={'header'}>
                         <h1 className={'title'}>2048-react</h1>
                         <div className={'score-container'}>
@@ -303,18 +339,24 @@ class Game extends React.Component {
                                 style={{display: current.new_points === 0 ? 'none' : 'inline-block'}}>
                                 + {current.new_points}
                             </span>
-                            <button onClick={function() {this.handleNewGame.apply(this, [3, {x: 3, y: 3, z: 3}])}.bind(this)}>New Game</button>
-                            <button onClick={function() {this.handleNewGame.apply(this, [4, {x: 4, y: 4}])}.bind(this)}>New 2D Game</button>
-                            <button onClick={this.sweep.bind(this)}>Sweep</button>
-                            <button onClick={this.shuffle.bind(this)}>Shuffle</button>
-                            <button onClick={this.undo.bind(this)}>Undo</button>
+                            <Button action={function() {this.handleNewGame.apply(this, [3, {x: 3, y: 3, z: 3}])}.bind(this)} text={'New Game'}></Button>
+                            <Button action={function() {this.handleNewGame.apply(this, [4, {x: 4, y: 4}])}.bind(this)}  text={'New 2D Game'}></Button>
+                            <Button action={this.sweep.bind(this)} text={'Sweep'}></Button>
+                            <Button action={this.shuffle.bind(this)} text={'Shuffle'}></Button>
+                            <Button action={this.undo.bind(this)} text={'Undo'}></Button>
                         </div>
                     </div>
 
 
                     <style>{board_style}</style>
                     <div id="board3D-container">
-                        {boards3D}
+                        <div className={'board3D-wrapper'}>
+                            <Overlay active={this.state.overlay.active} title={this.state.overlay.title} message={this.state.overlay.contents}
+                                action={this.state.overlay.button_action}
+                                button_text={this.state.overlay.button_text}>
+                            </Overlay>
+                            {boards3D}
+                        </div>
                     </div>
                     <div id="board2D-container">
                         {boards2D}

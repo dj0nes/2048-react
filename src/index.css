@@ -88,8 +88,18 @@ body {
         font-size: 6px;
     }
 
-    #board3D-container .board-3D {
-        width: 300px;
+    .board3D-wrapper .board3D {
+        padding: 6em 2em 0;
+    }
+
+    #board2D-container {
+        font-size: 1.75vw;
+    }
+}
+
+@media only screen and (min-width: 500px)   {
+    #board2D-container {
+        font-size: 8px;
     }
 }
 
@@ -98,15 +108,28 @@ body {
         font-size: 11px;
     }
 
-    #board3D-container .board-3D {
+    .board3D-wrapper {
         width: 500px;
         padding: 8em 0 0;
     }
 }
 
 @media only screen and (min-width: 768px) {
+    #board3D-container {
+        font-size: 7px;
+    }
+
     #board2D-container {
-        font-size: 14px;
+        font-size: 10px;
+    }
+
+    #board3D-container .board3D-wrapper {
+        width: 330px;
+        padding: 3em 0 0;
+    }
+
+    .board3D-wrapper .board3D {
+        padding: 6em 0em 0;
     }
 }
 
@@ -116,9 +139,13 @@ body {
         font-size: 9px;
     }
 
-    #board3D-container .board-3D {
-        width: 410px;
-        padding: 8em 0 0;
+    #board3D-container .board3D-wrapper {
+        width: 440px;
+        padding: 3em 0 0;
+    }
+
+    .board3D-wrapper .board3D {
+        padding: 6em 2em 0;
     }
 
     #board2D-container {

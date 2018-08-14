@@ -93,15 +93,13 @@ function Board3D(props) {
     })
 
     return (
-        <div id={'board-3D-wrapper'}>
+        <div className="board3D" style={style}>
             <style>{tile3D_style}</style>
-            <div className="board-3D" style={style}>
-                <div className="placeholders3D">
-                    {placeholders}
-                </div>
-                <div className="tiles3D">
-                    {tilesList}
-                </div>
+            <div className="placeholders3D">
+                {placeholders}
+            </div>
+            <div className="tiles3D">
+                {tilesList}
             </div>
         </div>
     )
