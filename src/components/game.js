@@ -47,6 +47,9 @@ class Game extends React.Component {
         else {
             this.state = this.newGame(board_size, board_dimensions, tokens)
         }
+
+        // initialize overlay
+        this.state.overlay = this.closeOverlay()
     }
 
     newGame(board_size = 3, board_dimensions = {x: 3, y: 3, z: 3}, tokens = BoardUtil.generate2048Tokens.bind(BoardUtil)()) {
@@ -242,15 +245,15 @@ class Game extends React.Component {
     }
 
     closeOverlay() {
-        this.setState({
-            overlay: {
-                active: false,
-                title: '',
-                contents: '',
-                button_text: '',
-                button_action: () => {}
-            }
-        })
+        let overlay = {
+            active: false,
+            title: '',
+            contents: '',
+            button_text: '',
+            button_action: () => {}
+        }
+        this.setState({overlay})
+        return overlay
     }
 
     render() {
@@ -307,16 +310,12 @@ class Game extends React.Component {
         // css animations don't "restart" unless a reflow is triggered
         // we'll just alternate between two different keys, so react renders a new element each turn
         let new_score_id = this.state.history.length % 2 === 1
-
-        // testing
-        this.openOverlay({
-            active: true,
-            title: 'Title',
-            contents: 'Contents',
-            button_text: 'Button Text',
-            button_action: this.closeOverlay.bind(this)
-        })
-
+        let overlay = {
+            title: 'test opening overlay',
+            contents: 'test opening overlay',
+            button_text: 'close',
+            button_action: this.closeOverlay
+        }
 
         return (
             <Hammer className={'grid'}
@@ -344,6 +343,7 @@ class Game extends React.Component {
                             <Button action={this.sweep.bind(this)} text={'Sweep'}></Button>
                             <Button action={this.shuffle.bind(this)} text={'Shuffle'}></Button>
                             <Button action={this.undo.bind(this)} text={'Undo'}></Button>
+                            <Button action={() => this.openOverlay(overlay)} text={'Open Overlay'}></Button>
                         </div>
                     </div>
 
