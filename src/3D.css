@@ -29,6 +29,10 @@
     transform-style: preserve-3d;
 }
 
+.tiles3D, .placeholders3D {
+    transform-style: preserve-3d;
+}
+
 .tile3D div {
     position:absolute;
     width:var(--cube-size);
