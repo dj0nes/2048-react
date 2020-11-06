@@ -2,7 +2,7 @@ import React from 'react'
 import {getFontSizeClass} from '../board_util'
 import PropTypes from 'prop-types'
 
-function Tile(props) {
+function Tile(props: any) {
     let remove = props.remove !== undefined ? 'remove' : ''
     let swept = props.swept !== undefined ? 'swept' : ''
     let display_value = props.merged_to ? props.merged_to : props.value
@@ -12,7 +12,7 @@ function Tile(props) {
         new_tile = 'new_tile'
     }
 
-    let content = ''
+    let content: JSX.Element = <></>
     if(props.merged_to) {
         content =
             <div className={'tile-inner tile-merged'} key={1}>
@@ -38,9 +38,11 @@ function Tile(props) {
 }
 
 Tile.propTypes = {
+    id: PropTypes.number,
     swept: PropTypes.bool,
     remove: PropTypes.bool,
     merged_to: PropTypes.number,
+    merged_from: PropTypes.number,
     new_tile: PropTypes.bool,
     handleClick: PropTypes.func,
     value: PropTypes.number.isRequired,

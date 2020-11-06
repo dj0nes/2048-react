@@ -2,7 +2,7 @@ import React from 'react'
 import {getFontSizeClass} from '../board_util'
 import PropTypes from 'prop-types'
 
-function Tile3D(props) {
+function Tile3D(props: any) {
     let remove = props.remove !== undefined ? 'remove' : ''
     let swept = props.swept !== undefined ? 'swept' : ''
     if(swept === 'swept') {
@@ -53,13 +53,16 @@ function Tile3D(props) {
 }
 
 Tile3D.propTypes = {
+    id: PropTypes.number,
     swept: PropTypes.bool,
     remove: PropTypes.bool,
     merged_to: PropTypes.number,
+    merged_from: PropTypes.number,
     new_tile: PropTypes.bool,
     value: PropTypes.number.isRequired,
     coordinates: PropTypes.object.isRequired,
-    tokens: PropTypes.object
+    tokens: PropTypes.object,
+    handleClick: PropTypes.func
 }
 
 export default Tile3D

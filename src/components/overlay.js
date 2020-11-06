@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import Button from './button'
+import styled from '@emotion/styled'
+import Button from './Button'
 
 function Overlay(props) {
     const Overlay = styled.div`
