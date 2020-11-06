@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Board from './components/board'
+import Board from './components/Board'
 import BoardMap from './board_map'
 import * as BoardUtil from './board_util'
 

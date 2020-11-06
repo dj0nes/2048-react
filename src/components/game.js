@@ -1,12 +1,12 @@
 import React from 'react'
 import * as BoardUtil from '../board_util'
 import BoardMap from '../board_map'
-import Board from './board'
-import Board3D from './board3D'
+import Board from './Board'
+import Board3D from './Board3D'
 import Overlay from './overlay'
 import Hammer from 'react-hammerjs'
 import PropTypes from 'prop-types'
-import Button from './button'
+import Button from './Button'
 
 
 const KEY = {

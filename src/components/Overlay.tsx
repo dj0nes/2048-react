@@ -1,9 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import Button from './button'
+import styled from '@emotion/styled'
+import Button from './Button'
 
-function Overlay(props) {
+function Overlay(props: any) {
     const Overlay = styled.div`
         display: ${props.active ? 'block' : 'none'}
         position: absolute;
@@ -24,7 +24,7 @@ function Overlay(props) {
         <Overlay>
             <Title>{props.title}</Title>
             <p>{props.message}</p>
-            <Button action={props.action} text={props.button_text}> </Button>
+            <Button action={props.action} text={props.button_text} />
         </Overlay>
     )
 }

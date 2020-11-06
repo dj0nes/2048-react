@@ -261,7 +261,7 @@ it('transitions tokens as expected', () => {
     expect(transitioned_points).toEqual(4)
 })
 
-describe('get all coordinates ', () => {
+describe('get all coordinates', () => {
     it('for 1 dimension', () => {
         let {all_locations, all_coordinates} = BoardUtil.getAllCoordinates({x:3})
         expect(all_locations instanceof Array).toBe(true)

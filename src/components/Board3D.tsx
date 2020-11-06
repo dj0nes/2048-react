@@ -1,8 +1,8 @@
 import React from 'react'
-import Tile3D from './tile-3d'
+import Tile3D from './Tile3d'
 import PropTypes from 'prop-types'
 
-function Board3D(props) {
+function Board3D(props: any) {
     // dynamic css classes based on number of tiles
     let style = {
         // height: '20em',
@@ -64,13 +64,13 @@ function Board3D(props) {
     }
 
 
-    let tilesList = []
+    let tilesList: any[] = []
     for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
         // Declaring the per-tile creation function here is clearer than the alternative
         /*eslint no-loop-func: "off"*/
-        tiles.map((tile) => tilesList.push(
+        tiles.map((tile: any) => tilesList.push(
             <Tile3D value={tile.value}
                 key={tile.id}
                 id={tile.id}
@@ -81,7 +81,7 @@ function Board3D(props) {
                 merged_to={tile.merged_to}
                 new_tile={tile.new_tile}
                 tokens={props.tokens}
-                handleClick={(i) => props.handleClick(i)}
+                handleClick={(i: any) => props.handleClick(i)}
             />)
         )
     }

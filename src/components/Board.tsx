@@ -1,8 +1,8 @@
 import React from 'react'
-import Tile from './tile'
+import Tile from './Tile'
 import PropTypes from 'prop-types'
 
-function Board(props) {
+function Board(props: any) {
     // dynamic css classes based on number of tiles
     let style = ''
     let box_size = 4
@@ -36,7 +36,7 @@ function Board(props) {
     }
 
 
-    let tilesList = []
+    let tilesList: any[] = []
     for(let coordinate_string of board_map.getSortedKeys()) {
         let tiles = board_map.get(coordinate_string)
         let coordinates = board_map.getCoordinatesFromKey(coordinate_string)
@@ -47,7 +47,7 @@ function Board(props) {
 
         // Declaring the per-tile creation function here is clearer than the alternative
         /*eslint no-loop-func: "off"*/
-        tiles.map((tile) => tilesList.push(
+        tiles.map((tile: any) => tilesList.push(
             <Tile value={tile.value}
                 key={tile.id}
                 id={tile.id}
