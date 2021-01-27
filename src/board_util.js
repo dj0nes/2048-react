@@ -61,17 +61,17 @@ export function createTile({id, value, ...rest}) {
     return Object.assign({id, value}, rest)
 }
 
-export function* getSequence(board, board_dimensions, direction, location) {
+export function* getSequence(board, boardDimensions, direction, location) {
     let [iteration_dimension, iteration_direction] = Object.entries(direction)
         .filter(([/* dim */, dir]) => dir !== 0)
         .pop()
 
     let index = 0
     if (iteration_direction < 0) {
-        index = board_dimensions[iteration_dimension] - 1
+        index = boardDimensions[iteration_dimension] - 1
     }
 
-    while (index < board_dimensions[iteration_dimension] && index >= 0) {
+    while (index < boardDimensions[iteration_dimension] && index >= 0) {
         let location_copy = Object.assign({}, location)
         let coordinate = Object.assign(location_copy, {[iteration_dimension]: index})
         yield({coordinates: coordinate, tiles: board.get(coordinate)})
@@ -79,9 +79,9 @@ export function* getSequence(board, board_dimensions, direction, location) {
     }
 }
 
-export function getAllCoordinates(board_dimensions) {
+export function getAllCoordinates(boardDimensions) {
     let all_locations = []
-    for (const [dimension, length] of Object.entries(board_dimensions)) {
+    for (const [dimension, length] of Object.entries(boardDimensions)) {
         let dimension_locations = []
         for (let i of [...Array(length).keys()]) {
             let dim_obj = {}
@@ -268,8 +268,8 @@ export function sweep(board, threshold_token) {
     return new_board
 }
 
-export function mergeLocation(board, board_dimensions, direction, location, tokens) {
-    let getSequence = this.getSequence(board, board_dimensions, direction, location)
+export function mergeLocation(board, boardDimensions, direction, location, tokens) {
+    let getSequence = this.getSequence(board, boardDimensions, direction, location)
     let sequence = []
     let done = false
     while (!done) {
@@ -291,7 +291,7 @@ export function mergeLocation(board, board_dimensions, direction, location, toke
 //     return {move_dimension, move_direction}
 // }
 
-export function getMoveSequences(board_dimensions, direction) {
+export function getMoveSequences(boardDimensions, direction) {
     // in an n-dimensional space, returns all n-1 dimensional sequence coordinates for merge
     // ie for 3D board {x:3, y:3, z:3} with direction {x:0, y:1, z:0}, this returns
     // [{x:0, z:0}, {x:0, z:1}, {x:0, z:2}, {x:0, z:3}, {x:1, z:0},  ... {x:3, z:3}]
@@ -302,7 +302,7 @@ export function getMoveSequences(board_dimensions, direction) {
         if(direction.hasOwnProperty(dimension)) {
             let direction_value = direction[dimension]
             if (direction_value === 0) {
-                coordinate_dimensions[dimension] = board_dimensions[dimension]
+                coordinate_dimensions[dimension] = boardDimensions[dimension]
             }
         }
     }
@@ -311,12 +311,12 @@ export function getMoveSequences(board_dimensions, direction) {
     return all_coordinates
 }
 
-export function mergeBoard(board, board_dimensions, direction, tokens) {
-    let move_sequences = this.getMoveSequences(board_dimensions, direction)
+export function mergeBoard(board, boardDimensions, direction, tokens) {
+    let move_sequences = this.getMoveSequences(boardDimensions, direction)
     let merged_kv_pairs = []
     let new_points = 0
     for (let location of move_sequences) {
-        let {merged_sequence, points} = this.mergeLocation(board, board_dimensions, direction, location, tokens)
+        let {merged_sequence, points} = this.mergeLocation(board, boardDimensions, direction, location, tokens)
         merged_kv_pairs = merged_kv_pairs.concat(merged_sequence)
         new_points += points
     }
@@ -326,12 +326,12 @@ export function mergeBoard(board, board_dimensions, direction, tokens) {
     return {merged_board, new_points}
 }
 
-export function randomTileInsert(board, board_dimensions, tokens, max_tiles_to_insert) {
-    // inserts max(board_dimensions) - 1 tiles
-    let {all_coordinates} = getAllCoordinates(board_dimensions)
+export function randomTileInsert(board, boardDimensions, tokens, max_tiles_to_insert) {
+    // inserts max(boardDimensions) - 1 tiles
+    let {all_coordinates} = getAllCoordinates(boardDimensions)
     all_coordinates = all_coordinates.map(obj => board.stringify(obj))
 
-    let tiles_to_insert = max_tiles_to_insert || Math.max(2, Object.keys(board_dimensions).length) - 1
+    let tiles_to_insert = max_tiles_to_insert || Math.max(2, Object.keys(boardDimensions).length) - 1
     let i = 0
     while(i < tiles_to_insert) {
         let occupied_coordinates = board.getSortedKeys()
@@ -351,8 +351,8 @@ export function randomTileInsert(board, board_dimensions, tokens, max_tiles_to_i
     return true
 }
 
-export function shuffle(board, board_dimensions) {
-    let {all_coordinates} = getAllCoordinates(board_dimensions)
+export function shuffle(board, boardDimensions) {
+    let {all_coordinates} = getAllCoordinates(boardDimensions)
     let remaining_coordinates = all_coordinates.map(obj => board.stringify(obj))
     let occupied_coordinates = board.getSortedKeys()
 

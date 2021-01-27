@@ -11,13 +11,13 @@ function Board3D(props: any) {
     let box_size = 8
     let gutter = box_size
     let tile3D_style = ''
-    for(let x = 0; x < props.board_size; x++) {
-        for (let y = 0; y < props.board_size; y++) {
-            for (let z = 0; z < props.board_size; z++) {
+    for(let x = 0; x < props.boardSize; x++) {
+        for (let y = 0; y < props.boardSize; y++) {
+            for (let z = 0; z < props.boardSize; z++) {
                 tile3D_style += `.col-${x}-row-${y}-depth-${z} {transform: translate3d(` +
                 `${x * (box_size + gutter)}em,` +
-                // (props.board_size + 1) * box_size allows us to have 0, 0, 0 at bottom left
-                `${-y * (box_size + gutter) + (props.board_size + 1) * box_size}em,` +
+                // (props.boardSize + 1) * box_size allows us to have 0, 0, 0 at bottom left
+                `${-y * (box_size + gutter) + (props.boardSize + 1) * box_size}em,` +
                 `${-z * (box_size + gutter)}em)}\n`
             }
         }
@@ -29,7 +29,7 @@ function Board3D(props: any) {
     }
 
     let board_cells = []
-    for(let i = 0; i < Math.pow(props.board_size, 2); i++) {
+    for(let i = 0; i < Math.pow(props.boardSize, 2); i++) {
         board_cells.push(<div className={'cell'} key={i}/>)
     }
 
@@ -37,9 +37,9 @@ function Board3D(props: any) {
     let placeholders = []
 
     // populate board with placeholder tiles
-    for(let x = 0; x < props.board_size; x++) {
-        for (let y = 0; y < props.board_size; y++) {
-            for (let z = 0; z < props.board_size; z++) {
+    for(let x = 0; x < props.boardSize; x++) {
+        for (let y = 0; y < props.boardSize; y++) {
+            for (let z = 0; z < props.boardSize; z++) {
                 placeholders.push(
                     (
                         <div key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper tile3D-placeholder col-${x}-row-${y}-depth-${z}`}>
@@ -107,7 +107,7 @@ function Board3D(props: any) {
 
 Board3D.propTypes = {
     board_map: PropTypes.object.isRequired,
-    board_size: PropTypes.number.isRequired,
+    boardSize: PropTypes.number.isRequired,
     tokens: PropTypes.object.isRequired
 }
 

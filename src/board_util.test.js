@@ -132,11 +132,11 @@ describe('tile and sequence cleaning', () => {
             {coordinates: tile2_coordinates, tiles: [tile2, tile3]}
         ]
         let board_map = new BoardMap(kv_pairs)
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let sequence = []
         let done = false
         while (!done) {
@@ -194,11 +194,11 @@ describe('tile and sequence cleaning', () => {
             {coordinates: tile0_coordinates, tiles: [tile0, tile1]}
         ]
         let board_map = new BoardMap(kv_pairs)
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let sequence = []
         let done = false
         while (!done) {
@@ -228,8 +228,8 @@ describe('tile and sequence cleaning', () => {
 
 it('returns all move sequences in 2D', () => {
     let direction = {x: 0, y: 1}
-    let board_dimensions = {x: 4, y: 4}
-    let move_sequences = BoardUtil.getMoveSequences(board_dimensions, direction)
+    let boardDimensions = {x: 4, y: 4}
+    let move_sequences = BoardUtil.getMoveSequences(boardDimensions, direction)
     expect(move_sequences).toEqual([
         {'x': 0},
         {'x': 1},
@@ -241,8 +241,8 @@ it('returns all move sequences in 2D', () => {
 it('returns all move sequences in 3D', () => {
     let direction = {x: 0, y: 1, z: 0}
     let dimension_size = 4
-    let board_dimensions = {x: dimension_size, y: dimension_size, z:dimension_size}
-    let move_sequences = BoardUtil.getMoveSequences(board_dimensions, direction)
+    let boardDimensions = {x: dimension_size, y: dimension_size, z:dimension_size}
+    let move_sequences = BoardUtil.getMoveSequences(boardDimensions, direction)
 
     let move_sequences_answer = []  // [{x: 0, y: 0, z: 0, t:0}, {x: 0, y: 0, z: 0, t:1}, ...]
     for(let x of [...Array(dimension_size).keys()]) {
@@ -381,13 +381,13 @@ describe('sequence iteration in 2D', () => {
         {coordinates: tile1_coordinates, tiles: [tile1]},
         {coordinates: tile2_coordinates, tiles: [tile2]}
     ]
-    let board_dimensions = {x:3, y:3}
+    let boardDimensions = {x:3, y:3}
     let board_map = new BoardMap(kv_pairs)
 
     it('getSequence should be a generator', () => {
         let direction = {x:0, y:1}
         let location = {x:0}
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         expect(BoardUtil.getSequence.constructor.name).toBe('GeneratorFunction')  // make sure this is an iterator/generator).toBe('function')  // make sure getSequence is a generator
         expect(typeof getSequence.next).toBe('function')  // make sure this is an iterator/generator
     })
@@ -399,7 +399,7 @@ describe('sequence iteration in 2D', () => {
         let direction = {x:0, y:1}
         let location = {x:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let first = getSequence.next()
         let second = getSequence.next()
         let third = getSequence.next()
@@ -419,7 +419,7 @@ describe('sequence iteration in 2D', () => {
         let direction = {x:0, y:-1}
         let location = {x:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let first = getSequence.next().value
         let second = getSequence.next().value
         let third = getSequence.next().value
@@ -438,7 +438,7 @@ describe('sequence iteration in 2D', () => {
         let direction = {x:1, y:0}
         let location = {y:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let first = getSequence.next().value
         let nonexistent_second = getSequence.next().value
 
@@ -453,7 +453,7 @@ describe('sequence iteration in 2D', () => {
         let direction = {x:-1, y:0}
         let location = {y:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let nonexistent_first = getSequence.next().value
         let nonexistent_second = getSequence.next().value
         let third = getSequence.next().value
@@ -477,7 +477,7 @@ describe('sequence iteration in 3D', () => {
         {coordinates: tile1_coordinates, tiles: [tile1]},
         {coordinates: tile2_coordinates, tiles: [tile2]}
     ]
-    let board_dimensions = {x: 3, y: 3, z: 3}
+    let boardDimensions = {x: 3, y: 3, z: 3}
     let board_map = new BoardMap(kv_pairs)
 
     it('returns the ascending sequence of tiles on a 3D board_map in the correct order', () => {
@@ -487,7 +487,7 @@ describe('sequence iteration in 3D', () => {
         let direction = {x: 0, y: 0, z: 1}
         let location = {x: 0, y:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let first = getSequence.next()
         let second = getSequence.next()
         let third = getSequence.next()
@@ -507,7 +507,7 @@ describe('sequence iteration in 3D', () => {
         let direction = {x: 0, y: 0, z: -1}
         let location = {x: 0, y:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let first = getSequence.next()
         let second = getSequence.next()
         let third = getSequence.next()
@@ -527,7 +527,7 @@ describe('sequence iteration in 3D', () => {
         let direction = {x: 1, y: 0, z: 0}
         let location = {y: 0, z:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let first = getSequence.next().value
         let nonexistent_second = getSequence.next()
         let nonexistent_third = getSequence.next()
@@ -548,7 +548,7 @@ describe('sequence iteration in 3D', () => {
         let direction = {x: -1, y: 0, z: 0}
         let location = {y: 0, z:0}
 
-        let getSequence = BoardUtil.getSequence(board_map, board_dimensions, direction, location)
+        let getSequence = BoardUtil.getSequence(board_map, boardDimensions, direction, location)
         let nonexistent_first = getSequence.next()
         let nonexistent_second = getSequence.next()
         let third = getSequence.next()
@@ -584,7 +584,7 @@ describe('sequence merging in 2D', () => {
         {coordinates: tile2_coordinates, tiles: [tile2]},
         {coordinates: tile3_coordinates, tiles: [tile3]}
     ]
-    let board_dimensions = {x: 4, y: 4}
+    let boardDimensions = {x: 4, y: 4}
     let board_map = new BoardMap(kv_pairs)
 
 
@@ -593,7 +593,7 @@ describe('sequence merging in 2D', () => {
         let direction = {x: 0, y: 1}
         let location = {x: 0}
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         expect(merged_sequence).toEqual([
             {coordinates: tile0_coordinates, tiles: []},
             {coordinates: tile1_coordinates, tiles: []},
@@ -613,10 +613,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile1, tokens)
 
         expect(merged_sequence).toEqual([
@@ -638,10 +638,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile0_coordinates, tiles: [tile0]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile3, tokens)
 
         expect(merged_sequence).toEqual([
@@ -663,10 +663,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile0_coordinates, tiles: [tile0]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile3, tile0, tokens)
         expect(merged_sequence).toContainEqual({coordinates: tile0_coordinates, tiles: []})
         expect(merged_sequence).toContainEqual({coordinates: tile1_coordinates, tiles: []})
@@ -685,10 +685,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile0_coordinates, tiles: [tile0]},
             {coordinates: tile2_coordinates, tiles: [tile2]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile2, tokens)
         expect(merged_sequence).toContainEqual({coordinates: tile0_coordinates, tiles: BoardUtil.idSort([new_mergee, new_merger])})
     })
@@ -704,10 +704,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile0_coordinates, tiles: [tile0]},
             {coordinates: tile2_coordinates, tiles: [tile2]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile2, tile0, tokens)
         expect(merged_sequence).toContainEqual({coordinates: tile3_coordinates, tiles: BoardUtil.idSort([new_mergee, new_merger])})
     })
@@ -727,10 +727,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile2, tile3, tokens)
         expect(merged_sequence).toEqual([
             {coordinates: tile0_coordinates, tiles: [tile0]},
@@ -754,10 +754,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile1, tokens)
         let {new_mergee: new_mergee2, new_merger: new_merger2} = BoardUtil.mergeTiles(tile2, tile3, tokens)
         expect(merged_sequence).toEqual([
@@ -791,10 +791,10 @@ describe('sequence merging in 2D', () => {
             {coordinates: tile6_coordinates, tiles: tile2},
             {coordinates: tile7_coordinates, tiles: tile3}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_sequence} = BoardUtil.mergeLocation(board_map, board_dimensions, direction, location, tokens)
+        let {merged_sequence} = BoardUtil.mergeLocation(board_map, boardDimensions, direction, location, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile1, tokens)
         let {new_mergee: new_mergee2, new_merger: new_merger2} = BoardUtil.mergeTiles(tile2, tile3, tokens)
         expect(merged_sequence).toEqual([
@@ -834,10 +834,10 @@ describe('board merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         expect(new_points).toEqual(0)
         expect(tile0.value).toEqual(2)
         expect(tile0.merged_to).toEqual(undefined)
@@ -860,10 +860,10 @@ describe('board merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         expect(new_points).toEqual(4)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile2, tile3, tokens)
         expect(merged_board.get(tile0_coordinates)).toEqual([tile0])
@@ -885,10 +885,10 @@ describe('board merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         expect(new_points).toEqual(8)
 
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile1, tokens)
@@ -908,11 +908,11 @@ describe('board merging in 2D', () => {
             {coordinates: tile1_coordinates, tiles: [tile1]},
             {coordinates: tile2_coordinates, tiles: [tile2]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let direction = {x: 0, y: 1}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         expect(new_points).toEqual(4)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile1, tokens)
         expect(merged_board.get(tile0_coordinates)).toEqual(BoardUtil.idSort([new_mergee, new_merger]))
@@ -920,7 +920,7 @@ describe('board merging in 2D', () => {
         expect(merged_board.get(tile2_coordinates)).toEqual(undefined)
         expect(merged_board.get(tile3_coordinates)).toEqual(undefined)
 
-        let {merged_board: merged_board2, new_points: new_points2} = BoardUtil.mergeBoard(merged_board, board_dimensions, direction, tokens)
+        let {merged_board: merged_board2, new_points: new_points2} = BoardUtil.mergeBoard(merged_board, boardDimensions, direction, tokens)
         expect(new_points2).toEqual(0)
         expect(merged_board2.get(tile0_coordinates)).toEqual([BoardUtil.tileCleanup(new_mergee)])  // [{"id": 0, "value": 4}]
         expect(merged_board2.get(tile1_coordinates)).toEqual([tile2])
@@ -939,10 +939,10 @@ describe('board merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile1, tile0, tokens)
         let {new_mergee: new_mergee2, new_merger: new_merger2} = BoardUtil.mergeTiles(tile3, tile2, tokens)
         expect(new_points).toEqual(8)
@@ -967,11 +967,11 @@ describe('board merging in 2D', () => {
             {coordinates: tile2_coordinates, tiles: [tile2]},
             {coordinates: tile3_coordinates, tiles: [tile3]}
         ]
-        let board_dimensions = {x: 4, y: 4}
+        let boardDimensions = {x: 4, y: 4}
         let direction = {x: -1, y: 0}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile1, tile0, tokens)
         expect(new_points).toEqual(4)
         expect(merged_board.get(tile0_coordinates)).toEqual(undefined)
@@ -1022,14 +1022,14 @@ describe('board merging in 3D', () => {
         {coordinates: tile6_coordinates, tiles: [tile6]},
         {coordinates: tile7_coordinates, tiles: [tile7]},
     ]
-    let board_dimensions = {x: 4, y: 4, z:4}
+    let boardDimensions = {x: 4, y: 4, z:4}
 
 
     it('merges a 3D board down correctly', () => {
         let direction = {x: 0, y: 0, z:1}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile0, tile7, tokens)
         expect(new_points).toEqual(4)
         // tile0 one should have been transitioned
@@ -1051,7 +1051,7 @@ describe('board merging in 3D', () => {
         kv_pairs[7] = {coordinates: tile7_coordinates, tiles: [tile7]}
         let board_map = new BoardMap(kv_pairs)
 
-        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, board_dimensions, direction, tokens)
+        let {merged_board, new_points} = BoardUtil.mergeBoard(board_map, boardDimensions, direction, tokens)
         let {new_mergee, new_merger} = BoardUtil.mergeTiles(tile7, tile0, tokens)
         // this one should have been transitioned
         expect(new_points).toEqual(4)
