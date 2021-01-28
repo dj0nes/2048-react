@@ -353,6 +353,10 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         // button_action: this.closeOverlay
     }
 
+    function makeSpecialMove(moveFn) {
+        setGameState({...gameState, ...moveFn(gameState)})
+    }
+
     return (
         <div className={'grid'}
             // options={options}
@@ -376,9 +380,9 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
                         </span>
                         {/*<Button action={function() {this.handleNewGame.apply(this, [3, {x: 3, y: 3, z: 3}])}.bind(this)} text={'New Game'}></Button>*/}
                         {/*<Button action={function() {this.handleNewGame.apply(this, [4, {x: 4, y: 4}])}.bind(this)}  text={'New 2D Game'}></Button>*/}
-                        {/*<Button action={this.sweep.bind(this)} text={'Sweep'}></Button>*/}
-                        {/*<Button action={this.shuffle.bind(this)} text={'Shuffle'}></Button>*/}
-                        {/*<Button action={this.undo.bind(this)} text={'Undo'}></Button>*/}
+                        <Button action={() => makeSpecialMove(sweep)} text={'Sweep'}></Button>
+                        <Button action={() => makeSpecialMove(shuffle)} text={'Shuffle'}></Button>
+                        <Button action={() => makeSpecialMove(undo)} text={'Undo'}></Button>
                         {/*<Button action={() => this.openOverlay(overlay)} text={'Open Overlay'}></Button>*/}
                     </div>
                 </div>
