@@ -88,7 +88,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         let current = gameState.history[gameState.history.length - 1]
         let direction: { x: number; y: number; z: number } | null = null
         if(event.keyCode === KEY.SPACE) return shuffle(gameState)
-        // if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && gameState.history.length > 1) return this.undo()
+        if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && gameState.history.length > 1) return undo(gameState)
         if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = BOARD_TRANSITIONS.left
         if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = BOARD_TRANSITIONS.right
         if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = BOARD_TRANSITIONS.up
@@ -148,7 +148,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //     // let current = gameState.history[gameState.history.length - 1]
     //     // let state_copy = {
     //     //     ...gameState,
-    //     //     global_tile_id: BoardUtil.getGlobalTileIdCounter.bind(BoardUtil)()
+    //     //     global_tile_id: boardUtil.getGlobalTileIdCounter.bind(boardUtil)()
     //     // }
     //     // state_copy.history = [current]
     //     // let serialized_game = JSON.stringify(state_copy)
@@ -159,20 +159,16 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //     // try {
     //     //     let deserialized = JSON.parse(saved_game)
     //     //     let board = new boardMap([], deserialized.history[0].board.coordinates)
-    //     //     deserialized.history[0].board = BoardUtil.boardCleanup(board)  // eliminates new tile popping on reload
+    //     //     deserialized.history[0].board = boardUtil.boardCleanup(board)  // eliminates new tile popping on reload
     //     //     deserialized.history[0].new_points = 0
-    //     //     BoardUtil.setGlobalTileIdCounter.bind(BoardUtil)(deserialized.global_tile_id)
+    //     //     boardUtil.setGlobalTileIdCounter.bind(boardUtil)(deserialized.global_tile_id)
     //     //     return {...deserialized}
     //     // }
     //     // catch(error) {
     //     //     return this.newGame()
     //     // }
     // }
-    //
-    // handleClick() {
-    //     // noop, maybe I'll need this in the future?
-    // }
-    //
+
     function shuffle(gameState) {
         let current = gameState.history[gameState.history.length - 1]
         let new_board = boardUtil.shuffle(current.board, gameState.boardDimensions)
@@ -187,7 +183,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //
     // sweep() {
     //     // let current = gameState.history[gameState.history.length - 1]
-    //     // let new_board = BoardUtil.sweep(current.board, 64)
+    //     // let new_board = boardUtil.sweep(current.board, 64)
     //     // this.setState({
     //     //     history: gameState.history.concat({
     //     //         board: new_board,
@@ -197,17 +193,18 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //     // }, this.saveGame)
     // }
     //
-    // undo() {
-    //     // // set state back by one
-    //     // if(gameState.history.length > 1) {
-    //     //     let history = gameState.history.slice(0, gameState.history.length - 1)
-    //     //     let current = history[history.length - 1]
-    //     //     current.board = BoardUtil.boardCleanup(current.board)  // eliminates special tile states when rewinding
-    //     //     this.setState({
-    //     //         history: history
-    //     //     }, this.saveGame)
-    //     // }
-    // }
+    function undo(gameState) {
+        // set state back by one
+        if(gameState.history.length > 1) {
+            let history = gameState.history.slice(0, gameState.history.length - 1)
+            let current = history[history.length - 1]
+            current.board = boardUtil.boardCleanup(current.board)  // eliminates special tile states when rewinding
+            return {
+                ...gameState,
+                history: history
+            }
+        }
+    }
 
     // generateTestBoard(board, boardSize) {
     //     let value = 1
@@ -215,7 +212,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //         for (let y = 0; y < boardSize; y++) {
     //             for (let z = 0; z < boardSize; z++) {
     //                 value *= 2
-    //                 board.set({x, y, z}, [BoardUtil.createTile({value: value})])
+    //                 board.set({x, y, z}, [boardUtil.createTile({value: value})])
     //             }
     //         }
     //     }
