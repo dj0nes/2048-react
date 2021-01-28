@@ -88,6 +88,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         let current = gameState.history[gameState.history.length - 1]
         let direction: { x: number; y: number; z: number } | null = null
         if(event.keyCode === KEY.SPACE) return shuffle(gameState)
+        if(event.ctrlKey && event.shiftKey) return sweep(gameState)
         if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && gameState.history.length > 1) return undo(gameState)
         if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = BOARD_TRANSITIONS.left
         if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = BOARD_TRANSITIONS.right
@@ -180,19 +181,20 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
             })
         }
     }
-    //
-    // sweep() {
-    //     // let current = gameState.history[gameState.history.length - 1]
-    //     // let new_board = boardUtil.sweep(current.board, 64)
-    //     // this.setState({
-    //     //     history: gameState.history.concat({
-    //     //         board: new_board,
-    //     //         score: current.score,
-    //     //         new_points: 0
-    //     //     })
-    //     // }, this.saveGame)
-    // }
-    //
+
+    function sweep(gameState) {
+        let current = gameState.history[gameState.history.length - 1]
+        let new_board = boardUtil.sweep(current.board, 64)
+        return {
+            ...gameState,
+            history: gameState.history.concat({
+                board: new_board,
+                score: current.score,
+                new_points: 0
+            })
+        }
+    }
+
     function undo(gameState) {
         // set state back by one
         if(gameState.history.length > 1) {
