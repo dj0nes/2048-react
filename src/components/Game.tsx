@@ -42,7 +42,7 @@ interface GameState {
     boardSize: number,
     boardDimensions: BoardDimensions,
     tokens: object,
-    history: [GameHistory]
+    history: GameHistory[]
 }
 
 interface BoardDimensions {
@@ -59,40 +59,7 @@ interface GameHistory {
 
 const newGameState = (boardSize = 3, boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameState => ({ boardSize, boardDimensions, tokens, history: [{board: new boardMap(), score: 0, new_points: 0}]})
 
-function handleKeys(event, gameState) {
-    let current = gameState.history[gameState.history.length - 1]
-    let direction: { x: number; y: number; z: number } | null = null
-    // if(event.keyCode === KEY.SPACE) return this.shuffle()
-    // if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && gameState.history.length > 1) return this.undo()
-    if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = BOARD_TRANSITIONS.left
-    if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = BOARD_TRANSITIONS.right
-    if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = BOARD_TRANSITIONS.up
-    if(event.keyCode === KEY.DOWN   || event.keyCode === KEY.S) direction = BOARD_TRANSITIONS.down
-    if(event.keyCode === KEY.Q) direction = BOARD_TRANSITIONS.out
-    if(event.keyCode === KEY.E) direction = BOARD_TRANSITIONS.in
-    if(!direction) return
 
-    // cut the direction object down to dimensions we're dealing with, eg. x, y for a 2D board, not x, y, z
-    let intersection = Object.entries(direction).filter(([k, /* v */]) => k in gameState.boardDimensions)
-    let final_direction = {}
-    for(const [key, value] of intersection) {
-        final_direction[key] = value
-    }
-    let {merged_board, new_points} = boardUtil.mergeBoard(current.board, gameState.boardDimensions, final_direction, gameState.tokens)
-    if(current.board.equals(merged_board)) {
-        return current.board
-    }
-
-    boardUtil.randomTileInsert(merged_board, gameState.boardDimensions, gameState.tokens, 1)
-
-    return {
-        history: gameState.history.concat({
-            board: merged_board,
-            score: current.score + new_points,
-            new_points
-        })
-    }
-}
 
 const Game = ({boardSize, boardDimensions }: GameInterface) => {
     // let touch_delay_ms = 100
@@ -116,6 +83,41 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         const res = {...gameStateRef.current, ...newState}
         setGameState(res)
     }, [])
+
+    function handleKeys(event, gameState) {
+        let current = gameState.history[gameState.history.length - 1]
+        let direction: { x: number; y: number; z: number } | null = null
+        if(event.keyCode === KEY.SPACE) return shuffle(gameState)
+        // if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && gameState.history.length > 1) return this.undo()
+        if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = BOARD_TRANSITIONS.left
+        if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = BOARD_TRANSITIONS.right
+        if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = BOARD_TRANSITIONS.up
+        if(event.keyCode === KEY.DOWN   || event.keyCode === KEY.S) direction = BOARD_TRANSITIONS.down
+        if(event.keyCode === KEY.Q) direction = BOARD_TRANSITIONS.out
+        if(event.keyCode === KEY.E) direction = BOARD_TRANSITIONS.in
+        if(!direction) return
+
+        // cut the direction object down to dimensions we're dealing with, eg. x, y for a 2D board, not x, y, z
+        let intersection = Object.entries(direction).filter(([k, /* v */]) => k in gameState.boardDimensions)
+        let final_direction = {}
+        for(const [key, value] of intersection) {
+            final_direction[key] = value
+        }
+        let {merged_board, new_points} = boardUtil.mergeBoard(current.board, gameState.boardDimensions, final_direction, gameState.tokens)
+        if(current.board.equals(merged_board)) {
+            return current.board
+        }
+
+        boardUtil.randomTileInsert(merged_board, gameState.boardDimensions, gameState.tokens, 1)
+
+        return {
+            history: gameState.history.concat({
+                board: merged_board,
+                score: current.score + new_points,
+                new_points
+            })
+        }
+    }
 
     // game setup
     useEffect(() => {
@@ -171,17 +173,17 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //     // noop, maybe I'll need this in the future?
     // }
     //
-    // shuffle() {
-    //     // let current = gameState.history[gameState.history.length - 1]
-    //     // let new_board = BoardUtil.shuffle(current.board, gameState.boardDimensions)
-    //     // this.setState({
-    //     //     history: gameState.history.concat({
-    //     //         board: new_board,
-    //     //         score: current.score,
-    //     //         new_points: 0
-    //     //     })
-    //     // }, this.saveGame)
-    // }
+    function shuffle(gameState) {
+        let current = gameState.history[gameState.history.length - 1]
+        let new_board = boardUtil.shuffle(current.board, gameState.boardDimensions)
+        return {
+            history: gameState.history.concat({
+                board: new_board,
+                score: current.score,
+                new_points: 0
+            })
+        }
+    }
     //
     // sweep() {
     //     // let current = gameState.history[gameState.history.length - 1]
