@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Board from './components/Board'
-import BoardMap from './board_map'
+import boardMap from './board_map'
 import * as BoardUtil from './board_util'
 
 it('renders without crashing', () => {
@@ -13,7 +13,7 @@ it('renders without crashing', () => {
         {coordinates: tile0_coordinates, tiles: tile0},
         {coordinates: tile1_coordinates, tiles: tile1}
     ]
-    let board_map = new BoardMap(kv_pairs)
+    let board_map = new boardMap(kv_pairs)
 
     const div = document.createElement('div')
     ReactDOM.render(<Board board_map={board_map} z_layer={0} boardSize={3} boardDimensions={{x:3, y:3, z:3}}/>, div)

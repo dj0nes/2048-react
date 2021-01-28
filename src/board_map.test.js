@@ -1,17 +1,17 @@
-import BoardMap from './board_map'
+import boardMap from './board_map'
 import * as BoardUtil from './board_util'
 
 
 it('creates a new empty board_map', () => {
-    let board_map = new BoardMap()
+    let board_map = new boardMap()
     expect(typeof board_map).toBe('object')
-    expect(board_map instanceof BoardMap).toBe(true)
+    expect(board_map instanceof boardMap).toBe(true)
 })
 
 it('stringifies keys', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
-    let board_map = new BoardMap()
+    let board_map = new boardMap()
 
     expect(board_map.stringify(tile0_coordinates)).toBe('[{"x":0},{"y":0}]')
     expect(board_map.stringify(tile1_coordinates)).toBe('[{"x":0},{"y":1}]')
@@ -26,7 +26,7 @@ it('stringifies keys', () => {
 it('unStringifies keys', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
-    let board_map = new BoardMap()
+    let board_map = new boardMap()
 
     let stringified0 = board_map.stringify(tile0_coordinates)
     let stringified1 = board_map.stringify(tile1_coordinates)
@@ -44,7 +44,7 @@ it('unStringifies keys', () => {
 it('getCoordinatesFromKey keys', () => {
     let tile0_coordinates = {x:0, y:0}
     let tile1_coordinates = {x:0, y:1}
-    let board_map = new BoardMap()
+    let board_map = new boardMap()
 
     let stringified0 = board_map.stringify(tile0_coordinates)
     let stringified1 = board_map.stringify(tile1_coordinates)
@@ -68,7 +68,7 @@ describe('BoardMap has these properties:', () => {
         {coordinates: tile0_coordinates, tiles: tile0},
         {coordinates: tile1_coordinates, tiles: tile1}
     ]
-    let board_map = new BoardMap(kv_pairs)
+    let board_map = new boardMap(kv_pairs)
 
 
     it('stringifies tiles array with one member', () => {
@@ -103,7 +103,7 @@ describe('BoardMap has these properties:', () => {
         ]
         let result_true2 = board_map.equals(board_map)
         expect(result_true2).toBe(true)
-        let board_map2 = new BoardMap(kv_pairs)
+        let board_map2 = new boardMap(kv_pairs)
         let result = board_map.equals(board_map2, ['id', 'value'])
         expect(result).toBe(false)
         let result_true = board_map.equals(board_map, ['id', 'value'])
@@ -141,8 +141,8 @@ describe('BoardMap has these properties:', () => {
             ]
         }
 
-        let board_map1 = new BoardMap([], coordinates1)
-        let board_map2 = new BoardMap([], coordinates2)
+        let board_map1 = new boardMap([], coordinates1)
+        let board_map2 = new boardMap([], coordinates2)
 
         let result_true = board_map1.equals(board_map2)
         expect(result_true).toBe(true)
@@ -157,7 +157,7 @@ describe('BoardMap has these properties:', () => {
 
     it('BoardMap construction with values passes basic sanity checks', () => {
         expect(typeof board_map).toBe('object')
-        expect(board_map instanceof BoardMap).toBe(true)
+        expect(board_map instanceof boardMap).toBe(true)
     })
 
     it('.get() returns the array of tiles at the given location', () => {
@@ -172,7 +172,7 @@ describe('BoardMap has these properties:', () => {
     })
 
     it('.set() adds a tile to an empty given location', () => {
-        let board_map = new BoardMap()
+        let board_map = new boardMap()
         board_map.set(tile0_coordinates, tile0)
         board_map.set(tile1_coordinates, tile1)
         let tile0_test = board_map.get(tile0_coordinates)
@@ -182,7 +182,7 @@ describe('BoardMap has these properties:', () => {
     })
 
     it('.set() adds a tile to an occupied given location', () => {
-        let board_map = new BoardMap()
+        let board_map = new boardMap()
         board_map.set(tile0_coordinates, tile0)
         board_map.set(tile1_coordinates, tile1)
 
@@ -197,7 +197,7 @@ describe('BoardMap has these properties:', () => {
     })
 
     it('.set() updates a tile to an occupied given location with same id', () => {
-        let board_map = new BoardMap()
+        let board_map = new boardMap()
         board_map.set(tile0_coordinates, tile0)
         board_map.set(tile1_coordinates, tile1)
 

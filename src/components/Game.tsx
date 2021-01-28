@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react'
-import * as BoardUtil from '../board_util'
-import BoardMap from '../board_map'
+import React, {useCallback, useEffect, useState, useRef} from 'react'
+import {useReferredState} from '../utils'
+import * as boardUtil from '../board_util'
+import boardMap from '../board_map'
 import Board from './Board'
 import Board3D from './Board3D'
 import Button from './Button'
@@ -17,6 +18,15 @@ const KEY = {
     Q: 81,
     E: 69,
     SPACE: 32
+}
+
+const BOARD_TRANSITIONS = {
+    up: {x: 0, y: -1, z: 0},
+    down: {x: 0, y: 1, z: 0},
+    left: {x: 1, y: 0, z: 0},
+    right: {x: -1, y: 0, z: 0},
+    in: {x: 0, y: 0, z: -1},
+    out: {x: 0, y: 0, z: 1}
 }
 
 interface GameInterface {
@@ -42,26 +52,51 @@ interface BoardDimensions {
 }
 
 interface GameHistory {
-    board: BoardMap,
+    board: boardMap,
     score: number,
     new_points: number
 }
 
-const newGameState = (boardSize = 3, boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameState => ({ boardSize, boardDimensions, tokens, history: [{board: new BoardMap(), score: 0, new_points: 0}]})
+const newGameState = (boardSize = 3, boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameState => ({ boardSize, boardDimensions, tokens, history: [{board: new boardMap(), score: 0, new_points: 0}]})
+
+function handleKeys(event, gameState) {
+    let current = gameState.history[gameState.history.length - 1]
+    let direction: { x: number; y: number; z: number } | null = null
+    // if(event.keyCode === KEY.SPACE) return this.shuffle()
+    // if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && gameState.history.length > 1) return this.undo()
+    if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = BOARD_TRANSITIONS.left
+    if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = BOARD_TRANSITIONS.right
+    if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = BOARD_TRANSITIONS.up
+    if(event.keyCode === KEY.DOWN   || event.keyCode === KEY.S) direction = BOARD_TRANSITIONS.down
+    if(event.keyCode === KEY.Q) direction = BOARD_TRANSITIONS.out
+    if(event.keyCode === KEY.E) direction = BOARD_TRANSITIONS.in
+    if(!direction) return
+
+    // cut the direction object down to dimensions we're dealing with, eg. x, y for a 2D board, not x, y, z
+    let intersection = Object.entries(direction).filter(([k, /* v */]) => k in gameState.boardDimensions)
+    let final_direction = {}
+    for(const [key, value] of intersection) {
+        final_direction[key] = value
+    }
+    let {merged_board, new_points} = boardUtil.mergeBoard(current.board, gameState.boardDimensions, final_direction, gameState.tokens)
+    if(current.board.equals(merged_board)) {
+        return current.board
+    }
+
+    boardUtil.randomTileInsert(merged_board, gameState.boardDimensions, gameState.tokens, 1)
+
+    return {
+        history: gameState.history.concat({
+            board: merged_board,
+            score: current.score + new_points,
+            new_points
+        })
+    }
+}
 
 const Game = ({boardSize, boardDimensions }: GameInterface) => {
-    let board_transitions = {
-        up: {x: 0, y: -1, z: 0},
-        down: {x: 0, y: 1, z: 0},
-        left: {x: 1, y: 0, z: 0},
-        right: {x: -1, y: 0, z: 0},
-        in: {x: 0, y: 0, z: -1},
-        out: {x: 0, y: 0, z: 1}
-    }
-    let touch_delay_ms = 100
-    let debouncing = false
-    // let boardSize = props.boardSize || 3
-    // let boardDimensions = props.boardDimensions || {x: boardSize, y: boardSize, z: boardSize}
+    // let touch_delay_ms = 100
+    // let debouncing = false
     // let saved_game = localStorage.getItem('game')
     // if(saved_game !== null && true) {
     //     // gameState = this.loadGame(saved_game)
@@ -69,26 +104,41 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     // else {
     //     gameState = this.newGame(boardSize, boardDimensions, tokens)
     // }
-    
-    const [gameState, setGameState] = useState<GameState>(newGameState(boardSize, boardDimensions, {}))
-    const [tokens] = useState(BoardUtil.generate2048Tokens.bind(BoardUtil)())
-    
+
+
+    // this goofy gameStateRef setup is needed for the keydownHandler to have access to the current state
+    // otherwise it will bind to the game state at initialization, which will never change
+    // bound functions like the keydownHandler need to use the ref, everything else can use state as usual
+    const [gameState, gameStateRef, setGameState] = useReferredState<GameState>(newGameState(boardSize, boardDimensions, boardUtil.generate2048Tokens()))
+
+    const keydownHandler = useCallback(event =>  {
+        const newState = handleKeys(event, gameStateRef.current)
+        const res = {...gameStateRef.current, ...newState}
+        setGameState(res)
+    }, [])
+
     // game setup
     useEffect(() => {
         // start with two random tiles
-        const board = new BoardMap()
-        BoardUtil.randomTileInsert(board, boardDimensions, tokens)
-        BoardUtil.randomTileInsert(board, boardDimensions, tokens)
+        const board = new boardMap()
+        boardUtil.randomTileInsert(board, boardDimensions, gameState.tokens)
+        boardUtil.randomTileInsert(board, boardDimensions, gameState.tokens)
         setGameState({
             boardSize,
             boardDimensions,
-            tokens,
+            tokens: gameState.tokens,
             history: [{
                 board,
                 score: 0,
                 new_points: 0
             }]
         })
+
+        window.addEventListener('keydown', keydownHandler)
+
+        return () => {
+            window.addEventListener('keydown', keydownHandler)
+        }
     }, [])
 
     // saveGame() {
@@ -106,7 +156,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     // loadGame(saved_game: any) {
     //     // try {
     //     //     let deserialized = JSON.parse(saved_game)
-    //     //     let board = new BoardMap([], deserialized.history[0].board.coordinates)
+    //     //     let board = new boardMap([], deserialized.history[0].board.coordinates)
     //     //     deserialized.history[0].board = BoardUtil.boardCleanup(board)  // eliminates new tile popping on reload
     //     //     deserialized.history[0].new_points = 0
     //     //     BoardUtil.setGlobalTileIdCounter.bind(BoardUtil)(deserialized.global_tile_id)
@@ -155,46 +205,6 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //     //         history: history
     //     //     }, this.saveGame)
     //     // }
-    // }
-    //
-    // handleKeys(value, event) {
-    //     let current = gameState.history[gameState.history.length - 1]
-    //     let direction: { x: number; y: number; z: number } | null = null
-    //     if(event.keyCode === KEY.SPACE) return this.shuffle()
-    //     if(event.keyCode === 90 && (event.ctrlKey || event.metaKey) && gameState.history.length > 1) return this.undo()
-    //     if(event.keyCode === KEY.LEFT   || event.keyCode === KEY.A) direction = this.board_transitions.left
-    //     if(event.keyCode === KEY.RIGHT  || event.keyCode === KEY.D) direction = this.board_transitions.right
-    //     if(event.keyCode === KEY.UP     || event.keyCode === KEY.W) direction = this.board_transitions.up
-    //     if(event.keyCode === KEY.DOWN   || event.keyCode === KEY.S) direction = this.board_transitions.down
-    //     if(event.keyCode === KEY.Q) direction = this.board_transitions.out
-    //     if(event.keyCode === KEY.E) direction = this.board_transitions.in
-    //     if(!direction) return
-    //
-    //     // cut the direction object down to dimensions we're dealing with, eg. x, y for a 2D board, not x, y, z
-    //     let intersection = Object.entries(direction).filter(([k, /* v */]) => k in gameState.boardDimensions)
-    //     let final_direction = {}
-    //     for(const [key, value] of intersection) {
-    //         final_direction[key] = value
-    //     }
-    //     let {merged_board, new_points} = BoardUtil.mergeBoard(current.board, gameState.boardDimensions, final_direction, gameState.tokens)
-    //     if(!current.board.equals(merged_board)) {
-    //         BoardUtil.randomTileInsert(merged_board, gameState.boardDimensions, gameState.tokens, 1)
-    //
-    //         this.setState({
-    //             history: gameState.history.concat({
-    //                 board: merged_board,
-    //                 score: current.score + new_points,
-    //                 new_points
-    //             })
-    //         })
-    //
-    //         this.saveGame()
-    //     }
-    // }
-    //
-    // componentDidMount() {
-    //     window.addEventListener('keyup',   () => {})
-    //     window.addEventListener('keydown', this.handleKeys.bind(this, true))
     // }
 
     // generateTestBoard(board, boardSize) {

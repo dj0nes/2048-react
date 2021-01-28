@@ -1,4 +1,4 @@
-import BoardMap from './board_map'
+import boardMap from './board_map'
 
 let global_id = 0
 
@@ -240,7 +240,7 @@ export function sequenceCleanup(sequence) {
 
 export function boardCleanup(board) {
     let contents = board.getContents()
-    let new_board = new BoardMap()
+    let new_board = new boardMap()
     for(const [coordinates, tiles] of Object.entries(contents)) {
         let {tiles: cleaned_tiles} = this.locationCleanup({coordinates, tiles})
         if(cleaned_tiles.length > 0) {
@@ -321,7 +321,7 @@ export function mergeBoard(board, boardDimensions, direction, tokens) {
         new_points += points
     }
 
-    let merged_board = new BoardMap(merged_kv_pairs)
+    let merged_board = new boardMap(merged_kv_pairs)
 
     return {merged_board, new_points}
 }
@@ -370,5 +370,5 @@ export function shuffle(board, boardDimensions) {
         remaining_coordinates = remaining_coordinates.filter((coord, index) => index !== random_index)
     }
 
-    return this.boardCleanup(new BoardMap(kv_pairs))
+    return this.boardCleanup(new boardMap(kv_pairs))
 }
