@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState, useRef} from 'react'
+import React, {useCallback, useEffect} from 'react'
 import {useReferredState} from '../utils'
 import * as boardUtil from '../board_util'
 import boardMap from '../board_map'
@@ -78,13 +78,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     // bound functions like the keydownHandler need to use the ref, everything else can use state as usual
     const [gameState, gameStateRef, setGameState] = useReferredState<GameState>(newGameState(boardSize, boardDimensions, boardUtil.generate2048Tokens()))
 
-    const keydownHandler = useCallback(event =>  {
-        const newState = handleKeys(event, gameStateRef.current)
-        const res = {...gameStateRef.current, ...newState}
-        setGameState(res)
-    }, [])
-
-    function handleKeys(event, gameState) {
+    const handleKeys = useCallback((event, gameState) => {
         let current = gameState.history[gameState.history.length - 1]
         let direction: { x: number; y: number; z: number } | null = null
         if(event.keyCode === KEY.SPACE) return shuffle(gameState)
@@ -118,9 +112,15 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
                 new_points
             })
         }
-    }
+    }, [])
 
-    // game setup
+    const keydownHandler = useCallback(event =>  {
+        const newState = handleKeys(event, gameStateRef.current)
+        const res = {...gameStateRef.current, ...newState}
+        setGameState(res)
+    }, [gameStateRef, handleKeys, setGameState])
+
+    // initial game setup
     useEffect(() => {
         // start with two random tiles
         const board = new boardMap()
@@ -142,7 +142,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         return () => {
             window.addEventListener('keydown', keydownHandler)
         }
-    }, [])
+    }, []) /* eslint-disable-line react-hooks/exhaustive-deps */
 
     // saveGame() {
     //     // // saves only the current board, not entire history
@@ -330,28 +330,29 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
 
     let scored = current.new_points === 0 ? '' : 'scored'
 
-    let options = {
-        recognizers: {
-            pinch: {
-                enable: true,
-                threshold: .25
-            },
-            swipe: {
-                threshold: 1,
-                velocity: .1
-            }
-        }
-    }
+    // let options = {
+    //     recognizers: {
+    //         pinch: {
+    //             enable: true,
+    //             threshold: .25
+    //         },
+    //         swipe: {
+    //             threshold: 1,
+    //             velocity: .1
+    //         }
+    //     }
+    // }
 
     // css animations don't "restart" unless a reflow is triggered
     // we'll just alternate between two different keys, so react renders a new element each turn
     let new_score_id = gameState.history.length % 2 === 1
-    let overlay = {
-        title: 'test opening overlay',
-        contents: 'test opening overlay',
-        button_text: 'close',
-        // button_action: this.closeOverlay
-    }
+
+    // let overlay = {
+    //     title: 'test opening overlay',
+    //     contents: 'test opening overlay',
+    //     button_text: 'close',
+    //     // button_action: this.closeOverlay
+    // }
 
     function makeSpecialMove(moveFn) {
         setGameState({...gameState, ...moveFn(gameState)})

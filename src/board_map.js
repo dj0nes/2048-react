@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default class boardMap {
     constructor(kv_pairs = [], coordinates) {
         this.coordinates = coordinates || {}  // naively accepting coordinates for now
