@@ -1,4 +1,5 @@
 import boardMap from './board_map'
+import { range } from './utils'
 
 let global_id = 0
 
@@ -10,27 +11,10 @@ export function getGlobalTileIdCounter() {
     return global_id
 }
 
-export function range(start = 0, stop, step = 1) {
-    if(stop === undefined) {
-        // then this was passed only one parameter, which should be interpreted as the stop value
-        stop = start
-        start = 0
-    }
-
-    let result = []
-    let i = start
-    while(i < stop) {
-        result.push(i)
-        i += step
-    }
-
-    return result
-}
-
 export function generate2048Tokens() {
     let tokens = {}
-    let range = this.range(1, 24)
-    for(let exponent of range) {
+    let exponents = range(1, 24)
+    for(let exponent of exponents) {
         let value = Math.pow(2, exponent)
         let next_value = Math.pow(2, exponent + 1)
         tokens[value] = {
@@ -61,7 +45,22 @@ export function createTile({id, value, ...rest}) {
     return Object.assign({id, value}, rest)
 }
 
-export function* getSequence(board, boardDimensions, direction, location) {
+export function getSequence(board, boardDimensions, direction, location) {
+    const iterator = sequenceIterator(board, boardDimensions, direction, location)
+    let sequence = []
+    let done = false
+    while (!done) {
+        let iteration = iterator.next()
+        if (iteration.value) {
+            sequence.push(iteration.value)
+        }
+        done = iteration.done
+    }
+
+    return sequence
+}
+
+export function* sequenceIterator(board, boardDimensions, direction, location) {
     let [iteration_dimension, iteration_direction] = Object.entries(direction)
         .filter(([/* dim */, dir]) => dir !== 0)
         .pop()
@@ -126,7 +125,7 @@ export function mergeTiles(mergee, merger, tokens) {
     let new_merger = {...merger}
 
     new_mergee.merged_from = merger.value
-    let {transitioned_token, transitioned_points} = this.transitionToken(tokens, new_mergee.value)
+    let {transitioned_token, transitioned_points} = transitionToken(tokens, new_mergee.value)
     new_mergee.merged_to = transitioned_token
     new_merger.remove = true
     return {new_mergee, new_merger, transitioned_points}
@@ -151,10 +150,10 @@ export function mergeSequence(sequence, tokens) {
             let next_tile = next_kv_pair.tiles[0]
 
             if(tile.value === next_tile.value) {
-                let {new_mergee, new_merger, transitioned_points} = this.mergeTiles(tile, next_tile, tokens)
+                let {new_mergee, new_merger, transitioned_points} = mergeTiles(tile, next_tile, tokens)
                 points += transitioned_points
                 nonzero_locations.shift()  // consume second tile
-                results.push(this.idSort([new_mergee, new_merger]))
+                results.push(idSort([new_mergee, new_merger]))
             }
             else {
                 results.push([tile])
@@ -218,7 +217,7 @@ export function locationCleanup({coordinates, tiles}) {
     tiles = tiles.filter(tile => !tile.remove)
     let cleaned_tiles = []
     for(let i = 0; i < tiles.length; i++) {
-        let tile = this.tileCleanup(tiles[i])
+        let tile = tileCleanup(tiles[i])
         if(tile !== undefined) {
             cleaned_tiles.push(tile)
         }
@@ -231,7 +230,7 @@ export function sequenceCleanup(sequence) {
     let cleaned_sequence = []
     for(let i = 0; i < sequence.length; i++) {
         let {coordinates, tiles} = sequence[i]
-        let {tiles: cleaned_tiles} = this.locationCleanup({coordinates, tiles})
+        let {tiles: cleaned_tiles} = locationCleanup({coordinates, tiles})
         cleaned_sequence.push({coordinates: coordinates, tiles: cleaned_tiles})
     }
 
@@ -242,7 +241,7 @@ export function boardCleanup(board) {
     let contents = board.getContents()
     let new_board = new boardMap()
     for(const [coordinates, tiles] of Object.entries(contents)) {
-        let {tiles: cleaned_tiles} = this.locationCleanup({coordinates, tiles})
+        let {tiles: cleaned_tiles} = locationCleanup({coordinates, tiles})
         if(cleaned_tiles.length > 0) {
             new_board.set(coordinates, cleaned_tiles)
         }
@@ -252,7 +251,7 @@ export function boardCleanup(board) {
 }
 
 export function sweep(board, threshold_token) {
-    let new_board = this.boardCleanup(board)
+    let new_board = boardCleanup(board)
     let contents = new_board.getContents()
     for(const [coordinates, tiles] of Object.entries(contents)) {
         if(tiles.length > 0) {
@@ -269,19 +268,8 @@ export function sweep(board, threshold_token) {
 }
 
 export function mergeLocation(board, boardDimensions, direction, location, tokens) {
-    let getSequence = this.getSequence(board, boardDimensions, direction, location)
-    let sequence = []
-    let done = false
-    while (!done) {
-        let iteration = getSequence.next()
-        if (iteration.value) {
-            sequence.push(iteration.value)
-        }
-        done = iteration.done
-    }
-
-    sequence = this.sequenceCleanup(sequence)
-    return this.mergeSequence(sequence, tokens)
+    let sequence = getSequence(board, boardDimensions, direction, location)
+    return mergeSequence(sequenceCleanup(sequence), tokens)
 }
 
 // export function getMoveDimensionDirection(direction) {
@@ -307,16 +295,16 @@ export function getMoveSequences(boardDimensions, direction) {
         }
     }
 
-    let {all_coordinates} = this.getAllCoordinates(coordinate_dimensions)
+    let {all_coordinates} = getAllCoordinates(coordinate_dimensions)
     return all_coordinates
 }
 
 export function mergeBoard(board, boardDimensions, direction, tokens) {
-    let move_sequences = this.getMoveSequences(boardDimensions, direction)
+    let move_sequences = getMoveSequences(boardDimensions, direction)
     let merged_kv_pairs = []
     let new_points = 0
     for (let location of move_sequences) {
-        let {merged_sequence, points} = this.mergeLocation(board, boardDimensions, direction, location, tokens)
+        let {merged_sequence, points} = mergeLocation(board, boardDimensions, direction, location, tokens)
         merged_kv_pairs = merged_kv_pairs.concat(merged_sequence)
         new_points += points
     }
@@ -370,5 +358,5 @@ export function shuffle(board, boardDimensions) {
         remaining_coordinates = remaining_coordinates.filter((coord, index) => index !== random_index)
     }
 
-    return this.boardCleanup(new boardMap(kv_pairs))
+    return boardCleanup(new boardMap(kv_pairs))
 }

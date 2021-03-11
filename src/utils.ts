@@ -14,3 +14,20 @@ export const useReferredState = <T>(
 
     return [state, reference, setReferredState]
 }
+
+export function range(start = 0, stop, step = 1) {
+    if(stop === undefined) {
+        // then this was passed only one parameter, which should be interpreted as the stop value
+        stop = start
+        start = 0
+    }
+
+    let result = []
+    let i = start
+    while(i < stop) {
+        result.push(i)
+        i += step
+    }
+
+    return result
+}
