@@ -1,3 +1,5 @@
+import * as boardUtil from './board_util'
+
 export default class boardMap {
     constructor(kv_pairs = [], coordinates) {
         this.coordinates = coordinates || {}  // naively accepting coordinates for now
@@ -83,10 +85,11 @@ export default class boardMap {
                 if(ignore_tiles_with_props.length > 0 && ignore_tiles_with_props.includes(key)) {
                     add_tile = false
                 }
-                if(sorted_properties.length > 0 && !sorted_properties.includes(key)) {
+                else if(sorted_properties.length > 0 && !sorted_properties.includes(key)) {
                     continue
+                } else {
+                    tile_list.push(`${key}: ${tile[key]}`)
                 }
-                tile_list.push(`${key}: ${tile[key]}`)
             }
 
             if(add_tile) {
@@ -94,7 +97,11 @@ export default class boardMap {
             }
         }
 
-        let output = '[{' + coordinate_list.join('}, {') + '}]'
+        let output = ''
+        if(coordinate_list.length > 0) {
+            output = '[{' + coordinate_list.join('}, {') + '}]'
+        }
+
         return output
     }
 
@@ -135,14 +142,16 @@ export default class boardMap {
         for(let coordinate of keys) {
             let tiles = this.get(coordinate)
             let stringified_tiles = this.tiles_to_string(tiles, properties_to_compare, ignore_tiles_with_props)
-            pairs.push(`[${coordinate}: ${stringified_tiles}`)
+            if(stringified_tiles.length > 0) {
+                pairs.push(`[${coordinate}: ${stringified_tiles}`)
+            }
         }
         return pairs.join('], ') + ']'
     }
 
     equals(other, properties_to_compare = ['id', 'value'], ignore_tiles_with_props = ['remove', 'sweep']) {
-        let a = this.toString(properties_to_compare, ignore_tiles_with_props)
-        let b = other.toString(properties_to_compare, ignore_tiles_with_props)
+        let a = boardUtil.boardCleanup(this).toString(properties_to_compare, ignore_tiles_with_props)
+        let b = boardUtil.boardCleanup(other).toString(properties_to_compare, ignore_tiles_with_props)
 
         if(a === b) {
             return true
