@@ -4,7 +4,7 @@ import {
     boardCleanup,
     generate2048Tokens,
     createTile,
-    is_game_over,
+    isGameOver,
     getFontSizeClass,
     locationCleanup,
     getSequence,
@@ -41,6 +41,44 @@ it('generates 2048 tokens', () => {
         points: 2048
     })
 })
+
+describe('is_game_over', () => {
+    it('returns false for a new board', () => {
+        let tile0 = createTile({value: 2, id: 0})
+        let tile1 = createTile({value: 2, id: 1})
+        let tile2 = createTile({value: 4, id: 2})
+        let tile3 = createTile({value: 8, id: 3})
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 1, y: 0}
+        let tile2_coordinates = {x: 2, y: 0}
+        let tile3_coordinates = {x: 3, y: 0}
+        let kv_pairs = [
+            {coordinates: tile0_coordinates, tiles: [tile0]},
+            {coordinates: tile1_coordinates, tiles: [tile1]},
+            {coordinates: tile2_coordinates, tiles: [tile2]},
+            {coordinates: tile3_coordinates, tiles: [tile3]}
+        ]
+        let boardDimensions = {x: 4, y: 4}
+        let direction = {x: -1, y: 0}
+        let board_map = new boardMap([])
+
+        expect(isGameOver(board_map, boardDimensions)).toBe(false)
+    })
+
+    it('returns true for a trivial board', () => {
+        let tile0 = createTile({value: 2, id: 0})
+        let tile0_coordinates = {x: 0}
+        let kv_pairs = [
+            {coordinates: tile0_coordinates, tiles: [tile0]},
+        ]
+        let boardDimensions = {x: 1}
+        let board_map = new boardMap(kv_pairs)
+
+        expect(isGameOver(board_map, boardDimensions)).toBe(true)
+    })
+
+})
+
 describe('getFontSizeClass', () => {
     it('returns a css class for values over 100', () => {
         let result = getFontSizeClass(128)

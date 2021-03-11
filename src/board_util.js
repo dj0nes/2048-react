@@ -360,3 +360,14 @@ export function shuffle(board, boardDimensions) {
 
     return boardCleanup(new boardMap(kv_pairs))
 }
+
+export function isGameOver(board, boardDimensions) {
+    const positions = Object.values(boardDimensions).reduce((accum, val) => val + accum)
+    const occupiedPositions = Object.keys(board.getContents()).length
+
+
+    // todo: account for:
+    //  tiles being marked for cleanup not contributing to the count
+    //  moving in every direction to see if any moves are left, return immediately if so
+    return positions === occupiedPositions
+}
