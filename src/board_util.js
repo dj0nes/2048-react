@@ -119,6 +119,16 @@ export function getAllCoordinates(boardDimensions) {
     return {all_locations, all_coordinates}
 }
 
+export function getAllDirections(boardDimensions) {
+    // return all directions a board can be moved in
+    let allDirections = []
+    for (const [dimension] of Object.entries(boardDimensions)) {
+        allDirections.push({[dimension]: 1})
+        allDirections.push({[dimension]: -1})
+    }
+    return allDirections
+}
+
 export function mergeTiles(mergee, merger, tokens) {
     // mergee gets transitioned, merger marked for removal and moves to mergee's position
     let new_mergee = {...mergee}

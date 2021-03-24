@@ -388,6 +388,18 @@ describe('get all coordinates', () => {
     })
 })
 
+describe('getAllDirections', () => {
+    it('for 1 dimension', () => {
+        let dimensions = {x: 3}
+        expect(getAllDirections(dimensions)).toEqual([{x:1},{x:-1}])
+    })
+
+    it('for 2 dimensions', () => {
+        let dimensions = {x: 3, y:3}
+        expect(getAllDirections(dimensions)).toEqual([{x:1},{x:-1},{y:1},{y:-1}])
+    })
+})
+
 describe('tile merging', () => {
     it('merges tiles 2 and 2 to 4, and 2-remove', () => {
         let tile0 = createTile({value: 2})
