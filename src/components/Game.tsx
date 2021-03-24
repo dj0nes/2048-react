@@ -44,18 +44,19 @@ interface GameState {
 }
 
 interface BoardDimensions {
-    x: number,
-    y: number,
+    x: number
+    y: number
     z: number
 }
 
 interface GameHistory {
-    board: boardMap,
-    score: number,
+    board: boardMap
+    score: number
     new_points: number
+    gameOver: boolean
 }
 
-const newGameState = (boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameState => ({ boardDimensions, tokens, history: [{board: new boardMap(), score: 0, new_points: 0}]})
+const newGameState = (boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameState => ({ boardDimensions, tokens, history: [{board: new boardMap(), score: 0, new_points: 0, gameOver: false}]})
 
 
 
@@ -107,7 +108,8 @@ const Game = ({boardDimensions }: GameInterface) => {
             history: gameState.history.concat({
                 board: merged_board,
                 score: current.score + new_points,
-                new_points
+                new_points,
+                gameOver: boardUtil.isGameOver(merged_board, boardDimensions, gameState.tokens)
             })
         }
     }, [])
@@ -130,7 +132,8 @@ const Game = ({boardDimensions }: GameInterface) => {
             history: [{
                 board,
                 score: 0,
-                new_points: 0
+                new_points: 0,
+                gameOver: false
             }]
         })
 
@@ -174,7 +177,8 @@ const Game = ({boardDimensions }: GameInterface) => {
             history: gameState.history.concat({
                 board: new_board,
                 score: current.score,
-                new_points: 0
+                new_points: 0,
+                gameOver: boardUtil.isGameOver(new_board, boardDimensions, gameState.tokens)
             })
         }
     }
@@ -187,7 +191,8 @@ const Game = ({boardDimensions }: GameInterface) => {
             history: gameState.history.concat({
                 board: new_board,
                 score: current.score,
-                new_points: 0
+                new_points: 0,
+                gameOver: boardUtil.isGameOver(new_board, boardDimensions, gameState.tokens)
             })
         }
     }
@@ -355,6 +360,8 @@ const Game = ({boardDimensions }: GameInterface) => {
         setGameState({...gameState, ...moveFn(gameState)})
     }
 
+    const GameOver = ()=> <h1>Game Over!</h1>
+
     return (
         <div className={'grid'}
             // options={options}
@@ -367,7 +374,7 @@ const Game = ({boardDimensions }: GameInterface) => {
             // onPinchOut={this.handlePinchOut.bind(this)}
         >
             <div>
-
+                {current.gameOver && <GameOver/>}
                 <div className={'header'}>
                     <h1 className={'title'}>2048-react</h1>
                     <div className={'score-container'}>
