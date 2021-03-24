@@ -374,13 +374,20 @@ export function shuffle(board, boardDimensions) {
     return boardCleanup(new boardMap(kv_pairs))
 }
 
-export function isGameOver(board, boardDimensions) {
-    const positions = Object.values(boardDimensions).reduce((accum, val) => val + accum)
-    const occupiedPositions = Object.keys(board.getContents()).length
+export function isGameOver(board, boardDimensions, tokens) {
+    const positions = Object.values(boardDimensions).reduce((accum, val) => val * accum)
 
+    // don't count tiles to be removed towards number of occupied spaces, they aren't in play
+    const getOccupiedPositions = (board) => Object.values(board.getContents()).flat().filter(({remove}) => !remove).length
 
-    // todo: account for:
-    //  tiles being marked for cleanup not contributing to the count
-    //  moving in every direction to see if any moves are left, return immediately if so
-    return positions === occupiedPositions
+    // if there's still room to move, the game isn't over
+    if(getOccupiedPositions(board) < positions) return false
+
+    const allDirections = getAllDirections(boardDimensions)
+    for(let direction of allDirections) {
+        const {merged_board} = mergeBoard(board, boardDimensions, direction, tokens)
+        if(getOccupiedPositions(merged_board) < positions) return false
+    }
+
+    return true
 }

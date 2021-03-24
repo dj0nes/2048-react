@@ -13,6 +13,7 @@ import {
     getMoveSequences,
     transitionToken,
     getAllCoordinates,
+    getAllDirections,
     mergeTiles,
     tileCleanup,
     mergeLocation,
@@ -43,26 +44,10 @@ it('generates 2048 tokens', () => {
 })
 
 describe('is_game_over', () => {
-    it('returns false for a new board', () => {
-        let tile0 = createTile({value: 2, id: 0})
-        let tile1 = createTile({value: 2, id: 1})
-        let tile2 = createTile({value: 4, id: 2})
-        let tile3 = createTile({value: 8, id: 3})
-        let tile0_coordinates = {x: 0, y: 0}
-        let tile1_coordinates = {x: 1, y: 0}
-        let tile2_coordinates = {x: 2, y: 0}
-        let tile3_coordinates = {x: 3, y: 0}
-        let kv_pairs = [
-            {coordinates: tile0_coordinates, tiles: [tile0]},
-            {coordinates: tile1_coordinates, tiles: [tile1]},
-            {coordinates: tile2_coordinates, tiles: [tile2]},
-            {coordinates: tile3_coordinates, tiles: [tile3]}
-        ]
-        let boardDimensions = {x: 4, y: 4}
-        let direction = {x: -1, y: 0}
+    it('returns false for a new 2d board', () => {
         let board_map = new boardMap([])
-
-        expect(isGameOver(board_map, boardDimensions)).toBe(false)
+        let boardDimensions = {x: 4, y: 4}
+        expect(isGameOver(board_map, boardDimensions, tokens)).toBe(false)
     })
 
     it('returns true for a trivial board', () => {
@@ -74,9 +59,63 @@ describe('is_game_over', () => {
         let boardDimensions = {x: 1}
         let board_map = new boardMap(kv_pairs)
 
-        expect(isGameOver(board_map, boardDimensions)).toBe(true)
+        expect(isGameOver(board_map, boardDimensions, tokens)).toBe(true)
     })
 
+    it('returns true for a full 2d board', () => {
+        let tile0 = createTile({value: 2, id: 0})
+        let tile1 = createTile({value: 4, id: 1})
+        let tile2 = createTile({value: 8, id: 2})
+        let tile3 = createTile({value: 16, id: 3})
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 0, y: 1}
+        let tile2_coordinates = {x: 1, y: 0}
+        let tile3_coordinates = {x: 1, y: 1}
+        let kv_pairs = [
+            {coordinates: tile0_coordinates, tiles: [tile0]},
+            {coordinates: tile1_coordinates, tiles: [tile1]},
+            {coordinates: tile2_coordinates, tiles: [tile2]},
+            {coordinates: tile3_coordinates, tiles: [tile3]}
+        ]
+        let boardDimensions = {x: 2, y: 2}
+        let board_map = new boardMap(kv_pairs)
+
+        expect(isGameOver(board_map, boardDimensions, tokens)).toBe(true)
+    })
+
+    it('returns false for a mergeable and full 2d board', () => {
+        let tile0 = createTile({value: 2, id: 0})
+        let tile1 = createTile({value: 2, id: 1})
+        let tile2 = createTile({value: 4, id: 2})
+        let tile3 = createTile({value: 8, id: 3})
+        let tile0_coordinates = {x: 0, y: 0}
+        let tile1_coordinates = {x: 0, y: 1}
+        let tile2_coordinates = {x: 1, y: 0}
+        let tile3_coordinates = {x: 1, y: 1}
+        let kv_pairs = [
+            {coordinates: tile0_coordinates, tiles: [tile0]},
+            {coordinates: tile1_coordinates, tiles: [tile1]},
+            {coordinates: tile2_coordinates, tiles: [tile2]},
+            {coordinates: tile3_coordinates, tiles: [tile3]}
+        ]
+        let boardDimensions = {x: 2, y: 2}
+        let board_map = new boardMap(kv_pairs)
+
+        expect(isGameOver(board_map, boardDimensions, tokens)).toBe(false)
+    })
+
+
+    it('returns false for a trivial board with a removable token', () => {
+        let tile0 = createTile({value: 2, id: 0, remove: true})
+        let tile0_coordinates = {x: 0}
+        let kv_pairs = [
+            {coordinates: tile0_coordinates, tiles: [tile0]},
+        ]
+        let boardDimensions = {x: 1}
+        let board_map = new boardMap(kv_pairs)
+
+        expect(isGameOver(board_map, boardDimensions, tokens)).toBe(false)
+    })
 })
 
 describe('getFontSizeClass', () => {
