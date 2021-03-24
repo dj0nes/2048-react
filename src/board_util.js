@@ -357,6 +357,9 @@ export function shuffle(board, boardDimensions) {
     let remaining_coordinates = all_coordinates.map(obj => board.stringify(obj))
     let occupied_coordinates = board.getSortedKeys()
 
+    // just return in the trivial case
+    if(all_coordinates.length <= 1) return board
+
     let kv_pairs = []
 
     for(let coordinates of occupied_coordinates) {

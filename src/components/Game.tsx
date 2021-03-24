@@ -112,7 +112,7 @@ const Game = ({boardDimensions }: GameInterface) => {
                 gameOver: boardUtil.isGameOver(merged_board, boardDimensions, gameState.tokens)
             })
         }
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const keydownHandler = useCallback(event =>  {
         const newState = handleKeys(event, gameStateRef.current)
@@ -133,7 +133,8 @@ const Game = ({boardDimensions }: GameInterface) => {
                 board,
                 score: 0,
                 new_points: 0,
-                gameOver: false
+                // silly, but a 0 dimensional board is immediately game over
+                gameOver: boardUtil.isGameOver(board, boardDimensions, gameState.tokens)
             }]
         })
 
