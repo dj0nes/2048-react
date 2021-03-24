@@ -264,18 +264,31 @@ describe('tile and sequence cleaning', () => {
     })
 })
 
+describe('getMoveSequences', () => {
+    it('returns the trivial sequence in 1d', () => {
+        const direction = {x: 1}
+        const boardDimensions = {x: 4}
+        const answer = [
+            {'x': 0},
+        ]
+        expect(getMoveSequences(boardDimensions, direction)).toEqual(answer)
+    })
 
-it('returns all move sequences in 2D', () => {
-    let direction = {x: 0, y: 1}
-    let boardDimensions = {x: 4, y: 4}
-    let move_sequences = getMoveSequences(boardDimensions, direction)
-    expect(move_sequences).toEqual([
-        {'x': 0},
-        {'x': 1},
-        {'x': 2},
-        {'x': 3},
-    ])
+    it('returns all move sequences in 2D with partial or full direction inputs', () => {
+        const direction = {x: 0, y: 1}
+        const boardDimensions = {x: 4, y: 4}
+        const answer = [
+            {'x': 0},
+            {'x': 1},
+            {'x': 2},
+            {'x': 3},
+        ]
+        expect(getMoveSequences(boardDimensions, direction)).toEqual(answer)
+        // partial direction input
+        expect(getMoveSequences(boardDimensions, {y: 1})).toEqual(answer)
+    })
 })
+
 
 it('returns all move sequences in 3D', () => {
     let direction = {x: 0, y: 1, z: 0}

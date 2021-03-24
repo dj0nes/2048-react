@@ -285,14 +285,17 @@ export function getMoveSequences(boardDimensions, direction) {
     // [{x:0, z:0}, {x:0, z:1}, {x:0, z:2}, {x:0, z:3}, {x:1, z:0},  ... {x:3, z:3}]
     // that allows us to iterate over each location in the remaining dimension, eg.
     // for {x:0, z:0}, we'd get [{x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:2, z:0}]
+
+    // if board is a single dimension, return that single sequence
+    const dimensions = Object.keys(boardDimensions)
+    if(dimensions.length === 1) {
+        return [{[dimensions[0]]:0}]
+    }
+
     let coordinate_dimensions = {}
-    for (let dimension in direction) {
-        if(direction.hasOwnProperty(dimension)) {
-            let direction_value = direction[dimension]
-            if (direction_value === 0) {
-                coordinate_dimensions[dimension] = boardDimensions[dimension]
-            }
-        }
+    for (let dimension in boardDimensions) {
+        if(direction[dimension] === 1) continue
+        coordinate_dimensions[dimension] = boardDimensions[dimension]
     }
 
     let {all_coordinates} = getAllCoordinates(coordinate_dimensions)
