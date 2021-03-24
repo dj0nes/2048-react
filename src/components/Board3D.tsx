@@ -11,13 +11,13 @@ function Board3D(props: any) {
     let box_size = 8
     let gutter = box_size
     let tile3D_style = ''
-    for(let x = 0; x < props.boardSize; x++) {
-        for (let y = 0; y < props.boardSize; y++) {
-            for (let z = 0; z < props.boardSize; z++) {
+    for(let x = 0; x < props.boardDimensions.x; x++) {
+        for (let y = 0; y < props.boardDimensions.y; y++) {
+            for (let z = 0; z < props.boardDimensions.z; z++) {
                 tile3D_style += `.col-${x}-row-${y}-depth-${z} {transform: translate3d(` +
                 `${x * (box_size + gutter)}em,` +
-                // (props.boardSize + 1) * box_size allows us to have 0, 0, 0 at bottom left
-                `${-y * (box_size + gutter) + (props.boardSize + 1) * box_size}em,` +
+                // (props.boardDimensions. + 1) * box_size allows us to have 0, 0, 0 at bottom left
+                `${-y * (box_size + gutter) + (props.boardDimensions.y + 1) * box_size}em,` +
                 `${-z * (box_size + gutter)}em)}\n`
             }
         }
@@ -29,7 +29,7 @@ function Board3D(props: any) {
     }
 
     let board_cells = []
-    for(let i = 0; i < Math.pow(props.boardSize, 2); i++) {
+    for(let i = 0; i < Math.pow(props.boardDimensions.x, 2); i++) {
         board_cells.push(<div className={'cell'} key={i}/>)
     }
 
@@ -37,9 +37,9 @@ function Board3D(props: any) {
     let placeholders = []
 
     // populate board with placeholder tiles
-    for(let x = 0; x < props.boardSize; x++) {
-        for (let y = 0; y < props.boardSize; y++) {
-            for (let z = 0; z < props.boardSize; z++) {
+    for(let x = 0; x < props.boardDimensions.x; x++) {
+        for (let y = 0; y < props.boardDimensions.y; y++) {
+            for (let z = 0; z < props.boardDimensions.z; z++) {
                 placeholders.push(
                     (
                         <div key={`${x}${y}${z}-placeholder`} className={`tile3D-wrapper tile3D-placeholder col-${x}-row-${y}-depth-${z}`}>
@@ -81,7 +81,7 @@ function Board3D(props: any) {
                 merged_to={tile.merged_to}
                 new_tile={tile.new_tile}
                 tokens={props.tokens}
-                handleClick={(i: any) => props.handleClick(i)}
+                // handleClick={(i: any) => props.handleClick(i)}
             />)
         )
     }
@@ -107,7 +107,7 @@ function Board3D(props: any) {
 
 Board3D.propTypes = {
     board_map: PropTypes.object.isRequired,
-    boardSize: PropTypes.number.isRequired,
+    boardDimensions: PropTypes.object.isRequired,
     tokens: PropTypes.object.isRequired
 }
 

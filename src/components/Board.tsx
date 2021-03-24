@@ -9,12 +9,12 @@ function Board(props: any) {
     let gutter = box_size / 8
     let z_layer = props.z_layer
 
-    for(let x = 0; x < props.boardSize; x++) {
-        for (let y = 0; y < props.boardSize; y++) {
+    for(let x = 0; x < props.boardDimensions.x; x++) {
+        for (let y = 0; y < props.boardDimensions.y; y++) {
             style += `.row-${y}-col-${x}` +
                 `{transform: translate(${x * (box_size + gutter)}em,` +
-                //  + (props.boardSize - 1) * (box_size + gutter)} allows us to have 0, 0 at bottom left
-                `${-y * (box_size + gutter) + (props.boardSize - 1) * (box_size + gutter)}em)}\n`
+                //  + (props.boardDimensions.x - 1) * (box_size + gutter)} allows us to have 0, 0 at bottom left
+                `${-y * (box_size + gutter) + (props.boardDimensions.x - 1) * (box_size + gutter)}em)}\n`
         }
     }
 
@@ -22,8 +22,8 @@ function Board(props: any) {
     let placeholders = []
 
     // populate board with placeholder tiles
-    for(let x = 0; x < props.boardSize; x++) {
-        for (let y = 0; y < props.boardSize; y++) {
+    for(let x = 0; x < props.boardDimensions.x; x++) {
+        for (let y = 0; y < props.boardDimensions.y; y++) {
             placeholders.push(
                 (
                     <div x-type="placeholder" key={`${x}${y}-placeholder`} className={`
@@ -83,9 +83,8 @@ function Board(props: any) {
 
 Board.propTypes = {
     board_map: PropTypes.object,
-    boardSize: PropTypes.number.isRequired,
+    boardDimensions: PropTypes.object.isRequired,
     z_layer: PropTypes.number.isRequired,
-    // boardDimensions: PropTypes.number.isRequired
 }
 
 export default Board

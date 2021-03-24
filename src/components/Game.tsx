@@ -30,7 +30,6 @@ const BOARD_TRANSITIONS = {
 }
 
 interface GameInterface {
-    boardSize: number
     boardDimensions: {
         x: number,
         y: number,
@@ -39,9 +38,8 @@ interface GameInterface {
 }
 
 interface GameState {
-    boardSize: number,
-    boardDimensions: BoardDimensions,
-    tokens: object,
+    boardDimensions: BoardDimensions
+    tokens: object
     history: GameHistory[]
 }
 
@@ -57,11 +55,11 @@ interface GameHistory {
     new_points: number
 }
 
-const newGameState = (boardSize = 3, boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameState => ({ boardSize, boardDimensions, tokens, history: [{board: new boardMap(), score: 0, new_points: 0}]})
+const newGameState = (boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameState => ({ boardDimensions, tokens, history: [{board: new boardMap(), score: 0, new_points: 0}]})
 
 
 
-const Game = ({boardSize, boardDimensions }: GameInterface) => {
+const Game = ({boardDimensions }: GameInterface) => {
     // let touch_delay_ms = 100
     // let debouncing = false
     // let saved_game = localStorage.getItem('game')
@@ -69,14 +67,14 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //     // gameState = this.loadGame(saved_game)
     // }
     // else {
-    //     gameState = this.newGame(boardSize, boardDimensions, tokens)
+    //     gameState = this.newGame(boardDimensions, tokens)
     // }
 
 
     // this goofy gameStateRef setup is needed for the keydownHandler to have access to the current state
     // otherwise it will bind to the game state at initialization, which will never change
     // bound functions like the keydownHandler need to use the ref, everything else can use state as usual
-    const [gameState, gameStateRef, setGameState] = useReferredState<GameState>(newGameState(boardSize, boardDimensions, boardUtil.generate2048Tokens()))
+    const [gameState, gameStateRef, setGameState] = useReferredState<GameState>(newGameState(boardDimensions, boardUtil.generate2048Tokens()))
 
     const handleKeys = useCallback((event, gameState) => {
         let current = gameState.history[gameState.history.length - 1]
@@ -127,7 +125,6 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         boardUtil.randomTileInsert(board, boardDimensions, gameState.tokens)
         boardUtil.randomTileInsert(board, boardDimensions, gameState.tokens)
         setGameState({
-            boardSize,
             boardDimensions,
             tokens: gameState.tokens,
             history: [{
@@ -208,11 +205,11 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         }
     }
 
-    // generateTestBoard(board, boardSize) {
+    // generateTestBoard(board, boardDimensions) {
     //     let value = 1
-    //     for(let x = 0; x < boardSize; x++) {
-    //         for (let y = 0; y < boardSize; y++) {
-    //             for (let z = 0; z < boardSize; z++) {
+    //     for(let x = 0; x < boardDimensions.x; x++) {
+    //         for (let y = 0; y < boardDimensions.y; y++) {
+    //             for (let z = 0; z < boardDimensions.z; z++) {
     //                 value *= 2
     //                 board.set({x, y, z}, [boardUtil.createTile({value: value})])
     //             }
@@ -261,8 +258,8 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
     //     this.touchDebounce(this.handleKeys, [{}, event])
     // }
     //
-    // handleNewGame(boardSize, boardDimensions) {
-    //     this.setState(this.newGame(boardSize, boardDimensions))
+    // handleNewGame(boardDimensions) {
+    //     this.setState(this.newGame(boardDimensions))
     // }
     //
     // openOverlay(props) {
@@ -299,7 +296,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         boards3D.push(
             <Board3D
                 board_map={current_board_map}
-                boardSize={gameState.boardSize}
+                boardDimensions={gameState.boardDimensions}
                 tokens={gameState.tokens}
                 key={i}
                 // handleClick={(i)=>this.handleClick(i)}
@@ -313,7 +310,7 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         boards2D.push(
             <Board
                 board_map={current_board_map}
-                boardSize={gameState.boardSize}
+                boardDimensions={gameState.boardDimensions}
                 z_layer={i}
                 key={i}
                 // handleClick={(i)=>this.handleClick(i)}
@@ -321,11 +318,11 @@ const Game = ({boardSize, boardDimensions }: GameInterface) => {
         )
     }
 
+    // this overrides styles in 2D.css, right now it doesn't change anything
     let board_style = `
         :root {
             --box-size: 4em;
             --gutter: calc(var(--box-size) / 8);
-            --boxes: ${gameState.boardSize};
         }`
 
     let scored = current.new_points === 0 ? '' : 'scored'
