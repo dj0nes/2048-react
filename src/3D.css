@@ -91,6 +91,12 @@
     transform: scale3d(0.5, 0.5, 0.5) translate3d(1em, 1em, -1em);
 }
 
+.tile3D.remove .tile-inner {
+    animation-name: fade;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
 .tile3D.swept {
     animation: pop 200ms ease;
     animation-fill-mode: forwards;
@@ -124,6 +130,16 @@
 .tile-inner.tile-placeholder {
     background: none;
 
+}
+
+@keyframes fade {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
 }
 
 @keyframes appear3D {
