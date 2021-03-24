@@ -60,11 +60,11 @@
 }
 
 .board3D .tile.tile-100 .tile-inner span {
-    font-size: 4.65em;
+    font-size: 4.0em;
 }
 
 .board3D .tile.tile-1000 .tile-inner span {
-    font-size: 3.35em;
+    font-size: 2.95em;
 }
 
 .board3D .tile.tile-10000 .tile-inner span {
