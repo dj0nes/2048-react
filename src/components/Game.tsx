@@ -29,7 +29,15 @@ const BOARD_TRANSITIONS = {
     out: {x: 0, y: 0, z: 1}
 }
 
+export interface Token {
+    transition_to: number
+    points: number
+    displayType?: string
+    display?: string
+}
+
 interface GameInterface {
+    tokens: Token[]
     boardDimensions: {
         x: number,
         y: number,
@@ -60,7 +68,7 @@ const newGameState = (boardDimensions = {x: 3, y: 3, z: 3}, tokens: {}) : GameSt
 
 
 
-const Game = ({boardDimensions }: GameInterface) => {
+const Game = ({boardDimensions, tokens}: GameInterface) => {
     // let touch_delay_ms = 100
     // let debouncing = false
     // let saved_game = localStorage.getItem('game')
@@ -75,7 +83,7 @@ const Game = ({boardDimensions }: GameInterface) => {
     // this goofy gameStateRef setup is needed for the keydownHandler to have access to the current state
     // otherwise it will bind to the game state at initialization, which will never change
     // bound functions like the keydownHandler need to use the ref, everything else can use state as usual
-    const [gameState, gameStateRef, setGameState] = useReferredState<GameState>(newGameState(boardDimensions, boardUtil.generate2048Tokens()))
+    const [gameState, gameStateRef, setGameState] = useReferredState<GameState>(newGameState(boardDimensions, tokens))
 
     const handleKeys = useCallback((event, gameState) => {
         let current = gameState.history[gameState.history.length - 1]

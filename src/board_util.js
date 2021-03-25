@@ -13,13 +13,33 @@ export function getGlobalTileIdCounter() {
 
 export function generate2048Tokens() {
     let tokens = {}
-    let exponents = range(1, 24)
+    let exponents = range(1, 27)
     for(let exponent of exponents) {
         let value = Math.pow(2, exponent)
         let next_value = Math.pow(2, exponent + 1)
         tokens[value] = {
             transition_to: next_value,
-            points:next_value
+            points:next_value,
+            displayType: 'value',
+            display: value
+        }
+    }
+
+    return tokens
+}
+
+export function generateHireMeTokens() {
+    let tokens = {}
+    let markers = ['Hi', 're', 'Me']
+    let exponents = range(1, 27)
+    for(let exponent of exponents) {
+        let value = Math.pow(2, exponent)
+        let next_value = Math.pow(2, exponent + 1)
+        tokens[value] = {
+            transition_to: next_value,
+            points:next_value,
+            displayType: 'value',
+            display: markers[(exponent - 1) % markers.length]
         }
     }
 
@@ -40,7 +60,7 @@ export function idSort(tiles) {
     })
 }
 
-export function createTile({id, value, ...rest}) {
+export function createTile({id, value, type, ...rest}) {
     if (id === undefined) id = global_id++
     return Object.assign({id, value}, rest)
 }

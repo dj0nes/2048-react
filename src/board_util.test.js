@@ -3,6 +3,7 @@ import { range } from './utils'
 import { 
     boardCleanup,
     generate2048Tokens,
+    generateHireMeTokens,
     createTile,
     isGameOver,
     getFontSizeClass,
@@ -25,23 +26,51 @@ import {
 const tokens = generate2048Tokens()
 
 
-it('generates 2048 tokens', () => {
-    let result = generate2048Tokens()
-    expect(result[1]).toEqual(undefined)
-    expect(result[2]).toEqual({
-        transition_to: 4,
-        points: 4
+
+describe('generate tokens', () => {
+    it('generates 2048 tokens', () => {
+        let result = generate2048Tokens()
+        expect(result[1]).toEqual(undefined)
+        expect(result[2]).toEqual({
+            transition_to: 4,
+            points: 4
+        })
+        expect(result[3]).toEqual(undefined)
+        expect(result[4]).toEqual({
+            transition_to: 8,
+            points: 8
+        })
+        expect(result[1024]).toEqual({
+            transition_to: 2048,
+            points: 2048
+        })
     })
-    expect(result[3]).toEqual(undefined)
-    expect(result[4]).toEqual({
-        transition_to: 8,
-        points: 8
-    })
-    expect(result[1024]).toEqual({
-        transition_to: 2048,
-        points: 2048
+
+    it('generates Hire Me tokens', () => {
+        let result = generateHireMeTokens()
+        expect(result[1]).toEqual(undefined)
+        expect(result[2]).toEqual({
+            'transition_to': 4,
+            'points': 4,
+            'displayType': 'value',
+            'display': 'Hi'
+        })
+        expect(result[3]).toEqual(undefined)
+        expect(result[4]).toEqual({
+            'transition_to': 8,
+            'points': 8,
+            'displayType': 'value',
+            'display': 're'
+        })
+        expect(result[1024]).toEqual({
+            'transition_to': 2048,
+            'points': 2048,
+            'displayType': 'value',
+            'display': 'Hi'
+        })
     })
 })
+
 
 describe('is_game_over', () => {
     it('returns false for a new 2d board', () => {
