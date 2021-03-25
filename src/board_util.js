@@ -13,7 +13,7 @@ export function getGlobalTileIdCounter() {
 
 export function generate2048Tokens() {
     let tokens = {}
-    let exponents = range(1, 27)
+    let exponents = range(1, 28)
     for(let exponent of exponents) {
         let value = Math.pow(2, exponent)
         let next_value = Math.pow(2, exponent + 1)
@@ -21,7 +21,8 @@ export function generate2048Tokens() {
             transition_to: next_value,
             points:next_value,
             displayType: 'value',
-            display: value
+            display: value,
+            value
         }
     }
 
@@ -31,7 +32,7 @@ export function generate2048Tokens() {
 export function generateHireMeTokens() {
     let tokens = {}
     let markers = ['Hi', 're', 'Me']
-    let exponents = range(1, 27)
+    let exponents = range(1, 28)
     for(let exponent of exponents) {
         let value = Math.pow(2, exponent)
         let next_value = Math.pow(2, exponent + 1)
@@ -39,11 +40,41 @@ export function generateHireMeTokens() {
             transition_to: next_value,
             points:next_value,
             displayType: 'value',
-            display: markers[(exponent - 1) % markers.length]
+            display: markers[(exponent - 1) % markers.length],
+            value
         }
     }
 
     return tokens
+}
+
+export function generateAllValuesBoard(boardDimensions, tokens) {
+    const board = new boardMap()
+    let value = 1
+    for(let x = 0; x < boardDimensions.x; x++) {
+        for (let y = 0; y < boardDimensions.y; y++) {
+            for (let z = 0; z < boardDimensions.z; z++) {
+                value *= 2
+                board.set({x, y, z}, [createTile(tokens[value])])
+            }
+        }
+    }
+    return board
+}
+
+export function generateBoardWithNumTiles(boardDimensions, tokens, tiles) {
+    const board = new boardMap()
+    randomTileInsert(board, boardDimensions, tokens, tiles)
+    return board
+}
+
+export function generateXMerge(boardDimensions, tokens, tiles) {
+    const board = new boardMap()
+    let value = 2
+    for(let x = 0; x < boardDimensions.x; x++) {
+        board.set({x, y:0, z:0}, [createTile(tokens[value])])
+    }
+    return board
 }
 
 export function getFontSizeClass(value) {
@@ -62,7 +93,7 @@ export function idSort(tiles) {
 
 export function createTile({id, value, type, ...rest}) {
     if (id === undefined) id = global_id++
-    return Object.assign({id, value}, rest)
+    return {...rest, id, value}
 }
 
 export function getSequence(board, boardDimensions, direction, location) {

@@ -33,9 +33,11 @@ function Tile3D(props: any) {
         }
     }
 
+    const key = `${props.coordinates.x}${props.coordinates.y}${props.coordinates.z}`
+
     return (
-        <div className={`tile3D-wrapper ${depth_class}`}>
-            <div key={`${props.coordinates.x}${props.coordinates.y}${props.coordinates.z}`}
+        <div className={`tile3D-wrapper ${depth_class} tile-key-${key}`}>
+            <div key={key}
                 className={`tile tile3D tile-${value} ${getFontSizeClass(value)} ${remove} ${swept}` +
                  `${new_tile} ${tile_merged} ${tile_merged_again}`}
             >

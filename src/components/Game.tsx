@@ -130,10 +130,16 @@ const Game = ({boardDimensions, tokens}: GameInterface) => {
 
     // initial game setup
     useEffect(() => {
-        // start with two random tiles
+        // standard board
         const board = new boardMap()
-        boardUtil.randomTileInsert(board, boardDimensions, gameState.tokens)
-        boardUtil.randomTileInsert(board, boardDimensions, gameState.tokens)
+        boardUtil.randomTileInsert(board, boardDimensions, tokens, 4)
+
+        // board with all possible tokens
+        // const board = boardUtil.generateAllValuesBoard(boardDimensions, tokens)
+
+        // board with x axis completely filled for testing merging behavior
+        // const board = boardUtil.generateXMerge(boardDimensions, tokens, 4)
+
         setGameState({
             boardDimensions,
             tokens: gameState.tokens,
@@ -219,17 +225,6 @@ const Game = ({boardDimensions, tokens}: GameInterface) => {
         }
     }
 
-    // generateTestBoard(board, boardDimensions) {
-    //     let value = 1
-    //     for(let x = 0; x < boardDimensions.x; x++) {
-    //         for (let y = 0; y < boardDimensions.y; y++) {
-    //             for (let z = 0; z < boardDimensions.z; z++) {
-    //                 value *= 2
-    //                 board.set({x, y, z}, [boardUtil.createTile({value: value})])
-    //             }
-    //         }
-    //     }
-    // }
     //
     // touchDebounce(fn, args) {
     //     if(this.debouncing !== true) {
