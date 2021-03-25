@@ -62,6 +62,24 @@ export function generateAllValuesBoard(boardDimensions, tokens) {
     return board
 }
 
+export function generateAlmostFullBoard(boardDimensions, tokens) {
+    const board = new boardMap()
+    let value = 1
+    const twoLessThanFull = Object.values(boardDimensions).reduce((accum, val) => val * accum) - 2
+    let count = 0
+    for(let x = 0; x < boardDimensions.x; x++) {
+        for (let y = 0; y < boardDimensions.y; y++) {
+            for (let z = 0; z < boardDimensions.z; z++) {
+                value *= 2
+                board.set({x, y, z}, [createTile(tokens[value])])
+                count++
+                if(count === twoLessThanFull) return board
+            }
+        }
+    }
+    return board
+}
+
 export function generateBoardWithNumTiles(boardDimensions, tokens, tiles) {
     const board = new boardMap()
     randomTileInsert(board, boardDimensions, tokens, tiles)

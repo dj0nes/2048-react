@@ -1,4 +1,6 @@
 import React, {useCallback, useEffect} from 'react'
+import styled from '@emotion/styled'
+
 import {useReferredState} from '../utils'
 import * as boardUtil from '../board_util'
 import boardMap from '../board_map'
@@ -131,26 +133,16 @@ const Game = ({boardDimensions, tokens}: GameInterface) => {
     // initial game setup
     useEffect(() => {
         // standard board
-        const board = new boardMap()
-        boardUtil.randomTileInsert(board, boardDimensions, tokens, 4)
+        // const board = new boardMap()
+        // boardUtil.randomTileInsert(board, boardDimensions, tokens, 4)
 
         // board with all possible tokens
-        // const board = boardUtil.generateAllValuesBoard(boardDimensions, tokens)
+        const board = boardUtil.generateAlmostFullBoard(boardDimensions, tokens)
 
         // board with x axis completely filled for testing merging behavior
         // const board = boardUtil.generateXMerge(boardDimensions, tokens, 4)
 
-        setGameState({
-            boardDimensions,
-            tokens: gameState.tokens,
-            history: [{
-                board,
-                score: 0,
-                new_points: 0,
-                // silly, but a 0 dimensional board is immediately game over
-                gameOver: boardUtil.isGameOver(board, boardDimensions, gameState.tokens)
-            }]
-        })
+        newGame(board)
 
         window.addEventListener('keydown', keydownHandler)
 
@@ -184,6 +176,24 @@ const Game = ({boardDimensions, tokens}: GameInterface) => {
     //     //     return this.newGame()
     //     // }
     // }
+
+    function newGame(board) {
+        const boardToUse = board || new boardMap()
+        if(!board) {
+            boardUtil.randomTileInsert(boardToUse, boardDimensions, tokens, 4)
+        }
+        setGameState({
+            boardDimensions,
+            tokens: gameState.tokens,
+            history: [{
+                board: boardToUse,
+                score: 0,
+                new_points: 0,
+                // silly, but a 0 dimensional board is immediately game over
+                gameOver: boardUtil.isGameOver(boardToUse, boardDimensions, gameState.tokens)
+            }]
+        })
+    }
 
     function shuffle(gameState) {
         let current = gameState.history[gameState.history.length - 1]
@@ -364,7 +374,34 @@ const Game = ({boardDimensions, tokens}: GameInterface) => {
         setGameState({...gameState, ...moveFn(gameState)})
     }
 
-    const GameOver = ()=> <h1>Game Over!</h1>
+    const Overlay = styled.div`
+      height: 100vh;
+      width: 100%;
+      background: #757575;
+      padding: 0;
+      margin: 0;
+      position: absolute;
+      z-index: 1000;
+      opacity: .9;
+      text-align: center;
+      font-size: 3em;
+      
+      > h1 {
+        margin-top: 1.25em;
+      }
+      
+    `
+    const GameOver = ({score, newGame, undo, shuffle, sweep})=> (
+        <Overlay>
+            <h1>Game Over</h1>
+            <h3>Score:</h3>
+            <h2>{score}</h2>
+            <button onClick={() => {newGame()}}>New Game</button>
+            <button onClick={() => {undo()}}>Undo</button>
+            <button onClick={() => {shuffle()}}>Shuffle</button>
+            <button onClick={() => {sweep()}}>Sweep</button>
+        </Overlay>
+    )
 
     return (
         <div className={'grid'}
@@ -378,7 +415,7 @@ const Game = ({boardDimensions, tokens}: GameInterface) => {
             // onPinchOut={this.handlePinchOut.bind(this)}
         >
             <div>
-                {current.gameOver && <GameOver/>}
+                {current.gameOver && <GameOver score={current.score} newGame={newGame} undo={() => makeSpecialMove(undo)} shuffle={() => makeSpecialMove(shuffle)} sweep={() => makeSpecialMove(sweep)}/>}
                 <div className={'header'}>
                     <h1 className={'title'}>2048-react</h1>
                     <div className={'score-container'}>
