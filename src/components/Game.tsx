@@ -133,11 +133,11 @@ const Game = ({boardDimensions, tokens}: GameInterface) => {
     // initial game setup
     useEffect(() => {
         // standard board
-        // const board = new boardMap()
-        // boardUtil.randomTileInsert(board, boardDimensions, tokens, 4)
+        const board = new boardMap()
+        boardUtil.randomTileInsert(board, boardDimensions, tokens, 4)
 
         // board with all possible tokens
-        const board = boardUtil.generateAlmostFullBoard(boardDimensions, tokens)
+        // const board = boardUtil.generateAlmostFullBoard(boardDimensions, tokens)
 
         // board with x axis completely filled for testing merging behavior
         // const board = boardUtil.generateXMerge(boardDimensions, tokens, 4)
