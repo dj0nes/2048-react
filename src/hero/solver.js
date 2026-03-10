@@ -35,9 +35,10 @@ export function solveGame(dims, tokens, maxFrames = 600) {
     let board = new boardMap()
     let score = 0
 
-    // Seed the board with initial tiles
+    // Seed the board — first frame is a spawn frame (new_tile flags intact)
     randomTileInsert(board, dims, tokens)
     frames.push({ board: snapshot(board), score, gameOver: false })
+    board = boardCleanup(board)  // strip new_tile for game logic
 
     for (let i = 0; i < maxFrames; i++) {
         if (isGameOver(board, dims, tokens)) {
@@ -54,10 +55,9 @@ export function solveGame(dims, tokens, maxFrames = 600) {
 
         score += result.points
 
-        // Store pre-cleanup frame so renderer sees merge annotations
+        // Merge frame: has merged_to and remove annotations for the renderer to animate
         frames.push({ board: snapshot(result.mergedBoard), score, gameOver: false })
 
-        // Clean merged state, insert next tile
         const cleanBoard = boardCleanup(result.mergedBoard)
         const inserted = randomTileInsert(cleanBoard, dims, tokens)
 
@@ -66,7 +66,9 @@ export function solveGame(dims, tokens, maxFrames = 600) {
             break
         }
 
-        board = cleanBoard
+        // Spawn frame: has new_tile annotations for the renderer to animate
+        frames.push({ board: snapshot(cleanBoard), score, gameOver: false })
+        board = boardCleanup(cleanBoard)  // strip new_tile for next move
     }
 
     return frames
