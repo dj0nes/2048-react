@@ -31,43 +31,31 @@ describe('generate tokens', () => {
     it('generates 2048 tokens', () => {
         let result = generate2048Tokens()
         expect(result[1]).toEqual(undefined)
-        expect(result[2]).toEqual({
-            transition_to: 4,
-            points: 4
-        })
+        expect(result[2].transition_to).toEqual(4)
+        expect(result[2].points).toEqual(4)
         expect(result[3]).toEqual(undefined)
-        expect(result[4]).toEqual({
-            transition_to: 8,
-            points: 8
-        })
-        expect(result[1024]).toEqual({
-            transition_to: 2048,
-            points: 2048
-        })
+        expect(result[4].transition_to).toEqual(8)
+        expect(result[4].points).toEqual(8)
+        expect(result[1024].transition_to).toEqual(2048)
+        expect(result[1024].points).toEqual(2048)
     })
 
     it('generates Hire Me tokens', () => {
         let result = generateHireMeTokens()
         expect(result[1]).toEqual(undefined)
-        expect(result[2]).toEqual({
-            'transition_to': 4,
-            'points': 4,
-            'displayType': 'value',
-            'display': 'Hi'
-        })
+        expect(result[2].transition_to).toEqual(4)
+        expect(result[2].points).toEqual(4)
+        expect(result[2].displayType).toEqual('value')
+        expect(result[2].display).toEqual('Hi')
         expect(result[3]).toEqual(undefined)
-        expect(result[4]).toEqual({
-            'transition_to': 8,
-            'points': 8,
-            'displayType': 'value',
-            'display': 're'
-        })
-        expect(result[1024]).toEqual({
-            'transition_to': 2048,
-            'points': 2048,
-            'displayType': 'value',
-            'display': 'Hi'
-        })
+        expect(result[4].transition_to).toEqual(8)
+        expect(result[4].points).toEqual(8)
+        expect(result[4].displayType).toEqual('value')
+        expect(result[4].display).toEqual('re')
+        expect(result[1024].transition_to).toEqual(2048)
+        expect(result[1024].points).toEqual(2048)
+        expect(result[1024].displayType).toEqual('value')
+        expect(result[1024].display).toEqual('Hi')
     })
 })
 
@@ -1074,10 +1062,9 @@ describe('board merging in 2D', () => {
         let boardDimensions = {x: 4, y: 4}
         let board_map = new boardMap(kv_pairs)
 
-        let {merged_board, new_points} = mergeBoard(board_map, boardDimensions, direction, tokens)
+        let {merged_board} = mergeBoard(board_map, boardDimensions, direction, tokens)
         let {new_mergee, new_merger} = mergeTiles(tile1, tile0, tokens)
         let {new_mergee: new_mergee2, new_merger: new_merger2} = mergeTiles(tile3, tile2, tokens)
-        expect(new_points).toEqual(8)
         expect(merged_board.get(tile0_coordinates)).toEqual(undefined)
         expect(merged_board.get(tile1_coordinates)).toEqual(undefined)
         expect(idSort(merged_board.get(tile2_coordinates))).toEqual(idSort([new_mergee, new_merger]))
@@ -1103,9 +1090,8 @@ describe('board merging in 2D', () => {
         let direction = {x: -1, y: 0}
         let board_map = new boardMap(kv_pairs)
 
-        let {merged_board, new_points} = mergeBoard(board_map, boardDimensions, direction, tokens)
+        let {merged_board} = mergeBoard(board_map, boardDimensions, direction, tokens)
         let {new_mergee, new_merger} = mergeTiles(tile1, tile0, tokens)
-        expect(new_points).toEqual(4)
         expect(merged_board.get(tile0_coordinates)).toEqual(undefined)
         expect(merged_board.get(tile1_coordinates)).toEqual(idSort([new_mergee, new_merger]))
         expect(merged_board.get(tile2_coordinates)).toEqual([tile2])
@@ -1183,10 +1169,8 @@ describe('board merging in 3D', () => {
         kv_pairs[7] = {coordinates: tile7_coordinates, tiles: [tile7]}
         let board_map = new boardMap(kv_pairs)
 
-        let {merged_board, new_points} = mergeBoard(board_map, boardDimensions, direction, tokens)
+        let {merged_board} = mergeBoard(board_map, boardDimensions, direction, tokens)
         let {new_mergee, new_merger} = mergeTiles(tile7, tile0, tokens)
-        // this one should have been transitioned
-        expect(new_points).toEqual(4)
         expect(merged_board.get({x:0, y:0, z:3})).toEqual(idSort([new_mergee, new_merger]))
         expect(merged_board.get({x:0, y:1, z:3})).toEqual([tile1])
         expect(merged_board.get({x:1, y:0, z:3})).toEqual([tile4])
