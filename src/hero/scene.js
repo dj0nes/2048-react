@@ -67,7 +67,7 @@ export class HeroScene {
         const dt = Math.min((time - this._lastTime) / 1000, 0.1)  // seconds, capped
         this._lastTime = time
 
-        this.cameraRig.update(time)
+        this.cameraRig.update(dt)
         this._update(dt, time)
         this.renderer.render(this.scene, this.cameraRig.camera)
     }

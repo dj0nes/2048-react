@@ -75,7 +75,31 @@ export class CameraRig {
         }
     }
 
-    update(/* time */) {
-        // future: tween transitions
+    // Slowly orbit around Y axis. Only active in perspective mode.
+    _orbitAngle  = 0
+    _orbitRadius = 0
+    _orbitTarget = new THREE.Vector3()
+
+    startOrbit(radius) {
+        this._orbitRadius = radius
+        // Seed the angle from current position so there's no jump
+        this._orbitAngle = Math.atan2(this.camera.position.x, this.camera.position.z)
+    }
+
+    stopOrbit() {
+        this._orbitRadius = 0
+    }
+
+    update(dt) {
+        if (this._mode !== 'perspective' || !this._orbitRadius) return
+        this._orbitAngle += dt * 0.25   // ~1 full rotation per 25 s
+        const r = this._orbitRadius
+        // Elevation: 30° above horizontal
+        this.camera.position.set(
+            r * Math.sin(this._orbitAngle),
+            r * 0.6,
+            r * Math.cos(this._orbitAngle),
+        )
+        this.camera.lookAt(this._orbitTarget)
     }
 }

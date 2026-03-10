@@ -55,11 +55,13 @@ function makeLabelTexture(value) {
     return new THREE.CanvasTexture(canvas)
 }
 
-function makeMaterials(value) {
+// allFaces: true for 3D stages where any face may point toward the camera
+function makeMaterials(value, allFaces = false) {
     const color = tileColor(value)
     const label = makeLabelTexture(value)
-    const side  = new THREE.MeshLambertMaterial({ color })
     const face  = new THREE.MeshLambertMaterial({ color, map: label })
+    if (allFaces) return [face, face, face, face, face, face]
+    const side  = new THREE.MeshLambertMaterial({ color })
     // BoxGeometry face order: +x, -x, +y, -y, +z (front), -z (back)
     return [side, side, side, side, face, side]
 }
@@ -76,13 +78,14 @@ export function coordToWorld(coord, dims) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class TileRenderer {
-    constructor(scene, value, worldPos) {
-        this.scene = scene
-        this.value = value
-        this.dead  = false
+    constructor(scene, value, worldPos, allFaces = false) {
+        this.scene    = scene
+        this.value    = value
+        this.dead     = false
+        this.allFaces = allFaces
 
         const geo = new THREE.BoxGeometry(TILE_SIZE, TILE_SIZE, TILE_SIZE)
-        this.mesh = new THREE.Mesh(geo, makeMaterials(value))
+        this.mesh = new THREE.Mesh(geo, makeMaterials(value, allFaces))
         this.mesh.position.copy(worldPos)
         scene.add(this.mesh)
 
@@ -109,7 +112,7 @@ class TileRenderer {
         this.value = newValue
         const mats = Array.isArray(this.mesh.material) ? this.mesh.material : [this.mesh.material]
         mats.forEach(m => { m.map?.dispose(); m.dispose() })
-        this.mesh.material = makeMaterials(newValue)
+        this.mesh.material = makeMaterials(newValue, this.allFaces)
     }
 
     update(dt) {
@@ -162,11 +165,13 @@ class TileRenderer {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export class BoardRenderer {
-    constructor(scene, dims) {
-        this.scene  = scene
-        this.dims   = dims
-        this._tiles  = new Map()   // tileId → TileRenderer
-        this._dying  = []          // TileRenderers animating out
+    // allFaces: label every side of each cube (use for 3D where any face may face the camera)
+    constructor(scene, dims, { allFaces = false } = {}) {
+        this.scene    = scene
+        this.dims     = dims
+        this.allFaces = allFaces
+        this._tiles   = new Map()   // tileId → TileRenderer
+        this._dying   = []          // TileRenderers animating out
     }
 
     applyFrame(frame) {
@@ -192,7 +197,7 @@ export class BoardRenderer {
                 }
 
                 if (tile.new_tile) {
-                    const tr = new TileRenderer(this.scene, tile.value, worldPos)
+                    const tr = new TileRenderer(this.scene, tile.value, worldPos, this.allFaces)
                     tr.spawnIn()
                     this._tiles.set(tile.id, tr)
                     continue
@@ -211,7 +216,7 @@ export class BoardRenderer {
                     }
                 } else {
                     // First frame: tile exists without new_tile flag
-                    const tr = new TileRenderer(this.scene, tile.value, worldPos)
+                    const tr = new TileRenderer(this.scene, tile.value, worldPos, this.allFaces)
                     tr.spawnIn()
                     this._tiles.set(tile.id, tr)
                 }
