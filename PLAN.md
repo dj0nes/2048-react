@@ -8,77 +8,92 @@ Repurpose this project as the hero experience on dillonjones.com — replacing t
 
 The hero communicates a single idea: **one person sets many intelligent agents in motion simultaneously, and extraordinary things happen.**
 
-Mechanically: a grid of 2048 boards, each being solved by its own AI agent in parallel. Boards that succeed seed more boards. The screen fills with autonomous activity — all of it initiated by a single action.
+The game starts in zero dimensions and expands — one dimension at a time — until a full 3D board is alive with autonomous AI play. The act of adding a dimension *is* the story: complexity emerges from a single origin.
 
-This works because:
-- 2048 is immediately legible to any developer
-- Multiple AI solvers running in parallel = multiple agents working autonomously
-- The human (visitor) did nothing — it's already happening
-- Visually alive without requiring interaction or explanation
+## Dimensional Progression
 
-## Animation Sequence
+Each stage is a fully playable n-dimensional 2048 game, solved by an AI agent, rendered in Three.js:
 
-1. **One board** — a single 4×4 board, AI solver starts playing
-2. **Split** — on win (or after a few seconds), it seeds 2 boards
-3. **Cascade** — those seed more, exponential growth, until the viewport is filled with boards all running simultaneously
-4. **Steady state** — ambient grid of boards, each autonomous, wins and losses happening continuously, new boards replacing finished ones
+| Stage | Dimensions | Board | Camera | Trigger |
+|-------|-----------|-------|--------|---------|
+| 0 | `{}` | Single cube | Orthographic | Start |
+| 1 | `{x: N}` | Line of cubes | Orthographic | Timer or manual |
+| 2 | `{x: N, y: N}` | Flat grid | Orthographic | Timer or manual |
+| 3 | `{x: N, y: N, z: N}` | Cube stack | Switch to **perspective** | Timer or manual |
+| 4 | `{x, y, z, w: 2}` | Two 3D boards side by side | Perspective, wider | Timer or manual |
+| 5+ | TBD | Grid of 3D boards | TBD | TBD |
 
-No dimension-sequence intro needed. The parallel swarm is the story.
+**Timing**: time-based by default (configurable delay per stage). Manual override mode disables the timer entirely — stage advance is triggered explicitly (keyboard, URL param, or function call).
 
-## Stretch: 3D boards in the mix
+Camera transitions (ortho → perspective, reframing as scene grows) are their own piece — to be figured out during implementation.
 
-Once the 2D version works, swap some boards in the grid for the existing 3D CSS renderer. Makes the visual richer and shows off more of what the project does.
+## Visual Style
 
-## Technical Findings (from codebase exploration)
+**Preserve the animation character from the CSS version:**
+- Tiles slide smoothly to their new position on merge
+- Merged tile pops/scales briefly
+- New tiles entrance animation
+- These become manual tweens in Three.js (lerped positions/scales over frames in rAF), not CSS transitions
 
-### What already works
-- **1D boards** — trivially supported. `board_util.js:368-371` has explicit 1D handling. Just pass `{x: N}` as dimensions.
-- **2D boards** — fully working
-- **3D boards** — fully working, CSS 3D transforms, renders at `{x:3, y:3, z:3}`
-- **4D logic** — works, tested in `board_util.test.js:434-456`. No renderer built yet.
-- **CSS 3D** — `perspective: 1700px`, `rotate3d(1, 2, 0, -20deg)` for isometric view, 6-face cube tiles
+Tile design: rounded box geometry, flat text label on face, material with some depth (not flat shaded). No heavy post-processing — must be mobile-compatible.
 
-### AI solver hooks (all in `board_util.js`)
-- `getAllDirections(boardDimensions)` — enumerate all valid moves
-- `mergeBoard(board, dims, direction, tokens)` — apply a move, returns new board + points
-- `isGameOver(board, dims, tokens)` — terminal state check
-- `randomTileInsert(...)` — simulate opponent (for expectimax)
-- All synchronous, all work on copies — can call rapidly in a loop
+## Architecture
 
-### Embed approach
-- `yarn build` produces standard CRA output: `index.html` + `static/js/*.js` + `static/css/*.css`
-- Drop `build/` contents into `static/web-doodles/2048/` in the site repo
-- Embed: `<object data="web-doodles/2048/index.html">` — same as bust, works today
-- Bundle ~200-250KB gzipped including Emotion
+### Stack
+- **Vanilla JS + Three.js** (no React, no R3F, no Drei)
+- Reuse `board_util.js` and `board_map.js` directly — they are already pure JS with zero framework dependencies
+- Separate entry point: `hero.js` (existing React game untouched)
+- Bundle target: ~160KB gzipped (Three.js cost is unavoidable; everything else is negligible)
+- Tween: hand-rolled lerps or `tween.js` (~3KB) — no heavy animation library
 
-### Running many boards simultaneously
-- React can render many independent `<Game>` instances
-- Each needs its own state + solver loop (requestAnimationFrame or setInterval)
-- Performance concern: 20+ boards with CSS 3D animations could be heavy — may need to cap at 2D boards for the grid, reserve 3D for a featured few
+### Solver / Simulation
 
-## What Already Exists
+**Pre-compute, then play back:**
+```
+solveGame(dims, tokens) → BoardFrame[]   // runs once, produces full history
+HeroScene.playback(frames, fps)          // just indexes into array each tick
+```
 
-- `Board.tsx` / `Tile.tsx` — 2D game, working
-- `Board3D.tsx` / `Tile3d.tsx` — 3D CSS renderer, working
-- `board_util.js` — core game logic (moves, merges, win/lose detection)
-- `board_map.js` — n-dimensional board abstraction (interesting — check if 1D is trivially supported)
-- No AI solver yet
-- No 4D renderer yet
+- Solver runs synchronously at startup (fast for single boards) or in a Web Worker for many boards
+- `BoardFrame` = `{ board: boardMap, score: number, gameOver: boolean }`
+- Random tile insertion results are captured at solve-time — playback is pure replay, no re-execution
+- Solver must be **Worker-compatible**: pure functions, no DOM, no globals — already true for `board_util.js`
+
+### AI Strategy
+Greedy heuristic: at each step, try all valid directions, pick the one that results in the most merges / highest corner score. Simple, fast, produces visually interesting games. No expectimax needed — the game is for show, not for winning optimally.
+
+### Component Model (vanilla JS classes or plain objects)
+```
+HeroScene
+  ├── Three.js Canvas (single WebGL context)
+  ├── DimensionStage[]     // one per active dimension level
+  │     ├── BoardRenderer  // Three.js mesh group for one board
+  │     │     └── TileRenderer[] // one mesh per tile, owns tween state
+  │     └── SolverWorker (or inline for first board)
+  └── CameraRig            // handles ortho/perspective transitions + reframing
+```
+
+### Entry Point
+`hero.js` — standalone, imported by the site repo as a static embed. No build-time dependency on the React game. Both can coexist in the same repo.
 
 ## Constraints
-
-- Must work as a self-contained static embed (no backend)
-- Should not be jarring or distracting — ambient, not interactive-first
-- Performance matters: CSS 3D can be janky at high frame rates, especially on mobile
+- Self-contained static embed (no backend)
+- Mobile-compatible WebGL (no heavy post-processing, no instancing overdraw)
+- Ambient, not interactive-first — runs on its own, visitors just watch
+- Must work as `<object>` or `<iframe>` embed in the Hugo site
 
 ## Out of Scope for Now
-
-- 4D renderer (aspirational, future post)
-- User interaction during the hero sequence
+- 5D+ renderer (layout TBD)
+- User interaction with the boards
 - Sound
 
-## Related
+## Existing Code Worth Keeping
+- `board_util.js` — core game logic (moves, merges, win/lose, random insert). Keep as-is.
+- `board_map.js` — n-dimensional board abstraction. Keep as-is.
+- CSS animations in `2D.css` / `3D.css` — reference for animation character to replicate in Three.js
+- The React game (`App.tsx`, `Game.tsx`, etc.) — keep untouched, separate concern
 
+## Related
 - Current bust embed: `static/web-doodles/bust/index.html`
 - Site repo: `~/code/dillonjones.com`
 - Hero template: `themes/dj/layouts/index.html`
