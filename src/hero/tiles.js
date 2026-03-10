@@ -34,7 +34,7 @@ function tileColor(value) {
 }
 
 function makeLabelTexture(value) {
-    const size = 128
+    const size = 256
     const canvas = document.createElement('canvas')
     canvas.width = size
     canvas.height = size
@@ -44,22 +44,25 @@ function makeLabelTexture(value) {
     ctx.fillStyle = `#${color.toString(16).padStart(6, '0')}`
     ctx.fillRect(0, 0, size, size)
 
-    ctx.fillStyle = value <= 4 ? '#776e65' : '#f9f6f2'
+    ctx.fillStyle = value <= 4 ? '#211e1d' : '#f9f6f2'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     const text = String(value)
-    const fs = text.length >= 5 ? 22 : text.length === 4 ? 28 : text.length === 3 ? 36 : 46
-    ctx.font = `bold ${fs}px Arial, sans-serif`
+    const fs = text.length >= 5 ? 60 : text.length === 4 ? 76 : text.length === 3 ? 92 : 116
+    ctx.font = `bold ${fs}px "Clear Sans", "Helvetica Neue", Arial, sans-serif`
     ctx.fillText(text, size / 2, size / 2)
 
-    return new THREE.CanvasTexture(canvas)
+    const tex = new THREE.CanvasTexture(canvas)
+    tex.colorSpace = THREE.SRGBColorSpace
+    return tex
 }
 
 // allFaces: true for 3D stages where any face may point toward the camera
 function makeMaterials(value, allFaces = false) {
     const color = tileColor(value)
     const label = makeLabelTexture(value)
-    const face  = new THREE.MeshLambertMaterial({ color, map: label })
+    // MeshBasicMaterial: unlit so the texture shows exactly as drawn (no lighting dimming)
+    const face  = new THREE.MeshBasicMaterial({ map: label })
     if (allFaces) return [face, face, face, face, face, face]
     const side  = new THREE.MeshLambertMaterial({ color })
     // BoxGeometry face order: +x, -x, +y, -y, +z (front), -z (back)
@@ -164,6 +167,48 @@ class TileRenderer {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+const BOARD_BG_COLOR      = 0xbbada0
+const PLACEHOLDER_COLOR   = 0xeee4da
+const PLACEHOLDER_OPACITY = 0.35
+
+function makeBoardBackground(scene, dims) {
+    const nx = dims.x ?? 1
+    const ny = dims.y ?? 1
+    const pad = TILE_SPACING * 0.45
+    const w = nx * TILE_SPACING - (TILE_SPACING - TILE_SIZE) + pad * 2
+    const h = ny * TILE_SPACING - (TILE_SPACING - TILE_SIZE) + pad * 2
+    const geo = new THREE.BoxGeometry(w, h, 0.04)
+    const mat = new THREE.MeshLambertMaterial({ color: BOARD_BG_COLOR })
+    const mesh = new THREE.Mesh(geo, mat)
+    mesh.position.z = -0.62   // behind everything
+    scene.add(mesh)
+    return mesh
+}
+
+function makePlaceholders(scene, dims) {
+    const meshes = []
+    const nx = dims.x ?? 1
+    const ny = dims.y ?? 1
+    // Thin slab at z=0: front face at z=+0.01, tiles front face at z=+0.45
+    // Tiles fully occlude placeholders when present; placeholders show in empty cells
+    const geo = new THREE.BoxGeometry(TILE_SIZE, TILE_SIZE, 0.02)
+    const mat = new THREE.MeshLambertMaterial({
+        color: PLACEHOLDER_COLOR,
+        transparent: true,
+        opacity: PLACEHOLDER_OPACITY,
+    })
+    for (let x = 0; x < nx; x++) {
+        for (let y = 0; y < ny; y++) {
+            const mesh = new THREE.Mesh(geo, mat)
+            const pos = coordToWorld({ x, y }, dims)
+            mesh.position.set(pos.x, pos.y, -0.50)
+            scene.add(mesh)
+            meshes.push(mesh)
+        }
+    }
+    return { geo, mat, meshes }
+}
+
 export class BoardRenderer {
     // allFaces: label every side of each cube (use for 3D where any face may face the camera)
     constructor(scene, dims, { allFaces = false } = {}) {
@@ -172,6 +217,14 @@ export class BoardRenderer {
         this.allFaces = allFaces
         this._tiles   = new Map()   // tileId → TileRenderer
         this._dying   = []          // TileRenderers animating out
+
+        // Board background and placeholder cells (2D/1D only — 3D is a cube stack)
+        this._boardBg      = null
+        this._placeholders = null
+        if (!allFaces) {
+            this._boardBg      = makeBoardBackground(scene, dims)
+            this._placeholders = makePlaceholders(scene, dims)
+        }
     }
 
     applyFrame(frame) {
@@ -250,6 +303,19 @@ export class BoardRenderer {
         for (const tr of this._dying) tr.dispose()
         this._tiles.clear()
         this._dying = []
+
+        if (this._boardBg) {
+            this.scene.remove(this._boardBg)
+            this._boardBg.geometry.dispose()
+            this._boardBg.material.dispose()
+            this._boardBg = null
+        }
+        if (this._placeholders) {
+            for (const m of this._placeholders.meshes) this.scene.remove(m)
+            this._placeholders.geo.dispose()
+            this._placeholders.mat.dispose()
+            this._placeholders = null
+        }
     }
 }
 
