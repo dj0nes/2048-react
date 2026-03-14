@@ -30,13 +30,13 @@ import {
  * @param {number} maxFrames - safety cap (default 600)
  * @returns {BoardFrame[]}
  */
-export function solveGame(dims, tokens, maxFrames = 600) {
+export function solveGame(dims, tokens, maxFrames = 600, fromBoard = null) {
     const frames = []
-    let board = new boardMap()
+    let board = fromBoard ? boardCleanup(fromBoard) : new boardMap()
     let score = 0
 
-    // Seed the board — first frame is a spawn frame (new_tile flags intact)
-    randomTileInsert(board, dims, tokens)
+    // Seed: fresh start gets normal seeding; carry-over gets 1 transition tile
+    randomTileInsert(board, dims, tokens, fromBoard ? 1 : undefined)
     frames.push({ board: snapshot(board), score, gameOver: false })
     board = boardCleanup(board)  // strip new_tile for game logic
 

@@ -2,17 +2,18 @@
  * hero.js — Orchestrator for the 2048 dimensional progression hero
  *
  * Stages advance on a timer (or manual override via window.__heroNextStage()).
- * Each stage runs a live AI game; on game over it generates a new one.
+ * A single board state persists across stage transitions — tiles carry over as
+ * new dimensions are revealed. Each stage restricts moves to its active axes.
  *
  * Stage sequence:
- *   0D (zoom in → zoom out)
- *   1D (line of cubes)
- *   2D (flat grid, head-on, extra rows slide in from behind)
- *   3D (head-on, then orbit reveals depth)
+ *   0D (single cube, dramatic zoom out — static, no game)
+ *   1D (line of 3 cubes, x-axis moves only)
+ *   2D (flat 3×3 grid, x+y moves)
+ *   3D (3×3×3 cube, camera orbits to reveal depth)
  *   4D×3 → 4D×4 → 4D×5  (loop forever)
  */
 
-import { generate2048Tokens, setGlobalTileIdCounter } from '../board_util.js'
+import { generate2048Tokens, setGlobalTileIdCounter, boardCleanup } from '../board_util.js'
 import { HeroScene }     from './scene.js'
 import { solveGame }     from './solver.js'
 import { BoardRenderer, PANE_Z_GAP, frontPaneZ } from './tiles.js'
@@ -21,19 +22,20 @@ import { BoardRenderer, PANE_Z_GAP, frontPaneZ } from './tiles.js'
 
 // entrance values:
 //   'zoomOut'     — camera starts extremely close and pulls back dramatically
-//   'headOn'      — camera locks to front face, no orbit; rows slide in from behind
+//   'headOn'      — camera locks to front face, no orbit
 //   'revealOrbit' — camera starts head-on then begins orbiting to reveal depth
-//   undefined     — normal orbit (4D stages)
+//   undefined     — normal orbit (1D, 4D stages)
 
 const STAGES = [
     {
         dims:         { x: 1, y: 1, z: 1 },
-        stageSeconds: 3.5,
+        stageSeconds: 4,
         label:        '0D',
         entrance:     'zoomOut',
+        static:       true,   // no game loop — just the single tile + zoom
     },
     {
-        dims:         { x: 4, y: 1, z: 1 },
+        dims:         { x: 3, y: 1, z: 1 },
         stageSeconds: 4,
         label:        '1D',
     },
@@ -92,6 +94,7 @@ class Orchestrator {
         this.stageIndex   = 0
         this.stageTimer   = 0
 
+        this._liveBoard   = null   // board state that carries across stage transitions
         this._renderer    = null
         this._frames      = []
         this._frameIndex  = 0
@@ -122,6 +125,9 @@ class Orchestrator {
             return
         }
 
+        // Static stages (0D) just show a single tile — no game loop
+        if (stage.static) return
+
         // Post-frame pause
         if (this._settling) {
             this._settleTimer -= dt
@@ -135,11 +141,13 @@ class Orchestrator {
         // Advance frame, or start new game when this one ends
         if (this._frameIndex < this._frames.length - 1) {
             this._frameIndex++
+            this._liveBoard = boardCleanup(this._frames[this._frameIndex].board)
             this._renderer.applyFrame(this._frames[this._frameIndex])
             this._settling    = true
             this._settleTimer = PAUSE_AFTER_FRAME
         } else {
-            this._startGame(stage.dims)   // game over → new game, same stage
+            // Game over within same stage: fresh start (no carry — board is stuck)
+            this._startGame(stage.dims, null)
         }
     }
 
@@ -155,30 +163,36 @@ class Orchestrator {
         const stage     = STAGES[index]
         const rig       = this.scene.cameraRig
 
-        // All stages use perspective + 3D cube tiles
         rig.toPerspective()
 
-        this._startGame(stage.dims)
+        // Snapshot current tile world positions so carried tiles can slide smoothly
+        const inheritPositions = new Map()
+        if (this._renderer) {
+            for (const [id, tr] of this._renderer._tiles) {
+                inheritPositions.set(id, tr.mesh.position.clone())
+            }
+        }
 
-        // Stage-specific camera entrance
+        this._startGame(stage.dims, this._liveBoard, inheritPositions)
+
+        // Camera entrance
         const ext    = boardExtent(stage.dims)
+        this.scene.cameraRig.reframe(ext)
         const maxExt = Math.max(ext.x, ext.y, ext.z)
         const radius = maxExt * 1.8
 
         switch (stage.entrance) {
             case 'zoomOut':
-                // Start camera touching the cube, pull back dramatically to 3× normal distance
-                rig.animateZoomOut(0.8, radius * 3, stage.stageSeconds * 0.9)
+                // Start right on top of the cube, pull back dramatically over the full stage
+                rig.animateZoomOut(0.2, radius * 3, stage.stageSeconds)
                 break
 
             case 'headOn':
-                // Camera locked front-on; new rows slide in from behind
                 rig.setHeadOn(radius)
                 this._renderer.slideInEntrance(this._frames[0], -8, 0.7)
                 break
 
             case 'revealOrbit':
-                // Start head-on, orbit begins after a beat — reveals hidden depth
                 rig.setHeadOn(radius)
                 rig.startRevealOrbit(1.5)
                 break
@@ -190,28 +204,26 @@ class Orchestrator {
         }
     }
 
-    _startGame(dims) {
+    _startGame(dims, fromBoard = null, inheritPositions = new Map()) {
         this._renderer?.dispose()
 
-        setGlobalTileIdCounter(0)
-        this._frames      = solveGame(dims, this.tokens, MAX_FRAMES)
+        // Preserve tile IDs when carrying; reset only on fresh start
+        if (!fromBoard) setGlobalTileIdCounter(0)
+
+        this._frames      = solveGame(dims, this.tokens, MAX_FRAMES, fromBoard)
         this._frameIndex  = 0
         this._settling    = false
         this._settleTimer = 0
 
-        const ndims = Object.keys(dims).length
-        const is4D  = ndims >= 4
-        // Always render as 3D cubes (allFaces: true for any stage with z or more)
+        // Track live board state (used for stage transitions)
+        this._liveBoard = boardCleanup(this._frames[0].board)
+
+        const is4D = Object.keys(dims).length >= 4
         this._renderer = new BoardRenderer(this.scene.scene, dims, { allFaces: true })
+        this._renderer.applyFrame(this._frames[0], inheritPositions)
 
-        // Reframe camera to fit the board
-        const ext = boardExtent(dims)
-        this.scene.cameraRig.reframe(ext)
-
-        this._renderer.applyFrame(this._frames[0])
-
-        // 4D: back panes scatter out from front pane
-        if (is4D) {
+        // 4D genie entrance only on fresh start — carried tiles slide to position naturally
+        if (is4D && !fromBoard) {
             this._renderer.genieEntrance(this._frames[0], frontPaneZ(dims))
         }
     }

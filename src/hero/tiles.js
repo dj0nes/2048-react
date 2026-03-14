@@ -298,7 +298,9 @@ export class BoardRenderer {
     }
   }
 
-  applyFrame(frame) {
+  // inheritPositions: Map<tileId, THREE.Vector3> — old world positions from a previous
+  // stage's renderer. Matching tiles slide from their old position instead of spawning.
+  applyFrame(frame, inheritPositions = null) {
     const contents = frame.board.getContents();
     const seenIds = new Set();
 
@@ -321,34 +323,28 @@ export class BoardRenderer {
           continue;
         }
 
-        if (tile.new_tile) {
-          const tr = new TileRenderer(this.scene, tile.value, worldPos, this.allFaces);
-          tr.spawnIn();
-          this._tiles.set(tile.id, tr);
-          continue;
-        }
-
-        const tr = this._tiles.get(tile.id);
-        if (tr) {
-          const atTarget = tr.mesh.position.distanceTo(worldPos) < 0.001;
+        const existing = this._tiles.get(tile.id);
+        if (existing) {
+          // Tile already in this renderer: slide or pop
+          const atTarget = existing.mesh.position.distanceTo(worldPos) < 0.001;
           if (!atTarget) {
-            tr.slideTo(
+            existing.slideTo(
               worldPos,
-              tile.merged_to
-                ? () => {
-                    tr.updateValue(tile.merged_to);
-                    tr.pop();
-                  }
-                : null,
+              tile.merged_to ? () => { existing.updateValue(tile.merged_to); existing.pop(); } : null,
             );
           } else if (tile.merged_to) {
-            tr.updateValue(tile.merged_to);
-            tr.pop();
+            existing.updateValue(tile.merged_to);
+            existing.pop();
           }
         } else {
-          // First frame: tile exists without new_tile flag
-          const tr = new TileRenderer(this.scene, tile.value, worldPos, this.allFaces);
-          tr.spawnIn();
+          // New tile — either truly spawned or carried over from a previous stage
+          const inherited = inheritPositions?.get(tile.id);
+          const tr = new TileRenderer(this.scene, tile.value, inherited ?? worldPos, this.allFaces);
+          if (inherited) {
+            tr.slideTo(worldPos, null, 0.45);  // smooth slide from old stage position
+          } else {
+            tr.spawnIn();
+          }
           this._tiles.set(tile.id, tr);
         }
       }
