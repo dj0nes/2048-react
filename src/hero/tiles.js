@@ -365,6 +365,26 @@ export class BoardRenderer {
     this._dying = this._dying.filter((tr) => !tr.dead);
   }
 
+  // 2D stage entrance: tiles in rows beyond the first (y > 0) slide in from fromZ.
+  // Seen head-on they appear to slide out from behind the existing row.
+  slideInEntrance(frame, fromZ, dur = 0.7) {
+    const contents = frame.board.getContents()
+    for (const [keyStr, tiles] of Object.entries(contents)) {
+      const coords = frame.board.getCoordinatesFromKey(keyStr)
+      if ((coords.y ?? 0) === 0) continue  // first row stays in place
+      for (const tile of tiles) {
+        if (tile.remove) continue
+        const tr = this._tiles.get(tile.id)
+        if (!tr) continue
+        const targetPos = tr.mesh.position.clone()
+        tr._scaleTween = null
+        tr.mesh.scale.setScalar(1)
+        tr.mesh.position.setZ(fromZ)
+        tr.slideTo(targetPos, null, dur)
+      }
+    }
+  }
+
   // 4D stage entrance: back pane tiles explode out from the center of the front
   // pane and scatter to their actual positions. Starting from (0,0,fromZ) means
   // there's always a visible XY component regardless of camera orbit angle.

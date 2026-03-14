@@ -1,15 +1,28 @@
 import * as THREE from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
-// Half-height of the orthographic frustum
 const ORTHO_SIZE = 5
 
+function lerp(a, b, t) { return a + (b - a) * t }
+function easeOut(t)     { return 1 - (1 - t) * (1 - t) }
+
 export class CameraRig {
-    constructor(width, height) {
-        this.width = width
-        this.height = height
-        this._mode = 'ortho'
-        this.camera = this._makeOrtho(width, height)
+    constructor(width, height, canvas) {
+        this.width    = width
+        this.height   = height
+        this._mode    = 'ortho'
+        this._canvas  = canvas
+        this.camera   = this._makeOrtho(width, height)
+        this._controls = null
+
+        // Zoom animation state (for 0D dramatic zoom-out)
+        this._zoomAnim = null   // { from, to, elapsed, dur }
+
+        // Delayed orbit enable (for 3D reveal)
+        this._revealDelay = null  // seconds remaining
     }
+
+    // ── Camera creation ───────────────────────────────────────────────────────
 
     _makeOrtho(width, height) {
         const aspect = width / height
@@ -18,8 +31,7 @@ export class CameraRig {
              ORTHO_SIZE * aspect,
              ORTHO_SIZE,
             -ORTHO_SIZE,
-            0.1,
-            200
+            0.1, 500
         )
         cam.position.set(0, 0, 10)
         cam.lookAt(0, 0, 0)
@@ -27,14 +39,16 @@ export class CameraRig {
     }
 
     _makePerspective(width, height) {
-        const cam = new THREE.PerspectiveCamera(50, width / height, 0.1, 200)
-        cam.position.set(8, 8, 14)
+        const cam = new THREE.PerspectiveCamera(50, width / height, 0.1, 500)
+        cam.position.set(0, 0, 14)
         cam.lookAt(0, 0, 0)
         return cam
     }
 
+    // ── Public API ────────────────────────────────────────────────────────────
+
     onResize(width, height) {
-        this.width = width
+        this.width  = width
         this.height = height
         if (this._mode === 'ortho') {
             const aspect = width / height
@@ -48,21 +62,36 @@ export class CameraRig {
         this.camera.updateProjectionMatrix()
     }
 
-    // Switch to perspective (called when adding the 3rd dimension)
     toPerspective() {
         if (this._mode === 'perspective') return
-        this._mode = 'perspective'
+        this._mode  = 'perspective'
         this.camera = this._makePerspective(this.width, this.height)
+
+        if (this._canvas) {
+            this._controls = new OrbitControls(this.camera, this._canvas)
+            this._controls.enableDamping   = true
+            this._controls.dampingFactor   = 0.05
+            this._controls.enablePan       = false
+            this._controls.autoRotate      = false  // each stage sets this explicitly
+            this._controls.autoRotateSpeed = 1.5
+            // First interaction stops auto-rotate permanently
+            this._controls.addEventListener('start', () => {
+                this._controls.autoRotate = false
+                this._revealDelay = null
+                this._zoomAnim    = null
+                // Release zoom lock
+                this._controls.minDistance = 1
+                this._controls.maxDistance = Infinity
+            })
+        }
     }
 
-    // Reframe the camera to fit a bounding box centered at origin
-    // size: { x, y, z } — extent in world units
     reframe(size) {
         const maxExtent = Math.max(size.x, size.y, size.z ?? 0)
         if (this._mode === 'ortho') {
             const padding = 1.2
-            const half = (maxExtent / 2) * padding
-            const aspect = this.width / this.height
+            const half    = (maxExtent / 2) * padding
+            const aspect  = this.width / this.height
             this.camera.left   = -half * aspect
             this.camera.right  =  half * aspect
             this.camera.top    =  half
@@ -72,34 +101,80 @@ export class CameraRig {
             const dist = maxExtent * 1.4
             this.camera.position.setLength(dist * Math.sqrt(3))
             this.camera.updateProjectionMatrix()
+            if (this._controls) this._controls.update()
         }
     }
 
-    // Slowly orbit around Y axis. Only active in perspective mode.
-    _orbitAngle  = 0
-    _orbitRadius = 0
-    _orbitTarget = new THREE.Vector3()
-
-    startOrbit(radius) {
-        this._orbitRadius = radius
-        // Seed the angle from current position so there's no jump
-        this._orbitAngle = Math.atan2(this.camera.position.x, this.camera.position.z)
+    // Position camera at radius, head-on (+Z axis), no auto-rotate
+    startOrbit(radius, { autoRotate = true } = {}) {
+        if (this._mode !== 'perspective') return
+        this._zoomAnim    = null
+        this._revealDelay = null
+        this.camera.position.set(0, radius * 0.6, radius)
+        if (this._controls) {
+            this._controls.autoRotate      = autoRotate
+            this._controls.minDistance     = 1
+            this._controls.maxDistance     = Infinity
+            this._controls.update()
+        }
     }
 
     stopOrbit() {
-        this._orbitRadius = 0
+        if (this._controls) this._controls.autoRotate = false
+    }
+
+    // Position camera straight at +Z face (no orbit), for 2D/reveal stages
+    setHeadOn(radius) {
+        if (!this._controls) return
+        const r = radius ?? this.camera.position.length()
+        this.camera.position.set(0, 0, r)
+        this._controls.autoRotate = false
+        this._controls.update()
+    }
+
+    // Dramatic zoom-out: start camera very close (fromRadius), animate to toRadius over dur seconds
+    animateZoomOut(fromRadius, toRadius, dur) {
+        if (!this._controls) return
+        this._controls.autoRotate  = false
+        this._controls.minDistance = fromRadius
+        this._controls.maxDistance = fromRadius
+        this.camera.position.set(0, 0, fromRadius)
+        this._controls.update()
+        this._zoomAnim = { from: fromRadius, to: toRadius, elapsed: 0, dur }
+    }
+
+    // Enable auto-rotate after `delay` seconds (used for 3D reveal)
+    startRevealOrbit(delay) {
+        this._revealDelay = delay
     }
 
     update(dt) {
-        if (this._mode !== 'perspective' || !this._orbitRadius) return
-        this._orbitAngle += dt * 0.25   // ~1 full rotation per 25 s
-        const r = this._orbitRadius
-        // Elevation: 30° above horizontal
-        this.camera.position.set(
-            r * Math.sin(this._orbitAngle),
-            r * 0.6,
-            r * Math.cos(this._orbitAngle),
-        )
-        this.camera.lookAt(this._orbitTarget)
+        if (this._mode !== 'perspective' || !this._controls) return
+
+        // Zoom animation
+        if (this._zoomAnim) {
+            const anim = this._zoomAnim
+            anim.elapsed += dt
+            const t = Math.min(anim.elapsed / anim.dur, 1)
+            const r = lerp(anim.from, anim.to, easeOut(t))
+            this._controls.minDistance = r
+            this._controls.maxDistance = r
+            if (t >= 1) {
+                this._controls.minDistance = 1
+                this._controls.maxDistance = Infinity
+                this._zoomAnim = null
+            }
+        }
+
+        // Delayed orbit reveal
+        if (this._revealDelay !== null) {
+            this._revealDelay -= dt
+            if (this._revealDelay <= 0) {
+                this._controls.autoRotate = true
+                this._revealDelay = null
+            }
+        }
+
+        this._controls.update()
     }
 }

@@ -14,7 +14,7 @@ export class HeroScene {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false)
 
-        this.cameraRig = new CameraRig(canvas.clientWidth, canvas.clientHeight)
+        this.cameraRig = new CameraRig(canvas.clientWidth, canvas.clientHeight, canvas)
 
         this._setupLighting()
 
