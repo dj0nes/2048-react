@@ -13,6 +13,7 @@
  *   4D×3 → 4D×4 → 4D×5  (loop forever)
  */
 
+import * as THREE from 'three'
 import { generate2048Tokens, setGlobalTileIdCounter, boardCleanup } from '../board_util.js'
 import { HeroScene }     from './scene.js'
 import { solveGame }     from './solver.js'
@@ -26,30 +27,39 @@ import { BoardRenderer, PANE_Z_GAP, frontPaneZ } from './tiles.js'
 //   'revealOrbit' — camera starts head-on then begins orbiting to reveal depth
 //   undefined     — normal orbit (1D, 4D stages)
 
+// revealAxis: the world-space direction of the newly-unlocked dimension.
+// New tiles during this transition slide in from off-screen along this axis.
+const X = new THREE.Vector3(1, 0, 0)
+const Y = new THREE.Vector3(0, 1, 0)
+const Z = new THREE.Vector3(0, 0, 1)
+
 const STAGES = [
     {
         dims:         { x: 1, y: 1, z: 1 },
         stageSeconds: 4,
         label:        '0D',
         entrance:     'zoomOut',
-        static:       true,   // no game loop — just the single tile + zoom
+        static:       true,
     },
     {
         dims:         { x: 3, y: 1, z: 1 },
         stageSeconds: 4,
         label:        '1D',
+        revealAxis:   X,  // x-axis opens up: new tiles slide in from the sides
     },
     {
         dims:         { x: 3, y: 3, z: 1 },
         stageSeconds: 5,
         label:        '2D',
         entrance:     'headOn',
+        revealAxis:   Y,  // y-axis opens up: new rows slide in from top/bottom
     },
     {
         dims:         { x: 3, y: 3, z: 3 },
         stageSeconds: 7,
         label:        '3D',
         entrance:     'revealOrbit',
+        revealAxis:   Z,  // z-axis opens up: new layers slide in from depth
     },
     {
         dims:         { x: 3, y: 3, z: 3, w: 3 },
@@ -163,7 +173,12 @@ class Orchestrator {
         const stage     = STAGES[index]
         const rig       = this.scene.cameraRig
 
-        rig.toPerspective()
+        // 2D uses ortho (flat projection) — the switch to perspective at 3D IS the reveal
+        if (stage.entrance === 'headOn') {
+            rig.toOrtho()
+        } else {
+            rig.toPerspective()
+        }
 
         // Snapshot current tile world positions so carried tiles can slide smoothly
         const inheritPositions = new Map()
@@ -173,7 +188,7 @@ class Orchestrator {
             }
         }
 
-        this._startGame(stage.dims, this._liveBoard, inheritPositions)
+        this._startGame(stage.dims, this._liveBoard, inheritPositions, stage.revealAxis ?? null)
 
         // Camera entrance
         const ext    = boardExtent(stage.dims)
@@ -188,8 +203,8 @@ class Orchestrator {
                 break
 
             case 'headOn':
-                rig.setHeadOn(radius)
-                this._renderer.slideInEntrance(this._frames[0], -8, 0.7)
+                // Ortho camera is already head-on; just reframe to fit the board
+                rig.reframe(ext)
                 break
 
             case 'revealOrbit':
@@ -204,13 +219,22 @@ class Orchestrator {
         }
     }
 
-    _startGame(dims, fromBoard = null, inheritPositions = new Map()) {
+    _startGame(dims, fromBoard = null, inheritPositions = new Map(), revealAxis = null) {
         this._renderer?.dispose()
 
         // Preserve tile IDs when carrying; reset only on fresh start
         if (!fromBoard) setGlobalTileIdCounter(0)
 
-        this._frames      = solveGame(dims, this.tokens, MAX_FRAMES, fromBoard)
+        // For small boards (like 1D coming from 0D), pre-fill remaining cells so
+        // the dimension leap is visually obvious ("the cube was already the leftmost block")
+        let numSeed = null
+        if (fromBoard) {
+            const totalCells = Object.values(dims).reduce((a, b) => a * b, 1)
+            const filledCells = fromBoard.getSortedKeys().length
+            numSeed = totalCells <= 6 ? Math.max(1, totalCells - filledCells) : 1
+        }
+
+        this._frames      = solveGame(dims, this.tokens, MAX_FRAMES, fromBoard, numSeed)
         this._frameIndex  = 0
         this._settling    = false
         this._settleTimer = 0
@@ -220,7 +244,7 @@ class Orchestrator {
 
         const is4D = Object.keys(dims).length >= 4
         this._renderer = new BoardRenderer(this.scene.scene, dims, { allFaces: true })
-        this._renderer.applyFrame(this._frames[0], inheritPositions)
+        this._renderer.applyFrame(this._frames[0], inheritPositions, revealAxis)
 
         // 4D genie entrance only on fresh start — carried tiles slide to position naturally
         if (is4D && !fromBoard) {

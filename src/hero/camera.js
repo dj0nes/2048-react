@@ -3,8 +3,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 
 const ORTHO_SIZE = 5
 
-function lerp(a, b, t) { return a + (b - a) * t }
-function easeOut(t)     { return 1 - (1 - t) * (1 - t) }
+function lerp(a, b, t)    { return a + (b - a) * t }
+function easeOut(t)       { return 1 - (1 - t) * (1 - t) }
+function easeInOut(t)     { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t }
 
 export class CameraRig {
     constructor(width, height, canvas) {
@@ -20,6 +21,9 @@ export class CameraRig {
 
         // Delayed orbit enable (for 3D reveal)
         this._revealDelay = null  // seconds remaining
+
+        // Smooth camera position lerp between stages
+        this._cameraLerp = null  // { from, to, elapsed, dur }
     }
 
     // ── Camera creation ───────────────────────────────────────────────────────
@@ -62,6 +66,19 @@ export class CameraRig {
         this.camera.updateProjectionMatrix()
     }
 
+    toOrtho() {
+        if (this._mode === 'ortho') return
+        this._mode = 'ortho'
+        if (this._controls) {
+            this._controls.dispose()
+            this._controls = null
+        }
+        this._zoomAnim    = null
+        this._revealDelay = null
+        this._cameraLerp  = null
+        this.camera = this._makeOrtho(this.width, this.height)
+    }
+
     toPerspective() {
         if (this._mode === 'perspective') return
         this._mode  = 'perspective'
@@ -79,6 +96,7 @@ export class CameraRig {
                 this._controls.autoRotate = false
                 this._revealDelay = null
                 this._zoomAnim    = null
+                this._cameraLerp  = null
                 // Release zoom lock
                 this._controls.minDistance = 1
                 this._controls.maxDistance = Infinity
@@ -105,18 +123,22 @@ export class CameraRig {
         }
     }
 
-    // Position camera at radius, head-on (+Z axis), no auto-rotate
+    // Smooth lerp of camera to a new position (used on stage transitions)
+    _lerpTo(target, dur = 0.5) {
+        this._cameraLerp = { from: this.camera.position.clone(), to: target.clone(), elapsed: 0, dur }
+    }
+
+    // Position camera at radius, angled slightly down
     startOrbit(radius, { autoRotate = true } = {}) {
         if (this._mode !== 'perspective') return
         this._zoomAnim    = null
         this._revealDelay = null
-        this.camera.position.set(0, radius * 0.6, radius)
         if (this._controls) {
-            this._controls.autoRotate      = autoRotate
-            this._controls.minDistance     = 1
-            this._controls.maxDistance     = Infinity
-            this._controls.update()
+            this._controls.autoRotate  = autoRotate
+            this._controls.minDistance = 1
+            this._controls.maxDistance = Infinity
         }
+        this._lerpTo(new THREE.Vector3(0, radius * 0.6, radius))
     }
 
     stopOrbit() {
@@ -127,14 +149,14 @@ export class CameraRig {
     setHeadOn(radius) {
         if (!this._controls) return
         const r = radius ?? this.camera.position.length()
-        this.camera.position.set(0, 0, r)
         this._controls.autoRotate = false
-        this._controls.update()
+        this._lerpTo(new THREE.Vector3(0, 0, r))
     }
 
     // Dramatic zoom-out: start camera very close (fromRadius), animate to toRadius over dur seconds
     animateZoomOut(fromRadius, toRadius, dur) {
         if (!this._controls) return
+        this._cameraLerp           = null
         this._controls.autoRotate  = false
         this._controls.minDistance = fromRadius
         this._controls.maxDistance = fromRadius
@@ -150,6 +172,20 @@ export class CameraRig {
 
     update(dt) {
         if (this._mode !== 'perspective' || !this._controls) return
+
+        // Stage-transition camera lerp — pauses OrbitControls until complete
+        if (this._cameraLerp) {
+            const a = this._cameraLerp
+            a.elapsed += dt
+            const t = easeInOut(Math.min(a.elapsed / a.dur, 1))
+            this.camera.position.lerpVectors(a.from, a.to, t)
+            this.camera.lookAt(0, 0, 0)
+            if (t >= 1) {
+                this._cameraLerp = null
+                this._controls.update()  // sync controls to final position
+            }
+            return  // don't let controls fight the lerp
+        }
 
         // Zoom animation
         if (this._zoomAnim) {

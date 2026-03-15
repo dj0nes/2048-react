@@ -298,9 +298,10 @@ export class BoardRenderer {
     }
   }
 
-  // inheritPositions: Map<tileId, THREE.Vector3> — old world positions from a previous
-  // stage's renderer. Matching tiles slide from their old position instead of spawning.
-  applyFrame(frame, inheritPositions = null) {
+  // inheritPositions: Map<tileId, THREE.Vector3> — old world positions from a previous stage.
+  // revealAxis: THREE.Vector3 — direction of the newly-revealed dimension. New tiles slide in
+  // from off-screen along this axis so they feel like they were always there, just out of frame.
+  applyFrame(frame, inheritPositions = null, revealAxis = null) {
     const contents = frame.board.getContents();
     const seenIds = new Set();
 
@@ -342,6 +343,13 @@ export class BoardRenderer {
           const tr = new TileRenderer(this.scene, tile.value, inherited ?? worldPos, this.allFaces);
           if (inherited) {
             tr.slideTo(worldPos, null, 0.45);  // smooth slide from old stage position
+          } else if (inheritPositions !== null && revealAxis) {
+            // Stage transition: slide in from off-screen along the newly-revealed axis.
+            // Direction sign is based on which side of center the tile is on.
+            const sign = worldPos.dot(revealAxis) >= 0 ? 1 : -1;
+            const startPos = worldPos.clone().addScaledVector(revealAxis, sign * 6);
+            tr.mesh.position.copy(startPos);
+            tr.slideTo(worldPos, null, 0.5);
           } else {
             tr.spawnIn();
           }

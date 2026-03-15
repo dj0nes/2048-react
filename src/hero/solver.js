@@ -30,13 +30,30 @@ import {
  * @param {number} maxFrames - safety cap (default 600)
  * @returns {BoardFrame[]}
  */
-export function solveGame(dims, tokens, maxFrames = 600, fromBoard = null) {
+// Remap board coordinates to include all keys in dims (filling missing axes with 0).
+// Required when transitioning to a higher-dimensional stage (e.g. 3D→4D adds w).
+function normalizeBoard(board, dims) {
+    const dimKeys = Object.keys(dims)
+    const tmp = new boardMap()
+    const pairs = []
+    for (const [keyStr, tiles] of Object.entries(board.getContents())) {
+        const coords = board.getCoordinatesFromKey(keyStr)
+        const full = {}
+        for (const k of dimKeys) full[k] = coords[k] ?? 0
+        pairs.push({ coordinates: tmp.stringify(full), tiles })
+    }
+    return new boardMap(pairs)
+}
+
+export function solveGame(dims, tokens, maxFrames = 600, fromBoard = null, numSeed = null) {
     const frames = []
-    let board = fromBoard ? boardCleanup(fromBoard) : new boardMap()
+    // Normalize coords so carried tiles are visible to the new-dimensional solver
+    let board = fromBoard ? normalizeBoard(boardCleanup(fromBoard), dims) : new boardMap()
     let score = 0
 
-    // Seed: fresh start gets normal seeding; carry-over gets 1 transition tile
-    randomTileInsert(board, dims, tokens, fromBoard ? 1 : undefined)
+    // Seed: explicit count overrides defaults; carry-over defaults to 1; fresh start uses dim-based default
+    const tilesToInsert = numSeed !== null ? numSeed : (fromBoard ? 1 : undefined)
+    randomTileInsert(board, dims, tokens, tilesToInsert)
     frames.push({ board: snapshot(board), score, gameOver: false })
     board = boardCleanup(board)  // strip new_tile for game logic
 
