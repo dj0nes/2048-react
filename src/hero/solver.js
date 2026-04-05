@@ -47,6 +47,7 @@ function normalizeBoard(board, dims) {
 
 export function solveGame(dims, tokens, maxFrames = 600, fromBoard = null, numSeed = null) {
     const frames = []
+    const moveDirs = {}  // track which directions were used
     // Normalize coords so carried tiles are visible to the new-dimensional solver
     let board = fromBoard ? normalizeBoard(boardCleanup(fromBoard), dims) : new boardMap()
     let score = 0
@@ -71,6 +72,8 @@ export function solveGame(dims, tokens, maxFrames = 600, fromBoard = null, numSe
         }
 
         score += result.points
+        const dirKey = JSON.stringify(result.dir)
+        moveDirs[dirKey] = (moveDirs[dirKey] || 0) + 1
 
         // Merge frame: has merged_to and remove annotations for the renderer to animate
         frames.push({ board: snapshot(result.mergedBoard), score, gameOver: false })
@@ -88,6 +91,7 @@ export function solveGame(dims, tokens, maxFrames = 600, fromBoard = null, numSe
         board = boardCleanup(cleanBoard)  // strip new_tile for next move
     }
 
+    console.log(`[solver] dims=${JSON.stringify(dims)} frames=${frames.length} moves:`, moveDirs)
     return frames
 }
 
@@ -111,7 +115,7 @@ function pickBestMove(board, dims, tokens) {
         const heuristic = new_points * 10 + occupancyDrop
 
         if (best === null || heuristic > best.heuristic) {
-            best = { mergedBoard: merged_board, points: new_points, heuristic }
+            best = { mergedBoard: merged_board, points: new_points, heuristic, dir }
         }
     }
 

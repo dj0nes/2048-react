@@ -18,9 +18,9 @@ const TILE_SPACING_3D  = 1.5;   // 3D / 4D stages — wider gaps read better in 
 function tileSpacingFor(dims) {
   return dims.z ? TILE_SPACING_3D : TILE_SPACING_2D;
 }
-const SLIDE_DUR = 0.2; // seconds (normal moves)
-const POP_DUR = 0.12;
-const SPAWN_DUR = 0.1;
+const SLIDE_DUR = 0.35; // seconds (normal moves)
+const POP_DUR = 0.15;
+const SPAWN_DUR = 0.15;
 const STRETCH_AMOUNT = 2.8; // stretch along motion direction (warp moves only)
 const SQUISH_AMOUNT  = 0.72; // squish perpendicular to motion
 
@@ -433,11 +433,16 @@ export class BoardRenderer {
     return false;
   }
 
-  dispose() {
+  // Remove all tiles without destroying the renderer itself
+  clearTiles() {
     for (const tr of this._tiles.values()) tr.dispose();
     for (const tr of this._dying) tr.dispose();
     this._tiles.clear();
     this._dying = [];
+  }
+
+  dispose() {
+    this.clearTiles();
 
     if (this._boardBg) {
       this.scene.remove(this._boardBg);
